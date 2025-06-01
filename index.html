@@ -61,8 +61,19 @@
       font-size: 24px;
       font-weight: bold;
       margin: 25px 0;
-      color: white; /* اللون الافتراضي */
-      transition: color 0.3s ease;
+      line-height: 1.4;
+      min-height: 50px;
+      user-select: none;
+      direction: rtl;
+      text-align: center;
+    }
+
+    #sentence span.correct {
+      color: #4caf50;
+    }
+
+    #sentence span.incorrect {
+      color: #f44336;
     }
 
     #record, #musicControl {
@@ -109,13 +120,15 @@
       text-align: center;
     }
 
-    #result {
-      margin-top: 10px;
+    #speedDisplay {
       font-size: 16px;
+      margin-top: 10px;
     }
 
-    #result.error {
-      color: #f44336;
+    #bestTime {
+      font-size: 16px;
+      margin-top: 5px;
+      color: #9acd32;
     }
   </style>
 </head>
@@ -136,13 +149,12 @@
 
 <div class="container" id="gameScreen" style="display:none;">
   <h2 id="welcomeMsg"></h2>
-  <div id="sentence">...</div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" onkeydown="handleEnter(event)" />
+  <div id="sentence"></div>
+  <input type="text" id="userInput" placeholder="اكتب هنا" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
   <br />
   <button onclick="checkInput()">تحقق</button>
   <div id="speedDisplay"></div>
   <div id="bestTime"></div>
-  <div id="result"></div>
 </div>
 
 <div id="rightsContainer">
@@ -193,10 +205,6 @@ function drawStars() {
 initStars(250);
 drawStars();
 
-let currentSentence = "";
-let startTime = 0;
-let highestSpeed = 0;
-let bestTime = null;
 const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
 
 const loginScreen = document.getElementById("loginScreen");
@@ -205,12 +213,16 @@ const playerName = document.getElementById("playerName");
 const welcomeMsg = document.getElementById("welcomeMsg");
 const sentence = document.getElementById("sentence");
 const userInput = document.getElementById("userInput");
-const result = document.getElementById("result");
 const record = document.getElementById("record");
 const speedDisplay = document.getElementById("speedDisplay");
 const bestTimeDisplay = document.getElementById("bestTime");
 const music = document.getElementById("bgMusic");
 const musicControl = document.getElementById("musicControl");
+
+let currentSentence = "";
+let startTime = 0;
+let highestSpeed = 0;
+let bestTime = null;
 
 function startGame() {
   const name = playerName.value.trim();
@@ -228,20 +240,39 @@ function startGame() {
 
 function nextSentence() {
   currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-  sentence.textContent = currentSentence;
-  sentence.style.color = "white"; // لون الجملة الافتراضي
+  renderSentence("");
   userInput.value = "";
-  result.textContent = "";
-  result.classList.remove("error");
   speedDisplay.textContent = "";
   bestTimeDisplay.textContent = "";
   startTime = Date.now();
   userInput.focus();
 }
 
-function handleEnter(e) {
-  if (e.key === "Enter") checkInput();
+function renderSentence(userText) {
+  let html = "";
+  for (let i = 0; i < currentSentence.length; i++) {
+    let char = currentSentence[i];
+    let userChar = userText[i] || "";
+    if (userChar === "") {
+      html += `<span>${char}</span>`;
+    } else if (userChar === char) {
+      html += `<span class="correct">${char}</span>`;
+    } else {
+      html += `<span class="incorrect">${char}</span>`;
+    }
+  }
+  sentence.innerHTML = html;
 }
+
+userInput.addEventListener("input", () => {
+  renderSentence(userInput.value);
+});
+
+userInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    checkInput();
+  }
+});
 
 function checkInput() {
   const typed = userInput.value.trim();
@@ -249,22 +280,16 @@ function checkInput() {
   const speed = Math.round((typed.length / duration) * 60);
 
   if (typed === currentSentence) {
-    result.textContent = "تمام!";
-    result.classList.remove("error");
-    sentence.style.color = "#4caf50"; // أخضر
+    speedDisplay.textContent = `سرعتك: ${speed} حرف/دقيقة`;
     if (speed > highestSpeed) {
       highestSpeed = speed;
       bestTime = duration;
       record.textContent = `أعلى سرعة: ${highestSpeed} - ${bestTime.toFixed(2)} ثانية`;
+      bestTimeDisplay.textContent = `الوقت الأفضل: ${bestTime.toFixed(2)} ثانية`;
     }
-    speedDisplay.textContent = `سرعتك: ${speed}`;
-    bestTimeDisplay.textContent = `الوقت: ${duration.toFixed(2)} ثانية`;
-    setTimeout(nextSentence, 800);
+    setTimeout(nextSentence, 1000);
   } else {
-    result.textContent = "خطأ! أعد المحاولة";
-    result.classList.add("error");
-    sentence.style.color = "#f44336"; // أحمر
-    speedDisplay.textContent = `سرعتك: ${speed}`;
+    speedDisplay.textContent = `سرعتك: ${speed} حرف/دقيقة`;
   }
 }
 
