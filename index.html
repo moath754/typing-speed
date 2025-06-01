@@ -1,104 +1,43 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>اختبر سرعتك</title>
+  <title>لعبة الكتابة</title>
   <style>
     body {
-      font-family: Tahoma, sans-serif;
-      direction: rtl;
-      margin: 0;
-      padding: 0;
+      background-color: #121212;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      min-height: 100vh;
-      background: black;
-      overflow: hidden;
-      color: white;
+      padding: 50px;
     }
 
-    canvas#stars {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 60px auto;
-      padding: 20px;
-      background: rgba(20, 20, 20, 0.9);
-      border-radius: 15px;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
-    }
-
-    input[type="text"] {
-      padding: 12px;
-      font-size: 18px;
-      width: 80%;
-      margin-bottom: 15px;
-      border: 2px solid #555;
-      border-radius: 8px;
-      background: #111;
-      color: white;
-    }
-
-    button {
-      padding: 12px 25px;
-      font-size: 18px;
-      background-color: #6a1b9a;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
+    #sentence {
+      font-size: 24px;
+      margin-bottom: 20px;
     }
 
     #sentence span {
-      color: white;
-      font-size: 24px;
+      margin: 0 4px;
       font-weight: bold;
     }
 
-    #sentence span.correct {
+    .correct {
       color: #4caf50;
     }
 
-    #sentence span.incorrect {
+    .incorrect {
       color: #f44336;
     }
 
-    #record {
-      position: fixed;
-      right: 20px;
-      top: 20px;
-      background: #222;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      border: 1px solid #555;
-      z-index: 10;
-    }
-
-    #musicControl {
-      position: fixed;
-      left: 20px;
-      top: 20px;
-      background: #333;
-      color: white;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      z-index: 10;
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+      margin-bottom: 20px;
     }
 
     #discordButton {
@@ -108,13 +47,24 @@
       width: 40px;
       height: 40px;
       background: transparent;
+      border: none;
       cursor: pointer;
       z-index: 10;
+      animation: glow 2s infinite alternate;
     }
 
     #discordButton img {
       width: 100%;
       height: 100%;
+    }
+
+    @keyframes glow {
+      from {
+        filter: drop-shadow(0 0 5px #7289da);
+      }
+      to {
+        filter: drop-shadow(0 0 15px #7289da);
+      }
     }
 
     #rightsMenu {
@@ -143,203 +93,98 @@
       margin-bottom: 10px;
     }
 
-    #result.error {
-      color: #f44336;
+    #audioControl {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #7289da;
+      color: white;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
-
-<div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
-<div id="musicControl" title="تشغيل/إيقاف الموسيقى">🎵</div>
-
-<button id="discordButton" title="حقوق المطور">
-  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
-</button>
-
-<div id="rightsMenu">
-  <button id="closeBtn">إغلاق</button>
-  <div>المطور: <b>_9nv</b></div>
-  <div>Discord: <b>_9nv</b></div>
-</div>
-
-<div class="container" id="loginScreen">
-  <h2>مرحبًا!</h2>
-  <p>اكتب اسمك وابدأ</p>
-  <input type="text" id="playerName" placeholder="اسمك" />
-  <br />
-  <button onclick="startGame()">ابدأ</button>
-</div>
-
-<div class="container" id="gameScreen" style="display:none;">
-  <h2 id="welcomeMsg"></h2>
   <div id="sentence"></div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" />
+  <input type="text" id="userInput" placeholder="ابدأ بالكتابة هنا..." />
   <br />
-  <button onclick="checkInput()">تحقق</button>
-  <div id="speedDisplay"></div>
-  <div id="bestTime"></div>
-  <div id="result"></div>
-</div>
+  <button id="audioControl">إيقاف الموسيقى</button>
 
-<audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
+  <button id="discordButton" title="حقوق المطور">
+    <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
+  </button>
 
-<script>
-const starsCanvas = document.getElementById("stars");
-const ctx = starsCanvas.getContext("2d");
-let stars = [];
+  <div id="rightsMenu">
+    <button id="closeBtn">إغلاق</button>
+    <div>المطور: <b>_9nv</b></div>
+    <div>Discord: <b>_9nv</b></div>
+  </div>
 
-function resizeCanvas() {
-  starsCanvas.width = window.innerWidth;
-  starsCanvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+  <audio id="backgroundMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" autoplay loop></audio>
 
-function initStars(count) {
-  stars = [];
-  for (let i = 0; i < count; i++) {
-    stars.push({
-      x: Math.random() * starsCanvas.width,
-      y: Math.random() * starsCanvas.height,
-      r: Math.random() * 2,
-      dx: Math.random() * 0.7,
-      dy: Math.random() * 0.7
+  <script>
+    const sentenceElement = document.getElementById("sentence");
+    const userInput = document.getElementById("userInput");
+    const discordBtn = document.getElementById("discordButton");
+    const rightsMenu = document.getElementById("rightsMenu");
+    const closeBtn = document.getElementById("closeBtn");
+    const audioControl = document.getElementById("audioControl");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+
+    const currentSentence = "سر النجاح هو المثابرة";
+
+    function renderSentence(userText) {
+      const userWords = userText.trim().split(" ");
+      const expectedWords = currentSentence.split(" ");
+      let html = "";
+
+      for (let i = 0; i < expectedWords.length; i++) {
+        const expectedWord = expectedWords[i];
+        const userWord = userWords[i];
+
+        if (userWord == null) {
+          html += `<span>${expectedWord}</span> `;
+        } else if (userWord === expectedWord) {
+          html += `<span class="correct">${expectedWord}</span> `;
+        } else {
+          html += `<span class="incorrect">${expectedWord}</span> `;
+        }
+      }
+
+      sentenceElement.innerHTML = html.trim();
+    }
+
+    userInput.addEventListener("input", () => {
+      renderSentence(userInput.value);
     });
-  }
-}
-function drawStars() {
-  ctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
-  ctx.fillStyle = "white";
-  stars.forEach(star => {
-    ctx.beginPath();
-    ctx.arc(star.x, star.y, star.r, 0, 2 * Math.PI);
-    ctx.fill();
-    star.x += star.dx;
-    star.y += star.dy;
-    if (star.x > starsCanvas.width) star.x = 0;
-    if (star.y > starsCanvas.height) star.y = 0;
-  });
-  requestAnimationFrame(drawStars);
-}
-initStars(250);
-drawStars();
 
-const loginScreen = document.getElementById("loginScreen");
-const gameScreen = document.getElementById("gameScreen");
-const playerName = document.getElementById("playerName");
-const welcomeMsg = document.getElementById("welcomeMsg");
-const sentence = document.getElementById("sentence");
-const userInput = document.getElementById("userInput");
-const result = document.getElementById("result");
-const record = document.getElementById("record");
-const speedDisplay = document.getElementById("speedDisplay");
-const bestTimeDisplay = document.getElementById("bestTime");
-const music = document.getElementById("bgMusic");
-const musicControl = document.getElementById("musicControl");
+    discordBtn.addEventListener("click", (e) => {
+      rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
+      e.stopPropagation();
+    });
 
-const discordBtn = document.getElementById("discordButton");
-const rightsMenu = document.getElementById("rightsMenu");
-const closeBtn = document.getElementById("closeBtn");
+    closeBtn.addEventListener("click", () => rightsMenu.style.display = "none");
 
-discordBtn.addEventListener("click", (e) => {
-  rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
-  e.stopPropagation();
-});
-closeBtn.addEventListener("click", () => rightsMenu.style.display = "none");
-document.addEventListener("click", (e) => {
-  if (!rightsMenu.contains(e.target) && !discordBtn.contains(e.target)) {
-    rightsMenu.style.display = "none";
-  }
-});
+    document.addEventListener("click", (e) => {
+      if (!rightsMenu.contains(e.target) && !discordBtn.contains(e.target)) {
+        rightsMenu.style.display = "none";
+      }
+    });
 
-const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
-let currentSentence = "";
-let startTime = 0;
-let highestSpeed = 0;
-let bestTime = null;
+    audioControl.addEventListener("click", () => {
+      if (backgroundMusic.paused) {
+        backgroundMusic.play();
+        audioControl.textContent = "إيقاف الموسيقى";
+      } else {
+        backgroundMusic.pause();
+        audioControl.textContent = "تشغيل الموسيقى";
+      }
+    });
 
-function startGame() {
-  const name = playerName.value.trim();
-  if (!name) return alert("اكتب اسمك أولاً");
-  welcomeMsg.textContent = `هيا يا ${name}`;
-  loginScreen.style.display = "none";
-  gameScreen.style.display = "block";
-  record.style.display = "block";
-  music.volume = 0.2;
-  music.play().catch(() => {
-    musicControl.textContent = "🔇";
-  });
-  nextSentence();
-}
-
-function nextSentence() {
-  currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-  sentence.innerHTML = currentSentence.split("").map(ch => `<span>${ch}</span>`).join("");
-  userInput.value = "";
-  result.textContent = "";
-  result.classList.remove("error");
-  speedDisplay.textContent = "";
-  bestTimeDisplay.textContent = "";
-  startTime = Date.now();
-  userInput.focus();
-}
-
-function renderSentence(userText) {
-  let html = "";
-  for (let i = 0; i < currentSentence.length; i++) {
-    let expectedChar = currentSentence[i];
-    let userChar = userText[i];
-
-    if (userChar == null) {
-      html += `<span>${expectedChar}</span>`;
-    } else if (userChar === expectedChar) {
-      html += `<span class="correct">${expectedChar}</span>`;
-    } else {
-      html += `<span class="incorrect">${expectedChar}</span>`;
-    }
-  }
-  sentence.innerHTML = html;
-}
-
-function handleEnter(e) {
-  if (e.key === "Enter") checkInput();
-}
-
-function checkInput() {
-  const typed = userInput.value.trim();
-  const duration = (Date.now() - startTime) / 1000;
-  const speed = Math.round((typed.length / duration) * 60);
-
-  if (typed === currentSentence) {
-    result.textContent = "تمام!";
-    if (speed > highestSpeed) {
-      highestSpeed = speed;
-      bestTime = duration;
-      record.textContent = `أعلى سرعة: ${highestSpeed} - ${bestTime.toFixed(2)} ثانية`;
-    }
-    speedDisplay.textContent = `سرعتك: ${speed}`;
-    bestTimeDisplay.textContent = `الوقت: ${duration.toFixed(2)} ثانية`;
-    setTimeout(nextSentence, 800);
-  } else {
-    result.textContent = "خطأ! أعد المحاولة";
-    result.classList.add("error");
-    speedDisplay.textContent = `سرعتك: ${speed}`;
-  }
-}
-
-musicControl.addEventListener("click", () => {
-  if (music.paused) {
-    music.play();
-    musicControl.textContent = "🎵";
-  } else {
-    music.pause();
-    musicControl.textContent = "🔇";
-  }
-});
-</script>
-
+    // عرض الجملة الأصلية عند تحميل الصفحة
+    renderSentence("");
+  </script>
 </body>
 </html>
