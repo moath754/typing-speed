@@ -61,6 +61,15 @@
       font-size: 24px;
       font-weight: bold;
       margin: 25px 0;
+      transition: color 0.3s ease;
+    }
+
+    #sentence.correct {
+      color: #4caf50;
+    }
+
+    #sentence.incorrect {
+      color: #f44336;
     }
 
     #record, #musicControl, #rightsButton {
@@ -96,12 +105,14 @@
     }
 
     #rightsButton {
-      top: 20px;
-      right: 70px;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
       width: 40px;
       height: 40px;
       background: transparent;
       cursor: pointer;
+      z-index: 10;
     }
 
     #rightsButton img {
@@ -112,7 +123,7 @@
     #rightsMenu {
       display: none;
       position: fixed;
-      top: 70px;
+      bottom: 70px;
       right: 20px;
       background: #111;
       color: white;
@@ -279,6 +290,7 @@ function nextSentence() {
   userInput.value = "";
   result.textContent = "";
   result.classList.remove("error");
+  sentence.classList.remove("incorrect", "correct");
   speedDisplay.textContent = "";
   bestTimeDisplay.textContent = "";
   startTime = Date.now();
@@ -296,6 +308,8 @@ function checkInput() {
 
   if (typed === currentSentence) {
     result.textContent = "تمام!";
+    sentence.classList.remove("incorrect");
+    sentence.classList.add("correct");
     if (speed > highestSpeed) {
       highestSpeed = speed;
       bestTime = duration;
@@ -303,10 +317,15 @@ function checkInput() {
     }
     speedDisplay.textContent = `سرعتك: ${speed}`;
     bestTimeDisplay.textContent = `الوقت: ${duration.toFixed(2)} ثانية`;
-    setTimeout(nextSentence, 800);
+    setTimeout(() => {
+      sentence.classList.remove("correct");
+      nextSentence();
+    }, 800);
   } else {
     result.textContent = "خطأ! أعد المحاولة";
     result.classList.add("error");
+    sentence.classList.remove("correct");
+    sentence.classList.add("incorrect");
     speedDisplay.textContent = `سرعتك: ${speed}`;
   }
 }
