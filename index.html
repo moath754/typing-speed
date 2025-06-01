@@ -28,7 +28,7 @@
 
     .container {
       max-width: 700px;
-      margin: 60px auto;
+      margin: 60px auto 20px;
       padding: 20px;
       background: rgba(20, 20, 20, 0.9);
       border-radius: 15px;
@@ -61,18 +61,11 @@
       font-size: 24px;
       font-weight: bold;
       margin: 25px 0;
+      color: white; /* اللون الافتراضي */
       transition: color 0.3s ease;
     }
 
-    #sentence.correct {
-      color: #4caf50;
-    }
-
-    #sentence.incorrect {
-      color: #f44336;
-    }
-
-    #record, #musicControl, #rightsButton {
+    #record, #musicControl {
       position: fixed;
       z-index: 10;
     }
@@ -104,49 +97,21 @@
       user-select: none;
     }
 
-    #rightsButton {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      background: transparent;
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    #rightsButton img {
-      width: 100%;
-      height: 100%;
-    }
-
-    #rightsMenu {
-      display: none;
-      position: fixed;
-      bottom: 70px;
-      right: 20px;
-      background: #111;
+    #rightsContainer {
+      max-width: 700px;
+      margin: 10px auto 30px;
+      padding: 10px 20px;
+      background: rgba(20, 20, 20, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
       color: white;
-      border-radius: 8px;
-      padding: 15px;
       font-size: 14px;
-      z-index: 1000;
-      width: 220px;
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+      text-align: center;
     }
 
-    #rightsMenu div {
-      margin-bottom: 10px;
-    }
-
-    #closeBtn {
-      background: #c62828;
-      border: none;
-      border-radius: 5px;
-      padding: 6px 12px;
-      color: white;
-      cursor: pointer;
-      float: left;
+    #result {
+      margin-top: 10px;
+      font-size: 16px;
     }
 
     #result.error {
@@ -160,16 +125,6 @@
 
 <div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
 <div id="musicControl" title="تشغيل/إيقاف الموسيقى">🎵</div>
-
-<button id="rightsButton" title="حقوق المطور">
-  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
-</button>
-
-<div id="rightsMenu">
-  <button id="closeBtn">إغلاق</button>
-  <div>المطور: <b>MOTH</b></div>
-  <div>Discord: <b>moth.codes</b></div>
-</div>
 
 <div class="container" id="loginScreen">
   <h2>مرحبًا!</h2>
@@ -190,10 +145,13 @@
   <div id="result"></div>
 </div>
 
+<div id="rightsContainer">
+  <div>المطور: <b>MOTH</b> - Discord: <b>moth.codes</b></div>
+</div>
+
 <audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
 
 <script>
-const WEBHOOK_URL = 'https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w';
 const starsCanvas = document.getElementById("stars");
 const ctx = starsCanvas.getContext("2d");
 let stars = [];
@@ -235,21 +193,6 @@ function drawStars() {
 initStars(250);
 drawStars();
 
-const rightsBtn = document.getElementById("rightsButton");
-const rightsMenu = document.getElementById("rightsMenu");
-const closeBtn = document.getElementById("closeBtn");
-
-rightsBtn.addEventListener("click", (e) => {
-  rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
-  e.stopPropagation();
-});
-closeBtn.addEventListener("click", () => rightsMenu.style.display = "none");
-document.addEventListener("click", (e) => {
-  if (!rightsMenu.contains(e.target) && !rightsBtn.contains(e.target)) {
-    rightsMenu.style.display = "none";
-  }
-});
-
 let currentSentence = "";
 let startTime = 0;
 let highestSpeed = 0;
@@ -281,16 +224,15 @@ function startGame() {
     musicControl.textContent = "🔇";
   });
   nextSentence();
-  sendUserName(name);
 }
 
 function nextSentence() {
   currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
   sentence.textContent = currentSentence;
+  sentence.style.color = "white"; // لون الجملة الافتراضي
   userInput.value = "";
   result.textContent = "";
   result.classList.remove("error");
-  sentence.classList.remove("incorrect", "correct");
   speedDisplay.textContent = "";
   bestTimeDisplay.textContent = "";
   startTime = Date.now();
@@ -308,8 +250,8 @@ function checkInput() {
 
   if (typed === currentSentence) {
     result.textContent = "تمام!";
-    sentence.classList.remove("incorrect");
-    sentence.classList.add("correct");
+    result.classList.remove("error");
+    sentence.style.color = "#4caf50"; // أخضر
     if (speed > highestSpeed) {
       highestSpeed = speed;
       bestTime = duration;
@@ -317,15 +259,11 @@ function checkInput() {
     }
     speedDisplay.textContent = `سرعتك: ${speed}`;
     bestTimeDisplay.textContent = `الوقت: ${duration.toFixed(2)} ثانية`;
-    setTimeout(() => {
-      sentence.classList.remove("correct");
-      nextSentence();
-    }, 800);
+    setTimeout(nextSentence, 800);
   } else {
     result.textContent = "خطأ! أعد المحاولة";
     result.classList.add("error");
-    sentence.classList.remove("correct");
-    sentence.classList.add("incorrect");
+    sentence.style.color = "#f44336"; // أحمر
     speedDisplay.textContent = `سرعتك: ${speed}`;
   }
 }
@@ -339,26 +277,6 @@ musicControl.addEventListener("click", () => {
     musicControl.textContent = "🔇";
   }
 });
-
-function sendUserName(name) {
-  fetch(WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content: `اسم اللاعب: ${name}` })
-  });
-}
-
-window.onload = () => {
-  fetch('https://api.ipify.org?format=json')
-    .then(res => res.json())
-    .then(data => {
-      fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: `IP: ${data.ip}` })
-      });
-    });
-};
 </script>
 
 </body>
