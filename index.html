@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>لعبة الكتابة</title>
+  <meta charset="UTF-8">
+  <title>سر النجاح</title>
   <style>
     body {
-      background-color: #121212;
+      background-color: #111;
       color: white;
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
@@ -13,13 +13,14 @@
     }
 
     #sentence {
-      font-size: 24px;
+      font-size: 28px;
       margin-bottom: 20px;
     }
 
     #sentence span {
-      margin: 0 4px;
+      margin: 0 6px;
       font-weight: bold;
+      transition: color 0.3s;
     }
 
     .correct {
@@ -32,12 +33,25 @@
 
     input[type="text"] {
       width: 80%;
-      padding: 10px;
-      font-size: 18px;
+      padding: 12px;
+      font-size: 20px;
       border-radius: 5px;
       border: none;
       outline: none;
       margin-bottom: 20px;
+      background: #222;
+      color: white;
+    }
+
+    #audioControl {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #7289da;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 30px;
     }
 
     #discordButton {
@@ -50,7 +64,7 @@
       border: none;
       cursor: pointer;
       z-index: 10;
-      animation: glow 2s infinite alternate;
+      animation: glow 1.5s infinite alternate;
     }
 
     #discordButton img {
@@ -60,7 +74,7 @@
 
     @keyframes glow {
       from {
-        filter: drop-shadow(0 0 5px #7289da);
+        filter: drop-shadow(0 0 3px #7289da);
       }
       to {
         filter: drop-shadow(0 0 15px #7289da);
@@ -72,7 +86,7 @@
       position: fixed;
       bottom: 70px;
       left: 20px;
-      background: #111;
+      background: #1a1a1a;
       color: white;
       border-radius: 8px;
       padding: 15px;
@@ -92,17 +106,6 @@
       cursor: pointer;
       margin-bottom: 10px;
     }
-
-    #audioControl {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: #7289da;
-      color: white;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -113,52 +116,56 @@
   <button id="audioControl">إيقاف الموسيقى</button>
 
   <button id="discordButton" title="حقوق المطور">
-    <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
+    <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord" />
   </button>
 
   <div id="rightsMenu">
     <button id="closeBtn">إغلاق</button>
     <div>المطور: <b>_9nv</b></div>
-    <div>Discord: <b>_9nv</b></div>
+    <div>جميع الحقوق محفوظة</div>
   </div>
 
-  <audio id="backgroundMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" autoplay loop></audio>
+  <audio id="backgroundMusic" autoplay loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+    متصفحك لا يدعم تشغيل الموسيقى
+  </audio>
 
   <script>
-    const sentenceElement = document.getElementById("sentence");
-    const userInput = document.getElementById("userInput");
+    const sentence = "سر النجاح هو المثابرة";
+    const sentenceEl = document.getElementById("sentence");
+    const inputEl = document.getElementById("userInput");
     const discordBtn = document.getElementById("discordButton");
     const rightsMenu = document.getElementById("rightsMenu");
     const closeBtn = document.getElementById("closeBtn");
     const audioControl = document.getElementById("audioControl");
     const backgroundMusic = document.getElementById("backgroundMusic");
 
-    const currentSentence = "سر النجاح هو المثابرة";
+    function render(userInput) {
+      const userWords = userInput.trim().split(" ");
+      const correctWords = sentence.split(" ");
+      let output = "";
 
-    function renderSentence(userText) {
-      const userWords = userText.trim().split(" ");
-      const expectedWords = currentSentence.split(" ");
-      let html = "";
+      for (let i = 0; i < correctWords.length; i++) {
+        const expected = correctWords[i];
+        const typed = userWords[i];
 
-      for (let i = 0; i < expectedWords.length; i++) {
-        const expectedWord = expectedWords[i];
-        const userWord = userWords[i];
-
-        if (userWord == null) {
-          html += `<span>${expectedWord}</span> `;
-        } else if (userWord === expectedWord) {
-          html += `<span class="correct">${expectedWord}</span> `;
+        if (!typed) {
+          output += `<span>${expected}</span> `;
+        } else if (typed === expected) {
+          output += `<span class="correct">${expected}</span> `;
         } else {
-          html += `<span class="incorrect">${expectedWord}</span> `;
+          output += `<span class="incorrect">${expected}</span> `;
         }
       }
 
-      sentenceElement.innerHTML = html.trim();
+      sentenceEl.innerHTML = output.trim();
     }
 
-    userInput.addEventListener("input", () => {
-      renderSentence(userInput.value);
+    inputEl.addEventListener("input", () => {
+      render(inputEl.value);
     });
+
+    render("");
 
     discordBtn.addEventListener("click", (e) => {
       rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
@@ -182,9 +189,6 @@
         audioControl.textContent = "تشغيل الموسيقى";
       }
     });
-
-    // عرض الجملة الأصلية عند تحميل الصفحة
-    renderSentence("");
   </script>
 </body>
 </html>
