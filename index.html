@@ -1,67 +1,59 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>اختبر سرعتك</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+
     body {
-      font-family: Tahoma, sans-serif;
-      direction: rtl;
       margin: 0;
       padding: 0;
-      text-align: center;
+      font-family: 'Cairo', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
       min-height: 100vh;
-      background: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
-      color: white;
     }
 
-    canvas#stars {
+    #stars {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
       z-index: -1;
+      background: transparent;
     }
 
     .container {
-      max-width: 700px;
-      margin: 60px auto;
-      padding: 20px;
-      background: rgba(20, 20, 20, 0.9);
+      background: rgba(0,0,0,0.6);
+      padding: 30px 40px;
       border-radius: 15px;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 0 30px rgba(255,255,255,0.2);
+      text-align: center;
     }
 
-    input[type="text"] {
-      padding: 12px;
-      font-size: 18px;
-      width: 80%;
-      margin-bottom: 15px;
-      border: 2px solid #555;
-      border-radius: 8px;
-      background: #111;
-      color: white;
-    }
-
-    button {
-      padding: 12px 25px;
-      font-size: 18px;
-      background-color: #6a1b9a;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
+    h2 {
+      font-weight: 700;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      letter-spacing: 1.2px;
+      color: #d1c4e9;
     }
 
     #sentence {
-      font-size: 24px;
-      font-weight: bold;
-      margin: 25px 0;
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+      min-height: 50px;
       transition: color 0.3s ease;
+      user-select: none;
     }
 
     #sentence.correct {
@@ -69,38 +61,113 @@
     }
 
     #sentence.incorrect {
-      color: #f44336;
+      color: #ef5350;
     }
 
-    #discordMark {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 0 20px 5px white;
-      z-index: 999;
-    }
-
-    #discordMark img {
+    input[type="text"] {
       width: 100%;
-      height: 100%;
-      border-radius: 50%;
+      padding: 14px 18px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+      background: #222;
+      color: #eee;
+      box-shadow: inset 0 0 8px #7e57c2;
+      outline: none;
+      transition: box-shadow 0.3s ease;
     }
 
-    #developerNote {
+    input[type="text"]:focus {
+      box-shadow: inset 0 0 10px #b39ddb;
+    }
+
+    button {
+      margin-top: 20px;
+      background: #7e57c2;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+      box-shadow: 0 4px 12px rgba(126, 87, 194, 0.6);
+    }
+
+    button:hover {
+      background: #9575cd;
+      box-shadow: 0 6px 15px rgba(149, 117, 205, 0.8);
+    }
+
+    button img {
+      width: 24px;
+      height: 24px;
+      margin-left: 8px;
+    }
+
+    #speedDisplay {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #ffd54f;
+      min-height: 24px;
+    }
+
+    #result {
+      margin-top: 10px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      min-height: 30px;
+    }
+
+    #footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #ccc;
+      user-select: none;
+    }
+
+    #musicControl {
       position: fixed;
-      bottom: 80px;
-      right: 20px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 14px;
-      z-index: 999;
-      text-align: right;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 15px #b39ddb;
+      transition: background 0.3s ease;
+      z-index: 1000;
+    }
+
+    #musicControl:hover {
+      background: rgba(126, 87, 194, 0.8);
+    }
+
+    #musicControl svg {
+      fill: #fff;
+      width: 22px;
+      height: 22px;
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 1.5rem;
+      }
+      #sentence {
+        font-size: 1.3rem;
+      }
+      input[type="text"] {
+        font-size: 1rem;
+      }
+      button {
+        padding: 10px 15px;
+      }
     }
   </style>
 </head>
@@ -108,83 +175,177 @@
 
 <canvas id="stars"></canvas>
 
-<div id="discordMark">
-  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
-</div>
-
-<div id="developerNote">
-  تم تطوير هذا الموقع من قبل معاذ الحربي<br>
-  يوزري في ديسكورد: <b>_9nv</b>
-</div>
-
 <div class="container" id="gameScreen">
   <h2>اختبر سرعتك</h2>
   <div id="sentence">ابدأ الآن</div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="checkLiveInput()" />
-  <br />
-  <button onclick="checkFinalInput()">تحقق</button>
+  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="checkLiveInput()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+  <button id="checkBtn" title="تحقق من الكتابة">
+    تحقق
+    <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Icon" />
+  </button>
   <div id="speedDisplay"></div>
   <div id="result"></div>
 </div>
 
-<audio id="bgMusic" src="https://files.catbox.moe/m8wo6g.mp3" autoplay loop></audio>
+<div id="footer">
+  تم تطوير هذا الموقع بواسطة معاذ الحربي — <b>يوزري في ديسكورد: _9nv</b>
+</div>
+
+<div id="musicControl" title="تشغيل/إيقاف الموسيقى">
+  <svg id="musicIcon" viewBox="0 0 24 24">
+    <path d="M3 9v6h4l5 5V4L7 9H3z"/>
+  </svg>
+</div>
+
+<audio id="bgMusic" src="https://files.catbox.moe/m8wo6g.mp3" loop></audio>
 
 <script>
-const sentenceEl = document.getElementById("sentence");
-const inputEl = document.getElementById("userInput");
-const resultEl = document.getElementById("result");
-const speedDisplay = document.getElementById("speedDisplay");
-const music = document.getElementById("bgMusic");
+  const sentenceEl = document.getElementById("sentence");
+  const inputEl = document.getElementById("userInput");
+  const resultEl = document.getElementById("result");
+  const speedDisplay = document.getElementById("speedDisplay");
+  const btnCheck = document.getElementById("checkBtn");
+  const music = document.getElementById("bgMusic");
+  const musicControl = document.getElementById("musicControl");
+  const musicIcon = document.getElementById("musicIcon");
 
-let startTime = Date.now();
-let currentSentence = "ابدأ الآن";
+  let startTime = Date.now();
+  let currentSentence = "ابدأ الآن";
 
-const sentences = ["ابدأ الآن", "التركيز هو السر", "اكتب بسرعة", "كل شيء ممكن"];
+  const sentences = ["ابدأ الآن", "التركيز هو السر", "اكتب بسرعة", "كل شيء ممكن", "تعلم كل يوم", "التدريب يصنع الفرق"];
 
-function nextSentence() {
-  currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-  sentenceEl.textContent = currentSentence;
-  inputEl.value = "";
-  resultEl.textContent = "";
-  speedDisplay.textContent = "";
-  sentenceEl.className = "";
-  startTime = Date.now();
-  inputEl.focus();
-}
-
-function checkFinalInput() {
-  const userText = inputEl.value.trim();
-  const duration = (Date.now() - startTime) / 1000;
-  const speed = Math.round((userText.length / duration) * 60);
-  speedDisplay.textContent = `سرعتك: ${speed} حرف بالدقيقة`;
-
-  if (userText === currentSentence) {
-    resultEl.textContent = "تمام!";
-    sentenceEl.className = "correct";
-  } else {
-    resultEl.textContent = "خطأ! أعد المحاولة";
-    sentenceEl.className = "incorrect";
+  function nextSentence() {
+    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
+    sentenceEl.textContent = currentSentence;
+    inputEl.value = "";
+    resultEl.textContent = "";
+    speedDisplay.textContent = "";
+    sentenceEl.className = "";
+    startTime = Date.now();
+    inputEl.focus();
   }
 
-  setTimeout(nextSentence, 1500);
-}
+  function checkFinalInput() {
+    const userText = inputEl.value.trim();
+    const duration = (Date.now() - startTime) / 1000;
+    const speed = Math.round((userText.length / duration) * 60);
+    speedDisplay.textContent = `سرعتك: ${speed} حرف بالدقيقة`;
 
-function checkLiveInput() {
-  const userWords = inputEl.value.trim().split(/\s+/);
-  const targetWords = currentSentence.trim().split(/\s+/);
-  let isCorrect = true;
+    if (userText === currentSentence) {
+      resultEl.textContent = "تمام!";
+      sentenceEl.className = "correct";
+    } else {
+      resultEl.textContent = "خطأ! أعد المحاولة";
+      sentenceEl.className = "incorrect";
+    }
 
-  for (let i = 0; i < userWords.length; i++) {
-    if (userWords[i] !== targetWords[i]) {
-      isCorrect = false;
-      break;
+    setTimeout(nextSentence, 1600);
+  }
+
+  function checkLiveInput() {
+    const userWords = inputEl.value.trim().split(/\s+/);
+    const targetWords = currentSentence.trim().split(/\s+/);
+    let isCorrect = true;
+
+    for (let i = 0; i < userWords.length; i++) {
+      if (userWords[i] !== targetWords[i]) {
+        isCorrect = false;
+        break;
+      }
+    }
+
+    sentenceEl.className = isCorrect ? "correct" : "incorrect";
+  }
+
+  btnCheck.addEventListener("click", checkFinalInput);
+
+  // موسيقى - تشغيل/إيقاف
+  let musicPlaying = false;
+
+  musicControl.addEventListener("click", () => {
+    if (musicPlaying) {
+      music.pause();
+      musicPlaying = false;
+      musicIcon.innerHTML = `<path d="M6 19h4.5v-14H6v14zm7.5-14v14l7.5-7-7.5-7z"/>`; // أيقونة تشغيل
+    } else {
+      music.play();
+      musicPlaying = true;
+      musicIcon.innerHTML = `<path d="M3 9v6h4l5 5V4L7 9H3z"/>`; // أيقونة إيقاف
+    }
+  });
+
+  // تشغيل الموسيقى تلقائيًا عند تحميل الصفحة (بدون صوت أولًا لمنع منع التشغيل الأوتوماتيكي في بعض المتصفحات)
+  window.addEventListener("load", () => {
+    music.volume = 0.15;
+    music.play().then(() => {
+      musicPlaying = true;
+      musicIcon.innerHTML = `<path d="M3 9v6h4l5 5V4L7 9H3z"/>`;
+    }).catch(() => {
+      // لو منع التشغيل التلقائي، نظل معطّلين الموسيقى لحد ما يضغط المستخدم
+      musicPlaying = false;
+      musicIcon.innerHTML = `<path d="M6 19h4.5v-14H6v14zm7.5-14v14l7.5-7-7.5-7z"/>`;
+    });
+  });
+
+  // خلفية النجوم مع حركة بسيطة
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  let stars = [];
+
+  function initStars() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    stars = [];
+
+    for (let i = 0; i < 150; i++) {
+      stars.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.1,
+        alpha: Math.random(),
+        dx: (Math.random() - 0.5) * 0.1,
+        dy: (Math.random() - 0.5) * 0.1
+      });
     }
   }
 
-  sentenceEl.className = isCorrect ? "correct" : "incorrect";
-}
+  function drawStars() {
+    ctx.clearRect(0, 0, width, height);
+    for (let star of stars) {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${star.alpha})`;
+      ctx.shadowColor = "white";
+      ctx.shadowBlur = 3;
+      ctx.fill();
 
-window.onload = () => nextSentence();
+      star.x += star.dx;
+      star.y += star.dy;
+
+      if (star.x < 0) star.x = width;
+      else if (star.x > width) star.x = 0;
+
+      if (star.y < 0) star.y = height;
+      else if (star.y > height) star.y = 0;
+
+      // تذبذب الشفافية
+      star.alpha += (Math.random() - 0.5) * 0.05;
+      star.alpha = Math.min(Math.max(star.alpha, 0.2), 1);
+    }
+    requestAnimationFrame(drawStars);
+  }
+
+  window.addEventListener('resize', initStars);
+
+  initStars();
+  drawStars();
+
+  // بدء الجملة الأولى
+  nextSentence();
+
 </script>
 
 </body>
