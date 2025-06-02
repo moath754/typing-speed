@@ -13,8 +13,8 @@
       text-align: center;
       min-height: 100vh;
       background: black;
-      overflow: hidden;
       color: white;
+      overflow: hidden;
     }
 
     canvas#stars {
@@ -30,7 +30,7 @@
       max-width: 700px;
       margin: 60px auto;
       padding: 20px;
-      background: rgba(20, 20, 20, 0.9);
+      background: rgba(30, 30, 30, 0.95);
       border-radius: 15px;
       box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
     }
@@ -61,15 +61,17 @@
       font-size: 24px;
       font-weight: bold;
       margin: 25px 0;
-      transition: color 0.3s ease;
+      word-wrap: break-word;
     }
 
     #sentence span.correct {
       color: #4caf50;
+      margin-left: 5px;
     }
 
     #sentence span.incorrect {
       color: #f44336;
+      margin-left: 5px;
     }
 
     #record, #musicControl, #rightsButton {
@@ -112,13 +114,7 @@
       background: radial-gradient(circle at center, rgba(138,43,226,0.6), transparent 70%);
       border-radius: 50%;
       cursor: pointer;
-      z-index: 10;
       box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
-      transition: box-shadow 0.3s ease;
-    }
-
-    #rightsButton:hover {
-      box-shadow: 0 0 25px rgba(138, 43, 226, 1);
     }
 
     #rightsButton img {
@@ -140,10 +136,6 @@
       width: 250px;
       box-shadow: 0 0 10px rgba(255,255,255,0.3);
       line-height: 1.8;
-    }
-
-    #rightsMenu div {
-      margin-bottom: 10px;
     }
 
     #closeBtn {
@@ -200,7 +192,12 @@
 <audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
 
 <script>
-const WEBHOOK_URL = 'https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w';
+const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
+let currentSentence = "";
+let startTime = 0;
+let highestSpeed = 0;
+let bestTime = null;
+
 const starsCanvas = document.getElementById("stars");
 const ctx = starsCanvas.getContext("2d");
 let stars = [];
@@ -224,7 +221,6 @@ function initStars(count) {
     });
   }
 }
-
 function drawStars() {
   ctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
   ctx.fillStyle = "white";
@@ -239,8 +235,21 @@ function drawStars() {
   });
   requestAnimationFrame(drawStars);
 }
-initStars(250);
+initStars(200);
 drawStars();
+
+const loginScreen = document.getElementById("loginScreen");
+const gameScreen = document.getElementById("gameScreen");
+const playerName = document.getElementById("playerName");
+const welcomeMsg = document.getElementById("welcomeMsg");
+const sentence = document.getElementById("sentence");
+const userInput = document.getElementById("userInput");
+const result = document.getElementById("result");
+const record = document.getElementById("record");
+const speedDisplay = document.getElementById("speedDisplay");
+const bestTimeDisplay = document.getElementById("bestTime");
+const music = document.getElementById("bgMusic");
+const musicControl = document.getElementById("musicControl");
 
 const rightsBtn = document.getElementById("rightsButton");
 const rightsMenu = document.getElementById("rightsMenu");
@@ -257,38 +266,17 @@ document.addEventListener("click", (e) => {
   }
 });
 
-let currentSentence = "";
-let startTime = 0;
-let highestSpeed = 0;
-let bestTime = null;
-const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
-
-const loginScreen = document.getElementById("loginScreen");
-const gameScreen = document.getElementById("gameScreen");
-const playerName = document.getElementById("playerName");
-const welcomeMsg = document.getElementById("welcomeMsg");
-const sentence = document.getElementById("sentence");
-const userInput = document.getElementById("userInput");
-const result = document.getElementById("result");
-const record = document.getElementById("record");
-const speedDisplay = document.getElementById("speedDisplay");
-const bestTimeDisplay = document.getElementById("bestTime");
-const music = document.getElementById("bgMusic");
-const musicControl = document.getElementById("musicControl");
-
 function startGame() {
   const name = playerName.value.trim();
   if (!name) return alert("اكتب اسمك أولاً");
   welcomeMsg.textContent = `هيا يا ${name}`;
   loginScreen.style.display = "none";
   gameScreen.style.display = "block";
-  record.style.display = "block";
   music.volume = 0.2;
   music.play().catch(() => {
     musicControl.textContent = "🔇";
   });
   nextSentence();
-  sendUserName(name);
 }
 
 function nextSentence() {
@@ -296,8 +284,6 @@ function nextSentence() {
   sentence.textContent = currentSentence;
   userInput.value = "";
   result.textContent = "";
-  result.classList.remove("error");
-  sentence.classList.remove("incorrect", "correct");
   speedDisplay.textContent = "";
   bestTimeDisplay.textContent = "";
   startTime = Date.now();
@@ -309,17 +295,24 @@ function handleEnter(e) {
 }
 
 function checkInput() {
-  const typed = userInput.value;
+  const typed = userInput.value.trim();
   const duration = (Date.now() - startTime) / 1000;
   const speed = Math.round((typed.length / duration) * 60);
 
   sentence.innerHTML = "";
-  for (let i = 0; i < currentSentence.length; i++) {
-    const char = document.createElement("span");
-    const typedChar = typed[i] || "";
-    char.textContent = currentSentence[i];
-    char.className = typedChar === currentSentence[i] ? "correct" : "incorrect";
-    sentence.appendChild(char);
+
+  const expectedWords = currentSentence.trim().split(" ");
+  const typedWords = typed.split(" ");
+
+  for (let i = 0; i < expectedWords.length; i++) {
+    const span = document.createElement("span");
+    span.textContent = expectedWords[i];
+    if (typedWords[i] === expectedWords[i]) {
+      span.classList.add("correct");
+    } else {
+      span.classList.add("incorrect");
+    }
+    sentence.appendChild(span);
   }
 
   if (typed === currentSentence) {
@@ -335,9 +328,7 @@ function checkInput() {
     speedDisplay.textContent = `سرعتك: ${speed}`;
     bestTimeDisplay.textContent = `الوقت: ${duration.toFixed(2)} ثانية`;
 
-    setTimeout(() => {
-      nextSentence();
-    }, 800);
+    setTimeout(() => nextSentence(), 800);
   } else {
     result.textContent = "خطأ! أعد المحاولة";
     result.classList.add("error");
@@ -354,26 +345,6 @@ musicControl.addEventListener("click", () => {
     musicControl.textContent = "🔇";
   }
 });
-
-function sendUserName(name) {
-  fetch(WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content: `اسم اللاعب: ${name}` })
-  });
-}
-
-window.onload = () => {
-  fetch('https://api.ipify.org?format=json')
-    .then(res => res.json())
-    .then(data => {
-      fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: `IP: ${data.ip}` })
-      });
-    });
-};
 </script>
 
 </body>
