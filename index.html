@@ -11,14 +11,12 @@
       margin: 0;
       padding: 0;
       font-family: 'Cairo', Tahoma, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
+      background: black;
+      color: white;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       overflow: hidden;
+      text-align: center;
+      direction: rtl;
     }
 
     #stars {
@@ -31,21 +29,19 @@
     }
 
     .container {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.8);
       padding: 30px 40px;
       border-radius: 15px;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 0 30px rgba(255,255,255,0.2);
-      text-align: center;
+      max-width: 700px;
+      margin: 60px auto;
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
     }
 
     h2 {
+      margin-bottom: 25px;
       font-weight: 700;
-      margin-bottom: 30px;
       font-size: 2rem;
-      letter-spacing: 1.2px;
-      color: #d1c4e9;
+      color: #bbaaff;
     }
 
     #sentence {
@@ -61,49 +57,48 @@
     }
 
     #sentence.incorrect {
-      color: #ef5350;
+      color: #f44336;
     }
 
     input[type="text"] {
-      width: 100%;
-      padding: 14px 18px;
-      font-size: 1.2rem;
-      border: none;
-      border-radius: 10px;
-      background: #222;
-      color: #eee;
-      box-shadow: inset 0 0 8px #7e57c2;
+      width: 80%;
+      padding: 12px 15px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: 2px solid #555;
+      background: #111;
+      color: white;
       outline: none;
-      transition: box-shadow 0.3s ease;
+      transition: border-color 0.3s ease;
     }
 
     input[type="text"]:focus {
-      box-shadow: inset 0 0 10px #b39ddb;
+      border-color: #9c27b0;
     }
 
-    button {
-      margin-top: 20px;
-      background: #7e57c2;
+    button#checkBtn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 18px;
       border: none;
-      padding: 12px 20px;
-      border-radius: 50px;
+      border-radius: 40px;
+      background-color: #6a1b9a;
+      color: white;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      transition: background 0.3s ease;
-      box-shadow: 0 4px 12px rgba(126, 87, 194, 0.6);
+      gap: 8px;
+      box-shadow: 0 0 12px rgba(106,27,154,0.8);
+      transition: background-color 0.3s ease;
     }
 
-    button:hover {
-      background: #9575cd;
-      box-shadow: 0 6px 15px rgba(149, 117, 205, 0.8);
+    button#checkBtn:hover {
+      background-color: #8e24aa;
     }
 
-    button img {
-      width: 24px;
-      height: 24px;
-      margin-left: 8px;
+    button#checkBtn img {
+      width: 20px;
+      height: 20px;
     }
 
     #speedDisplay {
@@ -115,59 +110,59 @@
     }
 
     #result {
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 1.3rem;
       font-weight: 700;
       min-height: 30px;
     }
 
-    #footer {
-      margin-top: 40px;
-      font-size: 0.9rem;
-      color: #ccc;
-      user-select: none;
-    }
-
-    #musicControl {
+    #discordMark {
       position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(0,0,0,0.5);
+      bottom: 20px;
+      right: 20px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      width: 45px;
-      height: 45px;
+      background-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 12px 3px white;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 15px #b39ddb;
-      transition: background 0.3s ease;
+      transition: box-shadow 0.3s ease;
       z-index: 1000;
     }
 
-    #musicControl:hover {
-      background: rgba(126, 87, 194, 0.8);
+    #discordMark:hover {
+      box-shadow: 0 0 15px 6px #7289da;
     }
 
-    #musicControl svg {
-      fill: #fff;
-      width: 22px;
-      height: 22px;
+    #discordMark img {
+      width: 24px;
+      height: 24px;
+      user-select: none;
     }
 
-    @media (max-width: 480px) {
-      h2 {
-        font-size: 1.5rem;
-      }
-      #sentence {
-        font-size: 1.3rem;
-      }
-      input[type="text"] {
-        font-size: 1rem;
-      }
-      button {
-        padding: 10px 15px;
-      }
+    #developerNote {
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      max-width: 260px;
+      line-height: 1.4;
+      box-shadow: 0 0 15px rgba(0,0,0,0.6);
+      display: none;
+      user-select: none;
+      z-index: 1100;
+      text-align: right;
+    }
+
+    #developerNote b {
+      font-weight: 700;
     }
   </style>
 </head>
@@ -178,7 +173,8 @@
 <div class="container" id="gameScreen">
   <h2>اختبر سرعتك</h2>
   <div id="sentence">ابدأ الآن</div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="checkLiveInput()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="checkLiveInput()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+  <br />
   <button id="checkBtn" title="تحقق من الكتابة">
     تحقق
     <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Icon" />
@@ -187,17 +183,17 @@
   <div id="result"></div>
 </div>
 
-<div id="footer">
-  تم تطوير هذا الموقع بواسطة معاذ الحربي — <b>يوزري في ديسكورد: _9nv</b>
+<div id="discordMark" title="عرض الحقوق">
+  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
 </div>
 
-<div id="musicControl" title="تشغيل/إيقاف الموسيقى">
-  <svg id="musicIcon" viewBox="0 0 24 24">
-    <path d="M3 9v6h4l5 5V4L7 9H3z"/>
-  </svg>
+<div id="developerNote" role="dialog" aria-modal="true" aria-labelledby="developerTitle" tabindex="-1">
+  <div id="developerTitle" style="font-weight: 700; margin-bottom: 8px;">حقوق الموقع</div>
+  تم تطوير هذا الموقع من قبل معاذ الحربي<br />
+  يوزري في ديسكورد: <b>_9nv</b>
 </div>
 
-<audio id="bgMusic" src="https://files.catbox.moe/m8wo6g.mp3" loop></audio>
+<audio id="bgMusic" src="https://files.catbox.moe/m8wo6g.mp3" autoplay loop></audio>
 
 <script>
   const sentenceEl = document.getElementById("sentence");
@@ -205,9 +201,9 @@
   const resultEl = document.getElementById("result");
   const speedDisplay = document.getElementById("speedDisplay");
   const btnCheck = document.getElementById("checkBtn");
+  const discordMark = document.getElementById("discordMark");
+  const developerNote = document.getElementById("developerNote");
   const music = document.getElementById("bgMusic");
-  const musicControl = document.getElementById("musicControl");
-  const musicIcon = document.getElementById("musicIcon");
 
   let startTime = Date.now();
   let currentSentence = "ابدأ الآن";
@@ -239,7 +235,7 @@
       sentenceEl.className = "incorrect";
     }
 
-    setTimeout(nextSentence, 1600);
+    setTimeout(nextSentence, 1500);
   }
 
   function checkLiveInput() {
@@ -259,93 +255,73 @@
 
   btnCheck.addEventListener("click", checkFinalInput);
 
-  // موسيقى - تشغيل/إيقاف
-  let musicPlaying = false;
-
-  musicControl.addEventListener("click", () => {
-    if (musicPlaying) {
-      music.pause();
-      musicPlaying = false;
-      musicIcon.innerHTML = `<path d="M6 19h4.5v-14H6v14zm7.5-14v14l7.5-7-7.5-7z"/>`; // أيقونة تشغيل
+  // إظهار وإخفاء حقوق الموقع عند الضغط على أيقونة الديسكورد
+  discordMark.addEventListener("click", () => {
+    if (developerNote.style.display === "block") {
+      developerNote.style.display = "none";
+      discordMark.setAttribute("aria-expanded", "false");
     } else {
-      music.play();
-      musicPlaying = true;
-      musicIcon.innerHTML = `<path d="M3 9v6h4l5 5V4L7 9H3z"/>`; // أيقونة إيقاف
+      developerNote.style.display = "block";
+      developerNote.focus();
+      discordMark.setAttribute("aria-expanded", "true");
     }
   });
 
-  // تشغيل الموسيقى تلقائيًا عند تحميل الصفحة (بدون صوت أولًا لمنع منع التشغيل الأوتوماتيكي في بعض المتصفحات)
-  window.addEventListener("load", () => {
-    music.volume = 0.15;
-    music.play().then(() => {
-      musicPlaying = true;
-      musicIcon.innerHTML = `<path d="M3 9v6h4l5 5V4L7 9H3z"/>`;
-    }).catch(() => {
-      // لو منع التشغيل التلقائي، نظل معطّلين الموسيقى لحد ما يضغط المستخدم
-      musicPlaying = false;
-      musicIcon.innerHTML = `<path d="M6 19h4.5v-14H6v14zm7.5-14v14l7.5-7-7.5-7z"/>`;
-    });
-  });
+  // حركة النجوم في الخلفية
+  const canvas = document.getElementById("stars");
+  const ctx = canvas.getContext("2d");
 
-  // خلفية النجوم مع حركة بسيطة
-  const canvas = document.getElementById('stars');
-  const ctx = canvas.getContext('2d');
-  let width, height;
   let stars = [];
+  const numStars = 150;
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
 
   function initStars() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
     stars = [];
-
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < numStars; i++) {
       stars.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        radius: Math.random() * 1.1,
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.2 + 0.2,
         alpha: Math.random(),
-        dx: (Math.random() - 0.5) * 0.1,
-        dy: (Math.random() - 0.5) * 0.1
+        dAlpha: (Math.random() * 0.02) + 0.005,
+        dAlphaDirection: Math.random() > 0.5 ? 1 : -1
       });
     }
   }
 
-  function drawStars() {
-    ctx.clearRect(0, 0, width, height);
+  function animateStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let star of stars) {
       ctx.beginPath();
       ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(255,255,255,${star.alpha})`;
-      ctx.shadowColor = "white";
-      ctx.shadowBlur = 3;
       ctx.fill();
 
-      star.x += star.dx;
-      star.y += star.dy;
-
-      if (star.x < 0) star.x = width;
-      else if (star.x > width) star.x = 0;
-
-      if (star.y < 0) star.y = height;
-      else if (star.y > height) star.y = 0;
-
-      // تذبذب الشفافية
-      star.alpha += (Math.random() - 0.5) * 0.05;
-      star.alpha = Math.min(Math.max(star.alpha, 0.2), 1);
+      star.alpha += star.dAlpha * star.dAlphaDirection;
+      if (star.alpha <= 0.1) {
+        star.dAlphaDirection = 1;
+      } else if (star.alpha >= 1) {
+        star.dAlphaDirection = -1;
+      }
     }
-    requestAnimationFrame(drawStars);
+    requestAnimationFrame(animateStars);
   }
 
-  window.addEventListener('resize', initStars);
+  window.addEventListener("resize", () => {
+    resizeCanvas();
+    initStars();
+  });
 
-  initStars();
-  drawStars();
-
-  // بدء الجملة الأولى
-  nextSentence();
-
+  window.onload = () => {
+    resizeCanvas();
+    initStars();
+    animateStars();
+    nextSentence();
+  };
 </script>
 
 </body>
