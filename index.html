@@ -12,9 +12,9 @@
       padding: 0;
       text-align: center;
       min-height: 100vh;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #cdd6f4;
+      background: black;
       overflow: hidden;
+      color: white;
     }
 
     canvas#stars {
@@ -24,17 +24,15 @@
       width: 100%;
       height: 100%;
       z-index: -1;
-      background: transparent;
     }
 
     .container {
       max-width: 700px;
       margin: 60px auto;
-      padding: 25px 30px;
-      background: rgba(30, 38, 47, 0.85);
+      padding: 20px;
+      background: rgba(20, 20, 20, 0.9);
       border-radius: 15px;
-      box-shadow: 0 0 20px rgba(45, 140, 255, 0.3);
-      color: #e0e6f5;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
     }
 
     input[type="text"] {
@@ -42,111 +40,90 @@
       font-size: 18px;
       width: 80%;
       margin-bottom: 15px;
-      border: 2px solid #4a90e2;
+      border: 2px solid #555;
       border-radius: 8px;
-      background: #132238;
-      color: #e0e6f5;
-      transition: border-color 0.3s;
-    }
-    input[type="text"]:focus {
-      border-color: #82aaff;
-      outline: none;
-      box-shadow: 0 0 10px #82aaff;
+      background: #111;
+      color: white;
     }
 
     button {
       padding: 12px 25px;
       font-size: 18px;
-      background-color: #4a90e2;
-      color: #fff;
+      background-color: #6a1b9a;
+      color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       margin: 5px;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #82aaff;
     }
 
     #sentence span {
       font-size: 24px;
-      font-weight: 600;
-      color: #a1b0d9;
+      font-weight: bold;
+      margin: 0 5px;
     }
+
     #sentence span.correct {
-      color: #82c91e;
+      color: #4caf50;
     }
+
     #sentence span.incorrect {
-      color: #f03e3e;
+      color: #f44336;
     }
 
     #record {
       position: fixed;
       right: 20px;
       top: 20px;
-      background: rgba(19, 29, 44, 0.85);
-      padding: 12px 18px;
-      border-radius: 10px;
+      background: #222;
+      padding: 10px 15px;
+      border-radius: 8px;
       font-size: 16px;
       font-weight: bold;
-      color: #82aaff;
-      border: 1px solid #4a90e2;
+      border: 1px solid #555;
       z-index: 10;
-      user-select: none;
     }
 
     #musicControl {
       position: fixed;
       left: 20px;
       top: 20px;
-      background: rgba(19, 29, 44, 0.85);
-      color: #82aaff;
+      background: #333;
+      color: white;
       border-radius: 50%;
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 22px;
-      border: 1px solid #4a90e2;
+      font-size: 20px;
       z-index: 10;
-      user-select: none;
-      transition: background-color 0.3s;
-    }
-    #musicControl:hover {
-      background-color: #1b2e4b;
     }
 
     #discordButton {
       position: fixed;
       bottom: 20px;
       left: 20px;
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       background: transparent;
       cursor: pointer;
       z-index: 10;
-      animation: glow 2s infinite alternate;
-      user-select: none;
+      animation: glow 1.5s infinite alternate;
     }
+
     #discordButton img {
       width: 100%;
       height: 100%;
-      filter: drop-shadow(0 0 3px #7289da);
-      transition: filter 0.3s;
-    }
-    #discordButton:hover img {
-      filter: drop-shadow(0 0 12px #7289da);
     }
 
     @keyframes glow {
       from {
-        filter: drop-shadow(0 0 5px #7289da);
+        filter: drop-shadow(0 0 3px #7289da);
       }
       to {
-        filter: drop-shadow(0 0 18px #7289da);
+        filter: drop-shadow(0 0 15px #7289da);
       }
     }
 
@@ -155,51 +132,29 @@
       position: fixed;
       bottom: 70px;
       left: 20px;
-      background: rgba(19, 29, 44, 0.9);
-      color: #a1b0d9;
-      border-radius: 10px;
-      padding: 18px 22px;
-      font-size: 15px;
+      background: #111;
+      color: white;
+      border-radius: 8px;
+      padding: 15px;
+      font-size: 14px;
       z-index: 1000;
-      width: 240px;
-      box-shadow: 0 0 15px rgba(72, 124, 255, 0.6);
-      text-align: right;
-      user-select: none;
+      width: 220px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+      text-align: left;
     }
 
     #closeBtn {
-      background: #f03e3e;
+      background: #c62828;
       border: none;
-      border-radius: 6px;
-      padding: 6px 14px;
+      border-radius: 5px;
+      padding: 6px 12px;
       color: white;
       cursor: pointer;
-      margin-bottom: 12px;
-      font-weight: 600;
-      width: 100%;
-      transition: background-color 0.3s;
-    }
-    #closeBtn:hover {
-      background-color: #d32f2f;
+      margin-bottom: 10px;
     }
 
     #result.error {
-      color: #f03e3e;
-      margin-top: 12px;
-      font-weight: 600;
-    }
-    #result {
-      margin-top: 12px;
-      font-weight: 600;
-      color: #82c91e;
-      min-height: 24px;
-    }
-
-    #speedDisplay, #bestTime {
-      margin-top: 12px;
-      font-size: 17px;
-      font-weight: 600;
-      color: #82aaff;
+      color: #f44336;
     }
   </style>
 </head>
@@ -224,7 +179,7 @@
 <div class="container" id="loginScreen">
   <h2>مرحبًا!</h2>
   <p>اكتب اسمك وابدأ</p>
-  <input type="text" id="playerName" placeholder="اسمك" autocomplete="off" />
+  <input type="text" id="playerName" placeholder="اسمك" />
   <br />
   <button onclick="startGame()">ابدأ</button>
 </div>
@@ -232,7 +187,7 @@
 <div class="container" id="gameScreen" style="display:none;">
   <h2 id="welcomeMsg"></h2>
   <div id="sentence"></div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" autocomplete="off" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" />
+  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="renderSentence(this.value)" onkeydown="handleEnter(event)" />
   <br />
   <button onclick="checkInput()">تحقق</button>
   <div id="speedDisplay"></div>
@@ -260,39 +215,27 @@
       stars.push({
         x: Math.random() * starsCanvas.width,
         y: Math.random() * starsCanvas.height,
-        r: Math.random() * 1.5 + 0.5,
-        dx: (Math.random() - 0.5) * 0.2,
-        dy: (Math.random() - 0.5) * 0.2,
-        alpha: Math.random() * 0.8 + 0.2,
-        alphaChange: (Math.random() * 0.01) + 0.002
+        r: Math.random() * 2,
+        dx: Math.random() * 0.7,
+        dy: Math.random() * 0.7
       });
     }
   }
-
   function drawStars() {
     ctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+    ctx.fillStyle = "white";
     stars.forEach(star => {
       ctx.beginPath();
       ctx.arc(star.x, star.y, star.r, 0, 2 * Math.PI);
-      ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha.toFixed(2)})`;
-      ctx.shadowColor = "rgba(130, 170, 255, 0.6)";
-      ctx.shadowBlur = 4;
       ctx.fill();
-
       star.x += star.dx;
       star.y += star.dy;
-      star.alpha += star.alphaChange;
-      if (star.alpha >= 1 || star.alpha <= 0.2) star.alphaChange *= -1;
-
-      if (star.x < 0) star.x = starsCanvas.width;
       if (star.x > starsCanvas.width) star.x = 0;
-      if (star.y < 0) star.y = starsCanvas.height;
       if (star.y > starsCanvas.height) star.y = 0;
     });
     requestAnimationFrame(drawStars);
   }
-
-  initStars(200);
+  initStars(250);
   drawStars();
 
   const loginScreen = document.getElementById("loginScreen");
@@ -313,6 +256,12 @@
   const closeBtn = document.getElementById("closeBtn");
 
   let player = "";
+  let currentSentence = "";
+  let startTime = 0;
+  let highestSpeed = 0;
+  let bestTime = null;
+
+  const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
 
   discordBtn.addEventListener("click", (e) => {
     rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
@@ -325,18 +274,13 @@
     }
   });
 
-  const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
-  let currentSentence = "";
-  let startTime = 0;
-  let highestSpeed = 0;
-  let bestTime = null;
-
   function startGame() {
     player = playerName.value.trim();
     if (!player) return alert("اكتب اسمك أولاً");
     welcomeMsg.textContent = `هلا بك، ${player}`;
     loginScreen.style.display = "none";
     gameScreen.style.display = "block";
+
     currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
     renderSentence("");
     userInput.value = "";
@@ -345,51 +289,51 @@
     speedDisplay.textContent = "";
     bestTimeDisplay.textContent = bestTime ? `أفضل زمن: ${bestTime.toFixed(2)} ثانية` : "";
     result.textContent = "";
+
     music.volume = 0.1;
     music.play().catch(() => {
       musicControl.textContent = "🔇";
     });
   }
 
-  musicControl.addEventListener("click", () => {
-    if (music.paused) {
-      music.play();
-      musicControl.textContent = "🎵";
-    } else {
-      music.pause();
-      musicControl.textContent = "🔇";
-    }
-  });
-
   function renderSentence(userTyped) {
     sentence.innerHTML = "";
-    for (let i = 0; i < currentSentence.length; i++) {
+    const originalWords = currentSentence.split(" ");
+    const typedWords = userTyped.trim().split(" ");
+
+    originalWords.forEach((word, index) => {
       let span = document.createElement("span");
-      span.textContent = currentSentence[i];
-      if (userTyped[i] === currentSentence[i]) {
+      span.textContent = word + " ";
+      if (typedWords[index] === undefined) {
+        // لا شيء
+      } else if (typedWords[index] === word) {
         span.classList.add("correct");
-      } else if (userTyped[i] !== undefined) {
+      } else {
         span.classList.add("incorrect");
       }
       sentence.appendChild(span);
-    }
+    });
   }
 
   function checkInput() {
-    const typed = userInput.value;
+    const typed = userInput.value.trim();
     if (typed === currentSentence) {
       const elapsed = (Date.now() - startTime) / 1000;
-      speedDisplay.textContent = `سرعتك: ${(typed.length / elapsed).toFixed(2)} حرف/ثانية`;
-      if (typed.length / elapsed > highestSpeed) {
-        highestSpeed = typed.length / elapsed;
+      const speed = currentSentence.length / elapsed;
+      speedDisplay.textContent = `سرعتك: ${speed.toFixed(2)} حرف/ثانية`;
+
+      if (speed > highestSpeed) {
+        highestSpeed = speed;
         bestTime = elapsed;
         record.textContent = `أعلى سرعة: ${highestSpeed.toFixed(2)} - ${bestTime.toFixed(2)} ثانية`;
       }
+
       result.textContent = "أحسنت!";
       result.classList.remove("error");
+
       currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-      renderSentence("");
       userInput.value = "";
+      renderSentence("");
       startTime = Date.now();
     } else {
       result.textContent = "حاول مرة أخرى";
@@ -402,6 +346,16 @@
       checkInput();
     }
   }
+
+  musicControl.addEventListener("click", () => {
+    if (music.paused) {
+      music.play().catch(() => {});
+      musicControl.textContent = "🎵";
+    } else {
+      music.pause();
+      musicControl.textContent = "🔇";
+    }
+  });
 </script>
 
 </body>
