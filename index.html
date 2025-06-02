@@ -1,25 +1,180 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-<meta charset="UTF-8" />
-<title>لعبة الطباعة</title>
-<style>
-  body, html { margin:0; padding:0; background: black; color: white; font-family: Arial, sans-serif; }
-  #stars { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: -1; }
-  .container { max-width: 400px; margin: 100px auto; text-align: center; }
-  #gameScreen, #record, #musicControl { display: none; }
-  #sentence span { font-size: 24px; padding: 2px; }
-  #sentence span.correct { color: #0f0; }
-  #sentence span.incorrect { color: #f00; }
-  #userInput { width: 100%; padding: 10px; font-size: 20px; margin-top: 10px; }
-  #result.error { color: red; }
-  #musicControl { position: fixed; top: 10px; left: 10px; cursor: pointer; font-size: 24px; }
-  #record { position: fixed; top: 10px; right: 10px; font-size: 18px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>اختبر سرعتك</title>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      direction: rtl;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      min-height: 100vh;
+      background: black;
+      overflow: hidden;
+      color: white;
+    }
+
+    canvas#stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 60px auto;
+      padding: 20px;
+      background: rgba(20, 20, 20, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      font-size: 18px;
+      width: 80%;
+      margin-bottom: 15px;
+      border: 2px solid #555;
+      border-radius: 8px;
+      background: #111;
+      color: white;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
+      background-color: #6a1b9a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    #sentence span {
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    #sentence span.correct {
+      color: #4caf50;
+    }
+
+    #sentence span.incorrect {
+      color: #f44336;
+    }
+
+    #record {
+      position: fixed;
+      right: 20px;
+      top: 20px;
+      background: #222;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      border: 1px solid #555;
+      z-index: 10;
+    }
+
+    #musicControl {
+      position: fixed;
+      left: 20px;
+      top: 20px;
+      background: #333;
+      color: white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      z-index: 10;
+    }
+
+    #discordButton {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      cursor: pointer;
+      z-index: 10;
+      animation: glow 1.5s infinite alternate;
+    }
+
+    #discordButton img {
+      width: 100%;
+      height: 100%;
+    }
+
+    @keyframes glow {
+      from {
+        filter: drop-shadow(0 0 3px #7289da);
+      }
+      to {
+        filter: drop-shadow(0 0 15px #7289da);
+      }
+    }
+
+    #rightsMenu {
+      display: none;
+      position: fixed;
+      bottom: 70px;
+      left: 20px;
+      background: #111;
+      color: white;
+      border-radius: 8px;
+      padding: 15px;
+      font-size: 14px;
+      z-index: 1000;
+      width: 220px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+      text-align: left;
+    }
+
+    #closeBtn {
+      background: #c62828;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 12px;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    #result.error {
+      color: #f44336;
+    }
+  </style>
 </head>
 <body>
 
 <canvas id="stars"></canvas>
+
+<div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
+<div id="musicControl" title="تشغيل/إيقاف الموسيقى">🎵</div>
+
+<button id="discordButton" title="حقوق المطور">
+  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
+</button>
+
+<div id="rightsMenu">
+  <button id="closeBtn">إغلاق</button>
+  <div>المطور: <b>_9nv</b></div>
+  <div>Discord: <b>_9nv</b></div>
+  <div>جميع الحقوق محفوظة</div>
+</div>
 
 <div class="container" id="loginScreen">
   <h2>مرحبًا!</h2>
@@ -40,149 +195,156 @@
   <div id="result"></div>
 </div>
 
-<div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
-<div id="musicControl" title="تشغيل/إيقاف الموسيقى">🎵</div>
-
-<audio id="music" src="https://cdn.pixabay.com/download/audio/2022/02/23/audio_4e3e187c41.mp3?filename=deep-chill-ambient-10970.mp3" loop></audio>
+<audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
 
 <script>
-const starsCanvas = document.getElementById("stars");
-const ctx = starsCanvas.getContext("2d");
-let stars = [];
+  const starsCanvas = document.getElementById("stars");
+  const ctx = starsCanvas.getContext("2d");
+  let stars = [];
 
-function resizeCanvas() {
-  starsCanvas.width = window.innerWidth;
-  starsCanvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+  function resizeCanvas() {
+    starsCanvas.width = window.innerWidth;
+    starsCanvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
 
-function initStars(count) {
-  stars = [];
-  for (let i = 0; i < count; i++) {
-    stars.push({
-      x: Math.random() * starsCanvas.width,
-      y: Math.random() * starsCanvas.height,
-      r: Math.random() * 2,
-      dx: Math.random() * 0.7,
-      dy: Math.random() * 0.7
+  function initStars(count) {
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * starsCanvas.width,
+        y: Math.random() * starsCanvas.height,
+        r: Math.random() * 2,
+        dx: Math.random() * 0.7,
+        dy: Math.random() * 0.7
+      });
+    }
+  }
+  function drawStars() {
+    ctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+    ctx.fillStyle = "white";
+    stars.forEach(star => {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.r, 0, 2 * Math.PI);
+      ctx.fill();
+      star.x += star.dx;
+      star.y += star.dy;
+      if (star.x > starsCanvas.width) star.x = 0;
+      if (star.y > starsCanvas.height) star.y = 0;
+    });
+    requestAnimationFrame(drawStars);
+  }
+  initStars(250);
+  drawStars();
+
+  const loginScreen = document.getElementById("loginScreen");
+  const gameScreen = document.getElementById("gameScreen");
+  const playerName = document.getElementById("playerName");
+  const welcomeMsg = document.getElementById("welcomeMsg");
+  const sentence = document.getElementById("sentence");
+  const userInput = document.getElementById("userInput");
+  const result = document.getElementById("result");
+  const record = document.getElementById("record");
+  const speedDisplay = document.getElementById("speedDisplay");
+  const bestTimeDisplay = document.getElementById("bestTime");
+  const music = document.getElementById("bgMusic");
+  const musicControl = document.getElementById("musicControl");
+
+  const discordBtn = document.getElementById("discordButton");
+  const rightsMenu = document.getElementById("rightsMenu");
+  const closeBtn = document.getElementById("closeBtn");
+
+  let player = "";
+
+  discordBtn.addEventListener("click", (e) => {
+    rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
+    e.stopPropagation();
+  });
+  closeBtn.addEventListener("click", () => rightsMenu.style.display = "none");
+  document.addEventListener("click", (e) => {
+    if (!rightsMenu.contains(e.target) && !discordBtn.contains(e.target)) {
+      rightsMenu.style.display = "none";
+    }
+  });
+
+  const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
+  let currentSentence = "";
+  let startTime = 0;
+  let highestSpeed = 0;
+  let bestTime = null;
+
+  function startGame() {
+    player = playerName.value.trim();
+    if (!player) return alert("اكتب اسمك أولاً");
+    welcomeMsg.textContent = `هلا بك، ${player}`;
+    loginScreen.style.display = "none";
+    gameScreen.style.display = "block";
+    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
+    renderSentence("");
+    userInput.value = "";
+    userInput.focus();
+    startTime = Date.now();
+    speedDisplay.textContent = "";
+    bestTimeDisplay.textContent = bestTime ? `أفضل زمن: ${bestTime.toFixed(2)} ثانية` : "";
+    result.textContent = "";
+    music.volume = 0.1;
+    music.play().catch(() => {
+      musicControl.textContent = "🔇";
     });
   }
-}
-function drawStars() {
-  ctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
-  ctx.fillStyle = "white";
-  stars.forEach(star => {
-    ctx.beginPath();
-    ctx.arc(star.x, star.y, star.r, 0, 2 * Math.PI);
-    ctx.fill();
-    star.x += star.dx;
-    star.y += star.dy;
-    if (star.x > starsCanvas.width) star.x = 0;
-    if (star.y > starsCanvas.height) star.y = 0;
-  });
-  requestAnimationFrame(drawStars);
-}
-initStars(250);
-drawStars();
 
-const sentences = [
-  "كلنا نحب التعلم",
-  "البرمجة ممتعة",
-  "التحديات تجعلنا أقوى",
-  "سرعة الطباعة مهمة",
-  "استمتع باللعبة"
-];
-let currentSentence = "";
-let startTime = 0;
-let bestTime = Infinity;
-
-const playerName = document.getElementById("playerName");
-const loginScreen = document.getElementById("loginScreen");
-const gameScreen = document.getElementById("gameScreen");
-const welcomeMsg = document.getElementById("welcomeMsg");
-const sentence = document.getElementById("sentence");
-const userInput = document.getElementById("userInput");
-const result = document.getElementById("result");
-const speedDisplay = document.getElementById("speedDisplay");
-const bestTimeDisplay = document.getElementById("bestTime");
-const record = document.getElementById("record");
-const musicControl = document.getElementById("musicControl");
-const music = document.getElementById("music");
-
-function startGame() {
-  const name = playerName.value.trim();
-  if (!name) return alert("اكتب اسمك أولاً");
-  welcomeMsg.textContent = `هيا يا ${name}`;
-  loginScreen.style.display = "none";
-  gameScreen.style.display = "block";
-  record.style.display = "block";
-  music.volume = 0.2;
-  music.play().catch(() => {
-    musicControl.textContent = "🔇";
-  });
-  nextSentence();
-}
-
-function nextSentence() {
-  currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-  sentence.innerHTML = currentSentence.split("").map(ch => `<span>${ch}</span>`).join("");
-  userInput.value = "";
-  result.textContent = "";
-  result.classList.remove("error");
-  speedDisplay.textContent = "";
-  bestTimeDisplay.textContent = "";
-  startTime = Date.now();
-  userInput.focus();
-}
-
-function renderSentence(userText) {
-  const spans = sentence.querySelectorAll("span");
-  for (let i = 0; i < spans.length; i++) {
-    if (userText[i] == null) {
-      spans[i].className = "";
-    } else if (userText[i] === spans[i].textContent) {
-      spans[i].className = "correct";
+  musicControl.addEventListener("click", () => {
+    if (music.paused) {
+      music.play();
+      musicControl.textContent = "🎵";
     } else {
-      spans[i].className = "incorrect";
+      music.pause();
+      musicControl.textContent = "🔇";
+    }
+  });
+
+  function renderSentence(userTyped) {
+    sentence.innerHTML = "";
+    for (let i = 0; i < currentSentence.length; i++) {
+      let span = document.createElement("span");
+      span.textContent = currentSentence[i];
+      if (userTyped[i] === currentSentence[i]) {
+        span.classList.add("correct");
+      } else if (userTyped[i] !== undefined) {
+        span.classList.add("incorrect");
+      }
+      sentence.appendChild(span);
     }
   }
-}
 
-function handleEnter(event) {
-  if (event.key === "Enter") {
-    checkInput();
-  }
-}
-
-function checkInput() {
-  const typed = userInput.value;
-  if (typed === currentSentence) {
-    const elapsed = (Date.now() - startTime) / 1000;
-    speedDisplay.textContent = `سرعتك: ${typed.length / elapsed} حرف/ثانية`;
-    if (elapsed < bestTime) {
-      bestTime = elapsed;
-      bestTimeDisplay.textContent = `أفضل وقت: ${bestTime.toFixed(2)} ثانية`;
-      record.textContent = `أعلى سرعة: ${(typed.length / bestTime).toFixed(2)} - ${bestTime.toFixed(2)} ثانية`;
+  function checkInput() {
+    const typed = userInput.value;
+    if (typed === currentSentence) {
+      const elapsed = (Date.now() - startTime) / 1000;
+      speedDisplay.textContent = `سرعتك: ${typed.length / elapsed} حرف/ثانية`;
+      if (typed.length / elapsed > highestSpeed) {
+        highestSpeed = typed.length / elapsed;
+        bestTime = elapsed;
+        record.textContent = `أعلى سرعة: ${highestSpeed.toFixed(2)} - ${bestTime.toFixed(2)} ثانية`;
+      }
+      result.textContent = "أحسنت! 🎉";
+      result.classList.remove("error");
+      currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
+      renderSentence("");
+      userInput.value = "";
+      startTime = Date.now();
+    } else {
+      result.textContent = "حاول مرة أخرى";
+      result.classList.add("error");
     }
-    result.textContent = "أحسنت!";
-    result.classList.remove("error");
-    setTimeout(nextSentence, 1500);
-  } else {
-    result.textContent = "خطأ، حاول مجددًا";
-    result.classList.add("error");
   }
-}
 
-musicControl.onclick = () => {
-  if (music.paused) {
-    music.play();
-    musicControl.textContent = "🎵";
-  } else {
-    music.pause();
-    musicControl.textContent = "🔇";
+  function handleEnter(e) {
+    if (e.key === "Enter") {
+      checkInput();
+    }
   }
-};
 </script>
 
 </body>
