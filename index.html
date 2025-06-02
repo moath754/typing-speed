@@ -13,8 +13,8 @@
       text-align: center;
       min-height: 100vh;
       background: black;
-      color: white;
       overflow: hidden;
+      color: white;
     }
 
     canvas#stars {
@@ -30,7 +30,7 @@
       max-width: 700px;
       margin: 60px auto;
       padding: 20px;
-      background: rgba(30, 30, 30, 0.95);
+      background: rgba(20, 20, 20, 0.9);
       border-radius: 15px;
       box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
     }
@@ -61,95 +61,46 @@
       font-size: 24px;
       font-weight: bold;
       margin: 25px 0;
-      word-wrap: break-word;
+      transition: color 0.3s ease;
     }
 
-    #sentence span.correct {
+    #sentence.correct {
       color: #4caf50;
-      margin-left: 5px;
     }
 
-    #sentence span.incorrect {
+    #sentence.incorrect {
       color: #f44336;
-      margin-left: 5px;
     }
 
-    #record, #musicControl, #rightsButton {
+    #discordMark {
       position: fixed;
-      z-index: 10;
-    }
-
-    #record {
-      right: 20px;
-      top: 20px;
-      background: #222;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      border: 1px solid #555;
-    }
-
-    #musicControl {
-      left: 20px;
-      top: 20px;
-      background: #333;
-      color: white;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      user-select: none;
-    }
-
-    #rightsButton {
       bottom: 20px;
       right: 20px;
       width: 50px;
       height: 50px;
-      background: radial-gradient(circle at center, rgba(138,43,226,0.6), transparent 70%);
       border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+      background-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 20px 5px white;
+      z-index: 999;
     }
 
-    #rightsButton img {
+    #discordMark img {
       width: 100%;
       height: 100%;
+      border-radius: 50%;
     }
 
-    #rightsMenu {
-      display: none;
+    #developerNote {
       position: fixed;
       bottom: 80px;
       right: 20px;
-      background: #111;
+      background: rgba(0,0,0,0.7);
       color: white;
+      padding: 10px 15px;
       border-radius: 8px;
-      padding: 15px;
       font-size: 14px;
-      z-index: 1000;
-      width: 250px;
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
-      line-height: 1.8;
-    }
-
-    #closeBtn {
-      background: #c62828;
-      border: none;
-      border-radius: 5px;
-      padding: 6px 12px;
-      color: white;
-      cursor: pointer;
-      float: left;
-    }
-
-    #result.error {
-      color: #f44336;
+      z-index: 999;
+      text-align: right;
     }
   </style>
 </head>
@@ -157,194 +108,83 @@
 
 <canvas id="stars"></canvas>
 
-<div id="record">أعلى سرعة: 0 - 0.00 ثانية</div>
-<div id="musicControl" title="تشغيل/إيقاف الموسيقى">🎵</div>
-
-<button id="rightsButton" title="حقوق المطور">
+<div id="discordMark">
   <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
-</button>
-
-<div id="rightsMenu">
-  <button id="closeBtn">إغلاق</button>
-  <div>تم تطوير هذا الموقع من قبل: <b>معاذ الحربي</b></div>
-  <div>يوزري في دسكورد: <b>_9nv</b></div>
 </div>
 
-<div class="container" id="loginScreen">
-  <h2>مرحبًا!</h2>
-  <p>اكتب اسمك وابدأ</p>
-  <input type="text" id="playerName" placeholder="اسمك" />
-  <br />
-  <button onclick="startGame()">ابدأ</button>
+<div id="developerNote">
+  تم تطوير هذا الموقع من قبل معاذ الحربي<br>
+  يوزري في ديسكورد: <b>_9nv</b>
 </div>
 
-<div class="container" id="gameScreen" style="display:none;">
-  <h2 id="welcomeMsg"></h2>
-  <div id="sentence">...</div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" onkeydown="handleEnter(event)" />
+<div class="container" id="gameScreen">
+  <h2>اختبر سرعتك</h2>
+  <div id="sentence">ابدأ الآن</div>
+  <input type="text" id="userInput" placeholder="اكتب هنا" oninput="checkLiveInput()" />
   <br />
-  <button onclick="checkInput()">تحقق</button>
+  <button onclick="checkFinalInput()">تحقق</button>
   <div id="speedDisplay"></div>
-  <div id="bestTime"></div>
   <div id="result"></div>
 </div>
 
-<audio id="bgMusic" src="https://files.catbox.moe/l0gz7g.mp3" loop></audio>
+<audio id="bgMusic" src="https://files.catbox.moe/m8wo6g.mp3" autoplay loop></audio>
 
 <script>
-const sentences = ["ابدأ الآن", "سر النجاح الاستمرار", "لا تستسلم", "ركز جيداً"];
-let currentSentence = "";
-let startTime = 0;
-let highestSpeed = 0;
-let bestTime = null;
-
-const starsCanvas = document.getElementById("stars");
-const ctx = starsCanvas.getContext("2d");
-let stars = [];
-
-function resizeCanvas() {
-  starsCanvas.width = window.innerWidth;
-  starsCanvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-function initStars(count) {
-  stars = [];
-  for (let i = 0; i < count; i++) {
-    stars.push({
-      x: Math.random() * starsCanvas.width,
-      y: Math.random() * starsCanvas.height,
-      r: Math.random() * 2,
-      dx: Math.random() * 0.7,
-      dy: Math.random() * 0.7
-    });
-  }
-}
-function drawStars() {
-  ctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
-  ctx.fillStyle = "white";
-  stars.forEach(star => {
-    ctx.beginPath();
-    ctx.arc(star.x, star.y, star.r, 0, 2 * Math.PI);
-    ctx.fill();
-    star.x += star.dx;
-    star.y += star.dy;
-    if (star.x > starsCanvas.width) star.x = 0;
-    if (star.y > starsCanvas.height) star.y = 0;
-  });
-  requestAnimationFrame(drawStars);
-}
-initStars(200);
-drawStars();
-
-const loginScreen = document.getElementById("loginScreen");
-const gameScreen = document.getElementById("gameScreen");
-const playerName = document.getElementById("playerName");
-const welcomeMsg = document.getElementById("welcomeMsg");
-const sentence = document.getElementById("sentence");
-const userInput = document.getElementById("userInput");
-const result = document.getElementById("result");
-const record = document.getElementById("record");
+const sentenceEl = document.getElementById("sentence");
+const inputEl = document.getElementById("userInput");
+const resultEl = document.getElementById("result");
 const speedDisplay = document.getElementById("speedDisplay");
-const bestTimeDisplay = document.getElementById("bestTime");
 const music = document.getElementById("bgMusic");
-const musicControl = document.getElementById("musicControl");
 
-const rightsBtn = document.getElementById("rightsButton");
-const rightsMenu = document.getElementById("rightsMenu");
-const closeBtn = document.getElementById("closeBtn");
+let startTime = Date.now();
+let currentSentence = "ابدأ الآن";
 
-rightsBtn.addEventListener("click", (e) => {
-  rightsMenu.style.display = rightsMenu.style.display === "block" ? "none" : "block";
-  e.stopPropagation();
-});
-closeBtn.addEventListener("click", () => rightsMenu.style.display = "none");
-document.addEventListener("click", (e) => {
-  if (!rightsMenu.contains(e.target) && !rightsBtn.contains(e.target)) {
-    rightsMenu.style.display = "none";
-  }
-});
-
-function startGame() {
-  const name = playerName.value.trim();
-  if (!name) return alert("اكتب اسمك أولاً");
-  welcomeMsg.textContent = `هيا يا ${name}`;
-  loginScreen.style.display = "none";
-  gameScreen.style.display = "block";
-  music.volume = 0.2;
-  music.play().catch(() => {
-    musicControl.textContent = "🔇";
-  });
-  nextSentence();
-}
+const sentences = ["ابدأ الآن", "التركيز هو السر", "اكتب بسرعة", "كل شيء ممكن"];
 
 function nextSentence() {
   currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-  sentence.textContent = currentSentence;
-  userInput.value = "";
-  result.textContent = "";
+  sentenceEl.textContent = currentSentence;
+  inputEl.value = "";
+  resultEl.textContent = "";
   speedDisplay.textContent = "";
-  bestTimeDisplay.textContent = "";
+  sentenceEl.className = "";
   startTime = Date.now();
-  userInput.focus();
+  inputEl.focus();
 }
 
-function handleEnter(e) {
-  if (e.key === "Enter") checkInput();
-}
-
-function checkInput() {
-  const typed = userInput.value.trim();
+function checkFinalInput() {
+  const userText = inputEl.value.trim();
   const duration = (Date.now() - startTime) / 1000;
-  const speed = Math.round((typed.length / duration) * 60);
+  const speed = Math.round((userText.length / duration) * 60);
+  speedDisplay.textContent = `سرعتك: ${speed} حرف بالدقيقة`;
 
-  sentence.innerHTML = "";
-
-  const expectedWords = currentSentence.trim().split(" ");
-  const typedWords = typed.split(" ");
-
-  for (let i = 0; i < expectedWords.length; i++) {
-    const span = document.createElement("span");
-    span.textContent = expectedWords[i];
-    if (typedWords[i] === expectedWords[i]) {
-      span.classList.add("correct");
-    } else {
-      span.classList.add("incorrect");
-    }
-    sentence.appendChild(span);
-  }
-
-  if (typed === currentSentence) {
-    result.textContent = "تمام!";
-    result.classList.remove("error");
-
-    if (speed > highestSpeed) {
-      highestSpeed = speed;
-      bestTime = duration;
-      record.textContent = `أعلى سرعة: ${highestSpeed} - ${bestTime.toFixed(2)} ثانية`;
-    }
-
-    speedDisplay.textContent = `سرعتك: ${speed}`;
-    bestTimeDisplay.textContent = `الوقت: ${duration.toFixed(2)} ثانية`;
-
-    setTimeout(() => nextSentence(), 800);
+  if (userText === currentSentence) {
+    resultEl.textContent = "تمام!";
+    sentenceEl.className = "correct";
   } else {
-    result.textContent = "خطأ! أعد المحاولة";
-    result.classList.add("error");
-    speedDisplay.textContent = `سرعتك: ${speed}`;
+    resultEl.textContent = "خطأ! أعد المحاولة";
+    sentenceEl.className = "incorrect";
   }
+
+  setTimeout(nextSentence, 1500);
 }
 
-musicControl.addEventListener("click", () => {
-  if (music.paused) {
-    music.play();
-    musicControl.textContent = "🎵";
-  } else {
-    music.pause();
-    musicControl.textContent = "🔇";
+function checkLiveInput() {
+  const userWords = inputEl.value.trim().split(/\s+/);
+  const targetWords = currentSentence.trim().split(/\s+/);
+  let isCorrect = true;
+
+  for (let i = 0; i < userWords.length; i++) {
+    if (userWords[i] !== targetWords[i]) {
+      isCorrect = false;
+      break;
+    }
   }
-});
+
+  sentenceEl.className = isCorrect ? "correct" : "incorrect";
+}
+
+window.onload = () => nextSentence();
 </script>
 
 </body>
