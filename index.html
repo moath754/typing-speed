@@ -1,279 +1,77 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>اختبر سرعتك</title>
+  <meta charset="UTF-8">
+  <title>مساعد ذكاء اصطناعي</title>
   <style>
     body {
-      font-family: Tahoma, sans-serif;
-      direction: rtl;
+      font-family: sans-serif;
       margin: 0;
-      padding: 0;
-      text-align: center;
-      min-height: 100vh;
-      background: black;
-      overflow: hidden;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    canvas#stars {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-    }
-
-    .container {
-      max-width: 700px;
-      width: 100%;
-      background: rgba(20, 20, 20, 0.95);
-      border-radius: 15px;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
-      padding: 30px 25px;
-      user-select: none;
-    }
-
-    input[type="text"] {
-      padding: 12px;
-      font-size: 20px;
-      width: 90%;
-      margin-bottom: 20px;
-      border: 2px solid #555;
-      border-radius: 10px;
-      background: #111;
-      color: white;
-      outline-offset: 2px;
-      transition: border-color 0.3s ease;
-    }
-
-    input[type="text"]:focus {
-      border-color: #7e57c2;
-      background: #222;
-    }
-
-    button {
-      padding: 14px 30px;
-      font-size: 20px;
-      background-color: #7e57c2;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin: 10px 5px 0 5px;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #9c75d9;
-    }
-
-    #sentence {
-      font-size: 28px;
-      font-weight: bold;
-      margin: 25px 0 15px 0;
-      min-height: 40px;
-      line-height: 1.3;
-      transition: color 0.3s ease;
-      user-select: text;
-    }
-
-    #sentence.correct {
-      color: #4caf50;
-    }
-
-    #sentence.incorrect {
-      color: #f44336;
-    }
-
-    #speedDisplay {
-      font-size: 20px;
-      margin-top: 12px;
-      min-height: 28px;
-    }
-
-    #result {
-      font-size: 22px;
-      font-weight: 600;
-      margin-top: 8px;
-      min-height: 28px;
-      user-select: none;
-    }
-
-    #discordMark {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 0 15px 3px white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      z-index: 999;
-      flex-direction: column;
-    }
-
-    #discordMark img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      user-select: none;
-    }
-
-    #developerNote {
-      font-size: 12px;
-      color: white;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 6px 10px;
-      border-radius: 8px;
-      margin-top: 5px;
-      user-select: none;
-      max-width: 120px;
-      line-height: 1.2;
-      pointer-events: none;
+      background: #f7f7f7;
       text-align: center;
     }
 
-    /* Tooltip container for developer note */
-    #discordMark:hover #developerNote {
-      display: block;
+    #splash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: black;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      z-index: 9999;
+      flex-direction: column;
     }
 
-    #developerNote {
-      position: absolute;
-      bottom: 50px;
-      right: 50%;
-      transform: translateX(50%);
+    #main {
       display: none;
-      white-space: normal;
+      padding: 40px;
     }
 
-    /* Responsive */
-    @media (max-width: 480px) {
-      .container {
-        padding: 20px 15px;
-      }
+    textarea, button {
+      width: 80%;
+      max-width: 600px;
+      padding: 10px;
+      margin: 10px auto;
+      font-size: 16px;
+    }
 
-      input[type="text"] {
-        font-size: 18px;
-      }
-
-      button {
-        font-size: 18px;
-        padding: 12px 20px;
-      }
-
-      #sentence {
-        font-size: 22px;
-      }
-
-      #speedDisplay, #result {
-        font-size: 18px;
-      }
+    #response {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #eee;
+      padding: 20px;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
-
-<div id="discordMark" title="معاذ الحربي (_9nv)">
-  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
-  <div id="developerNote">
-    تم تطوير الموقع<br>معاذ الحربي<br>يوزري: <b>_9nv</b>
+  <div id="splash">
+    تم صنع هذا الموقع من قبل غيداء
+    <audio id="alarm" autoplay>
+      <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" type="audio/ogg">
+    </audio>
   </div>
-</div>
 
-<div class="container" id="gameScreen">
-  <h2>اختبر سرعتك</h2>
-  <div id="sentence">ابدأ الآن</div>
-  <input type="text" id="userInput" placeholder="اكتب هنا" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-  <br />
-  <button onclick="checkFinalInput()">تحقق</button>
-  <div id="speedDisplay"></div>
-  <div id="result"></div>
-</div>
+  <div id="main">
+    <h1>مساعد ذكاء اصطناعي</h1>
+    <textarea id="userInput" rows="4" placeholder="اكتب سؤالك هنا..."></textarea>
+    <br>
+    <button onclick="askAI()">أرسل</button>
+    <div id="response"></div>
+  </div>
 
-<audio id="bgMusic" src="https://files.catbox.moe/m8wo6g.mp3" autoplay loop></audio>
+  <script>
+    // شاشة البداية
+    window.onload = function () {
+      const alarm = document.getElementById("alarm");
+      alarm.play().catch(() => {}); // تشغيل الإنذار
+      setTimeout(() => {
+        document.getElementById("splash").style.display = "none";
+        document.getElementById("main").style.display = "block";
+      }, 5000);
+    };
 
-<script>
-  const sentenceEl = document.getElementById("sentence");
-  const inputEl = document.getElementById("userInput");
-  const resultEl = document.getElementById("result");
-  const speedDisplay = document.getElementById("speedDisplay");
-  const music = document.getElementById("bgMusic");
-
-  let startTime = Date.now();
-  let currentSentence = "ابدأ الآن";
-
-  const sentences = [
-    "ابدأ الآن",
-    "التركيز هو السر",
-    "اكتب بسرعة",
-    "كل شيء ممكن"
-  ];
-
-  function nextSentence() {
-    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
-    sentenceEl.textContent = currentSentence;
-    inputEl.value = "";
-    resultEl.textContent = "";
-    speedDisplay.textContent = "";
-    sentenceEl.className = "";
-    startTime = Date.now();
-    inputEl.focus();
-  }
-
-  function checkFinalInput() {
-    const userText = inputEl.value.trim();
-    const duration = (Date.now() - startTime) / 1000;
-    if (!userText) {
-      resultEl.textContent = "اكتب شيئاً أولاً";
-      sentenceEl.className = "incorrect";
-      return;
-    }
-
-    // حساب السرعة بوحدة الكلمات في الدقيقة (WPM)
-    const wordsTyped = userText.split(/\s+/).length;
-    const speedWPM = Math.round((wordsTyped / duration) * 60);
-
-    speedDisplay.textContent = `سرعتك: ${speedWPM} كلمة بالدقيقة`;
-
-    if (userText === currentSentence) {
-      resultEl.textContent = "تمام!";
-      sentenceEl.className = "correct";
-    } else {
-      resultEl.textContent = "خطأ! أعد المحاولة";
-      sentenceEl.className = "incorrect";
-    }
-
-    setTimeout(nextSentence, 1800);
-  }
-
-  function checkLiveInput() {
-    const userText = inputEl.value;
-    // تحقق إذا كان النص المدخل يبدأ بجملة الهدف
-    let isCorrect = currentSentence.startsWith(userText);
-    sentenceEl.className = isCorrect ? "correct" : "incorrect";
-  }
-
-  window.onload = () => {
-    nextSentence();
-    inputEl.addEventListener("input", checkLiveInput);
-  };
-</script>
-
-</body>
-</html>
+    // استدع
