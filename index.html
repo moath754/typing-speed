@@ -1,95 +1,273 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>تست تست اصطناعي</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      background: #f7f7f7;
-      text-align: center;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>مساعد ذكي - تصميم عصري</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Cairo', sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  #splash {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #000;
+    color: #0ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    z-index: 10000;
+    flex-direction: column;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {opacity: 1;}
+    50% {opacity: 0.6;}
+  }
+
+  header {
+    padding: 1rem 2rem;
+    background: rgba(0,0,0,0.3);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    text-align: center;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    font-weight: bold;
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+    overflow: hidden;
+  }
+
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background: rgba(255 255 255 / 0.1);
+    box-shadow: inset 0 0 10px rgba(255 255 255 / 0.1);
+  }
+
+  .message {
+    max-width: 75%;
+    margin: 8px 0;
+    padding: 10px 15px;
+    border-radius: 15px;
+    line-height: 1.4;
+    font-size: 1.1rem;
+    word-break: break-word;
+    animation: fadeInUp 0.3s ease forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
     }
-    #splash {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: black;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      z-index: 9999;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
-    #main {
-      display: none;
-      padding: 40px;
-    }
-    textarea, button {
-      width: 80%;
-      max-width: 600px;
-      padding: 10px;
-      margin: 10px auto;
-      font-size: 16px;
-    }
-    #response {
-      margin-top: 20px;
-      white-space: pre-wrap;
-      background: #eee;
-      padding: 20px;
-      border-radius: 5px;
-    }
-  </style>
+  }
+
+  .user-message {
+    background: #0ff;
+    color: #000;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+  }
+
+  .ai-message {
+    background: #004466;
+    color: #aaffff;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+  }
+
+  #input-area {
+    display: flex;
+    gap: 10px;
+  }
+
+  textarea {
+    flex: 1;
+    resize: none;
+    padding: 15px;
+    border-radius: 15px;
+    border: none;
+    font-size: 1.1rem;
+    font-family: 'Cairo', sans-serif;
+    min-height: 70px;
+    box-shadow: 0 0 10px rgba(0,255,255,0.4);
+    background: rgba(0,0,0,0.2);
+    color: #fff;
+    transition: box-shadow 0.3s ease;
+  }
+
+  textarea:focus {
+    outline: none;
+    box-shadow: 0 0 15px #0ff;
+    background: rgba(0,0,0,0.4);
+  }
+
+  button {
+    background: #0ff;
+    color: #000;
+    border: none;
+    border-radius: 15px;
+    padding: 0 20px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: background 0.3s ease;
+  }
+
+  button:hover {
+    background: #00d1d1;
+  }
+
+  /* Scrollbar for chat */
+  #chat::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  #chat::-webkit-scrollbar-thumb {
+    background: #0ff;
+    border-radius: 10px;
+  }
+</style>
 </head>
 <body>
-  <div id="splash">تم صنع هذا الموقع من قبل غيداء</div>
-  <div id="main">
-    <h1>مساعد ذكاء اصطناعي</h1>
-    <textarea id="userInput" rows="4" placeholder="اكتب سؤالك هنا..."></textarea>
-    <br />
-    <button onclick="askAI()">أرسل</button>
-    <div id="response"></div>
+
+<div id="splash">تم صنع هذا الموقع من قبل غيداء</div>
+
+<header>مساعد ذكي</header>
+
+<main id="main" style="display:none;">
+  <div id="chat"></div>
+
+  <div id="input-area">
+    <textarea id="userInput" placeholder="اكتب سؤالك هنا..."></textarea>
+    <button id="sendBtn">أرسل</button>
   </div>
+</main>
 
-  <script>
-    // شاشة البداية تظهر 5 ثواني ثم تختفي
-    window.onload = function () {
-      setTimeout(() => {
-        document.getElementById("splash").style.display = "none";
-        document.getElementById("main").style.display = "block";
-      }, 5000);
-    };
+<script>
+  const splash = document.getElementById('splash');
+  const main = document.getElementById('main');
+  const chat = document.getElementById('chat');
+  const input = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
 
-    // مفتاح API الخاص بك
-    const API_KEY = "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";
+  // مفتاح API الخاص بك
+  const API_KEY = "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";
 
-    // استدعاء API للرد على المستخدم
-    async function askAI() {
-      const userMessage = document.getElementById("userInput").value;
-      const responseBox = document.getElementById("response");
-      responseBox.textContent = "جارٍ التفكير...";
+  // إظهار شاشة البداية 5 ثواني
+  window.onload = () => {
+    setTimeout(() => {
+      splash.style.display = 'none';
+      main.style.display = 'flex';
+      input.focus();
+      loadChatHistory();
+    }, 5000);
+  };
 
-      try {
-        const result = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`
-          },
-          body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: userMessage }],
-            temperature: 0.7
-          })
-        });
+  // تحميل المحادثات السابقة من التخزين المحلي
+  function loadChatHistory() {
+    const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+    history.forEach(({role, content}) => {
+      appendMessage(role, content);
+    });
+    scrollToBottom();
+  }
 
-        const data = await result.json();
-        const reply = data.choices?.[0]?.message?.content || "لا يوجد رد.";
-        responseBox.textContent = reply;
-      } catch (error) {
-        responseBox.textContent = "حدث خطأ أثناء الاتصال.";
-      }
+  // حفظ المحادثة
+  function saveMessage(role, content) {
+    const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+    history.push({role, content});
+    localStorage.setItem('chatHistory', JSON.stringify(history));
+  }
+
+  // إضافة رسالة للواجهة
+  function appendMessage(role, content) {
+    const div = document.createElement('div');
+    div.classList.add('message');
+    div.classList.add(role === 'user' ? 'user-message' : 'ai-message');
+    div.textContent = content;
+    chat.appendChild(div);
+  }
+
+  // تمرير المحادثة لأسفل
+  function scrollToBottom() {
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  // إرسال الرسالة وطلب الرد من API
+  async function sendMessage() {
+    const userText = input.value.trim();
+    if (!userText) return;
+    appendMessage('user', userText);
+    saveMessage('user', userText);
+    input.value = '';
+    scrollToBottom();
+
+    appendMessage('ai', 'جارٍ التفكير...');
+    scrollToBottom();
+
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [{ role: 'user', content: userText }],
+          temperature: 0.7
+        })
+      });
+
+      const data = await res.json();
+      // حذف رسالة "جارٍ التفكير..."
+      chat.lastChild.remove();
+
+      const reply = data.choices?.[0]?.message?.content || 'لا يوجد رد.';
+      appendMessage('ai', reply);
+      saveMessage('ai', reply);
+      scrollToBottom();
+
+    } catch (error) {
+      chat.lastChild.textContent = 'حدث خطأ أثناء الاتصال.';
     }
-  </script>
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+</script>
+
 </body>
 </html>
