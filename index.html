@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>مساعد ذكاء اصطناعي</title>
   <style>
     body {
@@ -10,7 +10,6 @@
       background: #f7f7f7;
       text-align: center;
     }
-
     #splash {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -21,14 +20,11 @@
       justify-content: center;
       font-size: 24px;
       z-index: 9999;
-      flex-direction: column;
     }
-
     #main {
       display: none;
       padding: 40px;
     }
-
     textarea, button {
       width: 80%;
       max-width: 600px;
@@ -36,7 +32,6 @@
       margin: 10px auto;
       font-size: 16px;
     }
-
     #response {
       margin-top: 20px;
       white-space: pre-wrap;
@@ -47,31 +42,54 @@
   </style>
 </head>
 <body>
-
-  <div id="splash">
-    تم صنع هذا الموقع من قبل غيداء
-    <audio id="alarm" autoplay>
-      <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" type="audio/ogg">
-    </audio>
-  </div>
-
+  <div id="splash">تم صنع هذا الموقع من قبل غيداء</div>
   <div id="main">
     <h1>مساعد ذكاء اصطناعي</h1>
     <textarea id="userInput" rows="4" placeholder="اكتب سؤالك هنا..."></textarea>
-    <br>
+    <br />
     <button onclick="askAI()">أرسل</button>
     <div id="response"></div>
   </div>
 
   <script>
-    // شاشة البداية
+    // شاشة البداية تظهر 5 ثواني ثم تختفي
     window.onload = function () {
-      const alarm = document.getElementById("alarm");
-      alarm.play().catch(() => {}); // تشغيل الإنذار
       setTimeout(() => {
         document.getElementById("splash").style.display = "none";
         document.getElementById("main").style.display = "block";
       }, 5000);
     };
 
-    // استدع
+    // مفتاح API الخاص بك
+    const API_KEY = "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";
+
+    // استدعاء API للرد على المستخدم
+    async function askAI() {
+      const userMessage = document.getElementById("userInput").value;
+      const responseBox = document.getElementById("response");
+      responseBox.textContent = "جارٍ التفكير...";
+
+      try {
+        const result = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: userMessage }],
+            temperature: 0.7
+          })
+        });
+
+        const data = await result.json();
+        const reply = data.choices?.[0]?.message?.content || "لا يوجد رد.";
+        responseBox.textContent = reply;
+      } catch (error) {
+        responseBox.textContent = "حدث خطأ أثناء الاتصال.";
+      }
+    }
+  </script>
+</body>
+</html>
