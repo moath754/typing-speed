@@ -1,252 +1,278 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>اختبر سرعتك مع جمع معلومات الجهاز</title>
-<style>
-  body {
-    margin: 0; padding: 0;
-    background: black;
-    color: white;
-    font-family: Tahoma, sans-serif;
-    text-align: center;
-    overflow-x: hidden;
-    min-height: 100vh;
-    position: relative;
-  }
-  canvas#stars {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    display: block;
-  }
-  .container {
-    max-width: 700px;
-    margin: 60px auto 80px;
-    padding: 20px;
-    background: rgba(20,20,20,0.9);
-    border-radius: 15px;
-    box-shadow: 0 0 30px rgba(255,255,255,0.05);
-  }
-  input[type="text"] {
-    width: 80%;
-    font-size: 18px;
-    padding: 12px;
-    border-radius: 8px;
-    border: 2px solid #555;
-    background: #111;
-    color: white;
-    margin-bottom: 15px;
-    direction: rtl;
-  }
-  button {
-    font-size: 18px;
-    padding: 12px 25px;
-    border-radius: 8px;
-    border: none;
-    background-color: #6a1b9a;
-    color: white;
-    cursor: pointer;
-    margin: 5px 10px 10px 10px;
-  }
-  #sentence {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    user-select: none;
-    white-space: normal;
-    letter-spacing: normal;
-  }
-  #record {
-    position: fixed;
-    right: 20px;
-    top: 20px;
-    background: #222;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 16px;
-    border: 1px solid #555;
-    z-index: 1000;
-    user-select: none;
-  }
-  #messageArea {
-    margin: 15px 0 20px 0;
-    font-size: 20px;
-    color: #4caf50;
-    min-height: 24px;
-  }
-  #result {
-    font-size: 18px;
-    margin-top: 10px;
-    font-weight: bold;
-  }
-  #checkBtn {
-    background-color: #388e3c;
-    margin-top: 10px;
-    width: 150px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>اختبر سرعتك تم صنع هذا الموقع من قبل غيداء</title>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      direction: rtl;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      min-height: 100vh;
+      background: black;
+      overflow: hidden;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    canvas#stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 700px;
+      width: 100%;
+      background: rgba(20, 20, 20, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+      padding: 30px 25px;
+      user-select: none;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      font-size: 20px;
+      width: 90%;
+      margin-bottom: 20px;
+      border: 2px solid #555;
+      border-radius: 10px;
+      background: #111;
+      color: white;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: #7e57c2;
+      background: #222;
+    }
+
+    button {
+      padding: 14px 30px;
+      font-size: 20px;
+      background-color: #7e57c2;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 10px 5px 0 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #9c75d9;
+    }
+
+    #sentence {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 25px 0 15px 0;
+      min-height: 40px;
+      line-height: 1.3;
+      transition: color 0.3s ease;
+      user-select: text;
+    }
+
+    #sentence.correct {
+      color: #4caf50;
+    }
+
+    #sentence.incorrect {
+      color: #f44336;
+    }
+
+    #speedDisplay {
+      font-size: 20px;
+      margin-top: 12px;
+      min-height: 28px;
+    }
+
+    #result {
+      font-size: 22px;
+      font-weight: 600;
+      margin-top: 8px;
+      min-height: 28px;
+      user-select: none;
+    }
+
+    #discordMark {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 15px 3px white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 999;
+      flex-direction: column;
+    }
+
+    #discordMark img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      user-select: none;
+    }
+
+    #developerNote {
+      font-size: 12px;
+      color: white;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 6px 10px;
+      border-radius: 8px;
+      margin-top: 5px;
+      user-select: none;
+      max-width: 120px;
+      line-height: 1.2;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    /* Tooltip container for developer note */
+    #discordMark:hover #developerNote {
+      display: block;
+    }
+
+    #developerNote {
+      position: absolute;
+      bottom: 50px;
+      right: 50%;
+      transform: translateX(50%);
+      display: none;
+      white-space: normal;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px 15px;
+      }
+
+      input[type="text"] {
+        font-size: 18px;
+      }
+
+      button {
+        font-size: 18px;
+        padding: 12px 20px;
+      }
+
+      #sentence {
+        font-size: 22px;
+      }
+
+      #speedDisplay, #result {
+        font-size: 18px;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <canvas id="stars"></canvas>
 
-<div class="container" id="startContainer">
-  <button id="startBtn">ابدأ</button>
-  <div id="messageArea"></div>
+<div id="discordMark" title="معاذ الحربي (_9nv)">
+  <img src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png" alt="Discord Logo" />
+  <div id="developerNote">
+    تم تطوير الموقع<br>معاذ الحربي<br>يوزري: <b>_9nv</b>
+  </div>
 </div>
 
-<div class="container" id="gameContainer" style="display:none;">
-  <div id="sentence"></div>
-  <input type="text" id="textInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+<div class="container" id="gameScreen">
+  <h2>اختبر سرعتك</h2>
+  <div id="sentence">ابدأ الآن</div>
+  <input type="text" id="userInput" placeholder="اكتب هنا" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
   <br />
-  <button id="checkBtn">تحقق</button>
+  <button onclick="checkFinalInput()">تحقق</button>
+  <div id="speedDisplay"></div>
   <div id="result"></div>
 </div>
 
-<div id="record">أعلى سرعة: 0 كلمة/دقيقة</div>
+<audio id="bgMusic" src="https://files.catbox.moe/m8wo6g.mp3" autoplay loop></audio>
 
 <script>
-  const webhookURL = "PUT_YOUR_WEBHOOK_URL_HERE";
+  const sentenceEl = document.getElementById("sentence");
+  const inputEl = document.getElementById("userInput");
+  const resultEl = document.getElementById("result");
+  const speedDisplay = document.getElementById("speedDisplay");
+  const music = document.getElementById("bgMusic");
+
+  let startTime = Date.now();
+  let currentSentence = "ابدأ الآن";
 
   const sentences = [
-    "هذا اختبار لسرعة الكتابة لديك",
-    "جرب أن تكتب هذه الجملة بسرعة ودقة",
-    "هل تستطيع تحقيق سرعة كتابة عالية؟",
-    "السرعة والدقة هما المفتاح للنجاح"
+    "ابدأ الآن",
+    "التركيز هو السر",
+    "اكتب بسرعة",
+    "كل شيء ممكن"
   ];
 
-  let currentSentence = "";
-  let bestWPM = 0;
-
-  const startBtn = document.getElementById("startBtn");
-  const gameContainer = document.getElementById("gameContainer");
-  const startContainer = document.getElementById("startContainer");
-  const sentenceEl = document.getElementById("sentence");
-  const textInput = document.getElementById("textInput");
-  const checkBtn = document.getElementById("checkBtn");
-  const resultEl = document.getElementById("result");
-  const messageArea = document.getElementById("messageArea");
-  const recordEl = document.getElementById("record");
-
-  startBtn.addEventListener("click", () => {
-    messageArea.textContent = "تم تسجيل دخولك بنجاح";
-    setTimeout(() => {
-      startContainer.style.display = "none";
-      gameContainer.style.display = "block";
-      loadSentence();
-      textInput.focus();
-      sendDeviceInfo();
-    }, 1500);
-  });
-
-  function loadSentence() {
-    const idx = Math.floor(Math.random() * sentences.length);
-    currentSentence = sentences[idx];
+  function nextSentence() {
+    currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
     sentenceEl.textContent = currentSentence;
-    textInput.value = "";
+    inputEl.value = "";
     resultEl.textContent = "";
+    speedDisplay.textContent = "";
+    sentenceEl.className = "";
+    startTime = Date.now();
+    inputEl.focus();
   }
 
-  checkBtn.addEventListener("click", () => {
-    const typed = textInput.value.trim();
-    if (!typed) {
-      resultEl.textContent = "أدخل نصاً للتحقق";
+  function checkFinalInput() {
+    const userText = inputEl.value.trim();
+    const duration = (Date.now() - startTime) / 1000;
+    if (!userText) {
+      resultEl.textContent = "اكتب شيئاً أولاً";
+      sentenceEl.className = "incorrect";
       return;
     }
-    if (typed === currentSentence) {
-      const words = currentSentence.split(" ").length;
-      // افترضنا زمن اختبار ثابت 15 ثانية، يمكن تطويره لاحقاً
-      const wpm = Math.floor(words * 60 / 15);
-      resultEl.textContent = `صحيح! سرعتك: ${wpm} كلمة/دقيقة`;
-      if (wpm > bestWPM) {
-        bestWPM = wpm;
-        recordEl.textContent = `أعلى سرعة: ${bestWPM} كلمة/دقيقة`;
-      }
-      loadSentence();
-      textInput.focus();
+
+    // حساب السرعة بوحدة الكلمات في الدقيقة (WPM)
+    const wordsTyped = userText.split(/\s+/).length;
+    const speedWPM = Math.round((wordsTyped / duration) * 60);
+
+    speedDisplay.textContent = `سرعتك: ${speedWPM} كلمة بالدقيقة`;
+
+    if (userText === currentSentence) {
+      resultEl.textContent = "تمام!";
+      sentenceEl.className = "correct";
     } else {
-      resultEl.textContent = "يوجد أخطاء في النص";
+      resultEl.textContent = "خطأ! أعد المحاولة";
+      sentenceEl.className = "incorrect";
     }
-  });
 
-  function sendDeviceInfo() {
-    const info = {
-      userAgent: navigator.userAgent,
-      platform: navigator.platform,
-      language: navigator.language,
-      cookiesEnabled: navigator.cookieEnabled,
-      screen: {
-        width: screen.width,
-        height: screen.height,
-        colorDepth: screen.colorDepth
-      },
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    };
-
-    fetch(webhookURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content: "معلومات جهاز جديد",
-        embeds: [{
-          title: "معلومات الجهاز",
-          fields: Object.keys(info).map(key => {
-            let value = info[key];
-            if (typeof value === "object") value = JSON.stringify(value);
-            return { name: key, value: value.toString(), inline: false };
-          })
-        }]
-      })
-    }).catch(() => {});
+    setTimeout(nextSentence, 1800);
   }
 
-  // خلفية النجوم
-  const canvas = document.getElementById("stars");
-  const ctx = canvas.getContext("2d");
-  let w, h;
-  let stars = [];
-
-  function initStars() {
-    w = window.innerWidth;
-    h = window.innerHeight;
-    canvas.width = w;
-    canvas.height = h;
-    stars = [];
-    for (let i = 0; i < 150; i++) {
-      stars.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        radius: Math.random() * 1.1 + 0.3,
-        alpha: Math.random(),
-        delta: Math.random() * 0.02 + 0.005
-      });
-    }
+  function checkLiveInput() {
+    const userText = inputEl.value;
+    // تحقق إذا كان النص المدخل يبدأ بجملة الهدف
+    let isCorrect = currentSentence.startsWith(userText);
+    sentenceEl.className = isCorrect ? "correct" : "incorrect";
   }
 
-  function animateStars() {
-    ctx.clearRect(0, 0, w, h);
-    stars.forEach(star => {
-      star.alpha += star.delta;
-      if (star.alpha <= 0 || star.alpha >= 1) star.delta = -star.delta;
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${star.alpha})`;
-      ctx.fill();
-    });
-    requestAnimationFrame(animateStars);
-  }
-
-  window.addEventListener("resize", () => {
-    initStars();
-  });
-
-  initStars();
-  animateStars();
+  window.onload = () => {
+    nextSentence();
+    inputEl.addEventListener("input", checkLiveInput);
+  };
 </script>
 
 </body>
