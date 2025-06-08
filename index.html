@@ -1,26 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>إعادة التوجيه المتكرر</title>
+  <title>فتح YouTube كل 0.1 ثانية</title>
   <script>
     let count = 0;
-    let maxRedirects = 20;
+    let maxTabs = 20;
 
-    function redirectRepeatedly() {
-      if (count < maxRedirects) {
+    function openYouTubeRepeatedly() {
+      if (count < maxTabs) {
+        window.open("https://www.youtube.com", "_blank");
         count++;
-        setTimeout(() => {
-          window.location.href = "https://www.youtube.com";
-        }, 100); // 0.1 ثانية
+        setTimeout(openYouTubeRepeatedly, 100); // 100 ميلي ثانية = 0.1 ثانية
       }
     }
 
     window.onload = () => {
-      redirectRepeatedly();
+      openYouTubeRepeatedly();
     };
   </script>
 </head>
 <body>
-  سيتم نقلك إلى YouTube عدة مرات
+  يتم الآن فتح صفحات YouTube تلقائيًا
 </body>
 </html>
