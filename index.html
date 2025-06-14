@@ -1,94 +1,101 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8" />
-<title>واجهة Server Destroyer</title>
-<style>
-  body {
-    background-color: #1a1a1a;
-    color: #ff3333;
-    font-family: monospace, monospace;
-    white-space: pre;
-    text-align: center;
-  }
-  .banner {
-    margin: 20px auto;
-    font-weight: bold;
-    font-size: 14px;
-    line-height: 1.1;
-  }
-  .warning {
-    color: #ff0000;
-    font-weight: bold;
-    margin: 20px 0;
-  }
-  .commands {
-    background: #330000;
-    border: 2px solid #ff3333;
-    display: inline-block;
-    padding: 15px;
-    text-align: left;
-    font-size: 16px;
-    margin: 20px auto;
-  }
-  button {
-    background: #ff3333;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    margin: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    font-family: monospace;
-  }
-  button:hover {
-    background: #ff5555;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>واجهات معاذ</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #f00;
+      font-family: monospace;
+      margin: 0;
+      padding: 20px;
+    }
+    .interface {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    .btns {
+      margin-top: 20px;
+    }
+    button {
+      background-color: #222;
+      color: #f00;
+      border: 1px solid #f00;
+      padding: 8px 16px;
+      margin-right: 10px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+    pre {
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
 
-<div class="banner">
+  <!-- واجهة 1 -->
+  <div id="interface1" class="interface active">
+    <pre>
 ========================================================================
-<br>
-  ███╗   ███╗ █████╗ ████████╗██╗  ██╗    ██╗   ██╗██╗   ██╗███████╗██╗  ██╗<br>
-  ████╗ ████║██╔══██╗╚══██╔══╝╚██╗██╔╝    ██║   ██║██║   ██║██╔════╝╚██╗██╔╝<br>
-  ██╔████╔██║███████║   ██║    ╚███╔╝     ██║   ██║██║   ██║█████╗   ╚███╔╝ <br>
-  ██║╚██╔╝██║██╔══██║   ██║    ██╔██╗     ╚██╗ ██╔╝██║   ██║██╔══╝   ██╔██╗ <br>
-  ██║ ╚═╝ ██║██║  ██║   ██║   ██╔╝ ██╗     ╚████╔╝ ╚██████╔╝███████╗██╔╝ ██╗<br>
-  ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝      ╚═══╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝<br>
+  ███╗   ███╗ █████╗ ████████╗██╗  ██╗    ██╗   ██╗██╗   ██╗███████╗██╗  ██╗
+  ████╗ ████║██╔══██╗╚══██╔══╝╚██╗██╔╝    ██║   ██║██║   ██║██╔════╝╚██╗██╔╝
+  ██╔████╔██║███████║   ██║    ╚███╔╝     ██║   ██║██║   ██║█████╗   ╚███╔╝ 
+  ██║╚██╔╝██║██╔══██║   ██║    ██╔██╗     ╚██╗ ██╔╝██║   ██║██╔══╝   ██╔██╗ 
+  ██║ ╚═╝ ██║██║  ██║   ██║   ██╔╝ ██╗     ╚████╔╝ ╚██████╔╝███████╗██╔╝ ██╗
+  ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝      ╚═══╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝
 ========================================================================
-</div>
-
-<div class="warning">
 ⚠️  S E R V E R   D E S T R O Y E R  ⚠️
-</div>
 
-<div class="commands">
-│  <button onclick="action('GRANT-ALL')">GRANT-ALL</button>   
-    · <button onclick="action('CREATE-CH')">CREATE-CH</button>   
-    · <button onclick="action('DELETE-CH')">DELETE-CH</button>    · <button onclick="action('DELETE-ROLES')">DELETE-ROLES</button><br>
-│  <button onclick="action('BAN-MEMBERS')">BAN-MEMBERS</button> 
-    · <button onclick="action('SPAM-CH')">SPAM-CH</button>      
-    · <button onclick="action('CHANGE-INFO')">CHANGE-INFO</button>  · <button onclick="action('CREATE-ROLES')">CREATE-ROLES</button><br>
-│  <button onclick="action('SPAM-MSGS')">SPAM-MSGS</button>   
-    · <button onclick="action('RENAME-MEMB')">RENAME-MEMB</button> 
-    · <button onclick="action('FULL-NUKE')">FULL-NUKE</button>     · <button onclick="action('EXIT')">EXIT</button>             
-</div>
+│  GRANT-ALL   · CREATE-CH   · DELETE-CH    · DELETE-ROLES              │
+│  BAN-MEMBERS · SPAM-CH     · CHANGE-INFO  · CREATE-ROLES              │
+│  SPAM-MSGS   · RENAME-MEMB · FULL-NUKE    · EXIT                       │
 
-<div id="output" style="margin-top: 30px; font-family: monospace; color: #ff5555;"></div>
+fer • NUK3Z ⚰️ »
+    </pre>
+  </div>
 
-<script>
-  function action(cmd) {
-    const output = document.getElementById('output');
-    if (cmd === 'EXIT') {
-      output.textContent = "تم إغلاق الواجهة. شكراً لاستخدامك.";
-      // ممكن هنا تضيف كود لإغلاق الصفحة أو غيرها
-    } else {
-      output.textContent = `✅ تم تنفيذ الأمر: ${cmd} (وهميًا)`;
+  <!-- واجهة 2 -->
+  <div id="interface2" class="interface">
+    <pre>
+╔═══════════════════════════════════════════════╗
+║         قيد التنفيذ... الرجاء الانتظار        ║
+╚═══════════════════════════════════════════════╝
+    </pre>
+  </div>
+
+  <!-- واجهة 3 -->
+  <div id="interface3" class="interface">
+    <pre>
+╔══════════════════════════════════════════════════════╗
+║              ⚠️  LOGGING ACTIONS ⚠️               ║
+╠══════════════════════════════════════════════════════╣
+║ Deleted Channel 1234567890                           ║
+║ Created Role: nuked                                  ║
+║ Banned Member: 9876543210                            ║
+║ Server Info Changed                                  ║
+║ Failed to Create Channel                             ║
+╚══════════════════════════════════════════════════════╝
+    </pre>
+  </div>
+
+  <!-- أزرار التنقل -->
+  <div class="btns">
+    <button onclick="show(1)">واجهة 1</button>
+    <button onclick="show(2)">واجهة 2</button>
+    <button onclick="show(3)">واجهة 3</button>
+  </div>
+
+  <script>
+    function show(num) {
+      document.querySelectorAll('.interface').forEach(div => {
+        div.classList.remove('active');
+      });
+      document.getElementById(`interface${num}`).classList.add('active');
     }
-  }
-</script>
+  </script>
 
 </body>
 </html>
