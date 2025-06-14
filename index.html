@@ -2,43 +2,50 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>واجهات معاذ</title>
+  <title>واجهة التدمير - MOATH</title>
   <style>
     body {
       background-color: #000;
       color: #f00;
       font-family: monospace;
-      margin: 0;
+      overflow: hidden;
       padding: 20px;
     }
-    .interface {
-      display: none;
-    }
-    .active {
-      display: block;
-    }
-    .btns {
-      margin-top: 20px;
-    }
-    button {
-      background-color: #222;
-      color: #f00;
-      border: 1px solid #f00;
-      padding: 8px 16px;
-      margin-right: 10px;
-      cursor: pointer;
-      font-family: monospace;
-    }
-    pre {
+
+    #typewriter {
       white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .flicker {
+      animation: flickerAnimation 1s infinite;
+    }
+
+    @keyframes flickerAnimation {
+      0%   { opacity: 1; }
+      50%  { opacity: 0.2; }
+      100% { opacity: 1; }
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    #footer {
+      color: #f00;
+      margin-top: 2em;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <!-- واجهة 1 -->
-  <div id="interface1" class="interface active">
-    <pre>
+<div id="typewriter" class="flicker"></div>
+<div id="footer">fer • NUK3Z ⚰️ »</div>
+
+<script>
+  const banner = `
 ========================================================================
   ███╗   ███╗ █████╗ ████████╗██╗  ██╗    ██╗   ██╗██╗   ██╗███████╗██╗  ██╗
   ████╗ ████║██╔══██╗╚══██╔══╝╚██╗██╔╝    ██║   ██║██║   ██║██╔════╝╚██╗██╔╝
@@ -47,55 +54,28 @@
   ██║ ╚═╝ ██║██║  ██║   ██║   ██╔╝ ██╗     ╚████╔╝ ╚██████╔╝███████╗██╔╝ ██╗
   ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝      ╚═══╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝
 ========================================================================
+
 ⚠️  S E R V E R   D E S T R O Y E R  ⚠️
 
 │  GRANT-ALL   · CREATE-CH   · DELETE-CH    · DELETE-ROLES              │
 │  BAN-MEMBERS · SPAM-CH     · CHANGE-INFO  · CREATE-ROLES              │
 │  SPAM-MSGS   · RENAME-MEMB · FULL-NUKE    · EXIT                       │
 
-fer • NUK3Z ⚰️ »
-    </pre>
-  </div>
+`;
 
-  <!-- واجهة 2 -->
-  <div id="interface2" class="interface">
-    <pre>
-╔═══════════════════════════════════════════════╗
-║         قيد التنفيذ... الرجاء الانتظار        ║
-╚═══════════════════════════════════════════════╝
-    </pre>
-  </div>
+  const typewriter = document.getElementById("typewriter");
+  let index = 0;
 
-  <!-- واجهة 3 -->
-  <div id="interface3" class="interface">
-    <pre>
-╔══════════════════════════════════════════════════════╗
-║              ⚠️  LOGGING ACTIONS ⚠️               ║
-╠══════════════════════════════════════════════════════╣
-║ Deleted Channel 1234567890                           ║
-║ Created Role: nuked                                  ║
-║ Banned Member: 9876543210                            ║
-║ Server Info Changed                                  ║
-║ Failed to Create Channel                             ║
-╚══════════════════════════════════════════════════════╝
-    </pre>
-  </div>
-
-  <!-- أزرار التنقل -->
-  <div class="btns">
-    <button onclick="show(1)">واجهة 1</button>
-    <button onclick="show(2)">واجهة 2</button>
-    <button onclick="show(3)">واجهة 3</button>
-  </div>
-
-  <script>
-    function show(num) {
-      document.querySelectorAll('.interface').forEach(div => {
-        div.classList.remove('active');
-      });
-      document.getElementById(`interface${num}`).classList.add('active');
+  function type() {
+    if (index < banner.length) {
+      typewriter.textContent += banner.charAt(index);
+      index++;
+      setTimeout(type, 3); // سرعة الكتابة
     }
-  </script>
+  }
+
+  type();
+</script>
 
 </body>
 </html>
