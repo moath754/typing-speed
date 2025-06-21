@@ -1,1 +1,46 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>Bypass خويك</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 60px; background: #f7f7f7 }
+    input, button { padding: 10px; font-size: 18px; width: 300px; margin: 10px }
+    #result { margin-top: 20px; font-size: 18px }
+  </style>
+</head>
+<body>
+  <h1>فك الرابط المختصر</h1>
+  <input type="text" id="url" placeholder="حط رابطك هنا">
+  <br>
+  <button onclick="bypass()">فك الرابط</button>
+  <p id="result"></p>
 
+  <script>
+    async function bypass() {
+      const url = document.getElementById('url').value.trim()
+      const result = document.getElementById('result')
+      result.innerText = 'قاعد احاول افكه...'
+
+      if (!url) return result.innerText = 'حط رابط أول'
+
+      try {
+        const res = await fetch('https://bypass.bot.nu/bypass2', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        })
+
+        const data = await res.json()
+        if (data && data.destination) {
+          result.innerHTML = `الرابط النهائي: <a href="${data.destination}" target="_blank">${data.destination}</a>`
+        } else {
+          result.innerText = 'ما قدرت افكه يمكن الرابط غريب'
+        }
+      } catch (err) {
+        result.innerText = 'صار خطأ بالسيرفر أو انقطع الاتصال'
+      }
+    }
+  </script>
+</body>
+</html>
