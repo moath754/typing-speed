@@ -1,45 +1,24 @@
 <!DOCTYPE html>
 <html lang="ar">
-<head>
-  <meta charset="UTF-8">
-  <title>Bypass </title>
-  <script src="https://js.puter.com/v2/"></script>
-  <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 60px; background: #f7f7f7 }
-    input, button { padding: 10px; font-size: 18px; width: 300px; margin: 10px }
-    #result { margin-top: 20px; font-size: 18px }
-  </style>
-</head>
-<body>
+<head><meta charset="UTF-8"><title>Bypass خويك</title></head><body style="text-align:center;margin-top:60px;font-family:sans-serif">
   <h1>فك الرابط المختصر</h1>
-  <input type="text" id="url" placeholder="حط رابطك هنا">
-  <br>
-  <button onclick="bypass()">فك الرابط</button>
-  <p id="result"></p>
+  <input id="url" placeholder="حط رابطك هنا" style="width:300px;padding:10px;margin:10px;font-size:18px">
+  <button onclick="bypass()" style="padding:10px 20px;font-size:18px">فك الرابط</button>
+  <p id="result" style="margin-top:20px;font-size:18px"></p>
 
   <script>
     async function bypass() {
       const url = document.getElementById('url').value.trim()
-      const result = document.getElementById('result')
-      result.innerText = 'جالس افكه خلك معي...'
-
-      if (!url) return result.innerText = 'حط رابطك أول يا خوي'
-
+      const r = document.getElementById('result')
+      if (!url) return r.innerText = 'حط رابط أول'
+      r.innerText = 'إنتظر شوي...'
       try {
-        const res = await puter.net.fetch('https://bypass.bot.nu/bypass2', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url })
-        })
-
+        const res = await fetch('https://bypass.vip/?api&url='+encodeURIComponent(url))
         const data = await res.json()
-        if (data?.destination) {
-          result.innerHTML = `الرابط النهائي:<br><a href="${data.destination}" target="_blank">${data.destination}</a>`
-        } else {
-          result.innerText = 'ما قدرت افكه، يمكن رابطك غريب أو فيه حماية زايدة'
-        }
-      } catch (err) {
-        result.innerText = 'صار خطأ، يمكن النت مقطوع أو السيرفر مزحوم'
+        if (data.destination) r.innerHTML = `الرابط النهائي:<br><a href="${data.destination}" target="_blank">${data.destination}</a>`
+        else r.innerText = 'ما قدر يفك الرابط، جرب خدمة ثانية'
+      } catch {
+        r.innerText = 'صار خطأ، يمكن الخدمة مشغولة الحين'
       }
     }
   </script>
