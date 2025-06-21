@@ -2,7 +2,8 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Bypass خويك</title>
+  <title>Bypass </title>
+  <script src="https://js.puter.com/v2/"></script>
   <style>
     body { font-family: sans-serif; text-align: center; margin-top: 60px; background: #f7f7f7 }
     input, button { padding: 10px; font-size: 18px; width: 300px; margin: 10px }
@@ -20,25 +21,25 @@
     async function bypass() {
       const url = document.getElementById('url').value.trim()
       const result = document.getElementById('result')
-      result.innerText = 'قاعد احاول افكه...'
+      result.innerText = 'جالس افكه خلك معي...'
 
-      if (!url) return result.innerText = 'حط رابط أول'
+      if (!url) return result.innerText = 'حط رابطك أول يا خوي'
 
       try {
-        const res = await fetch('https://bypass.bot.nu/bypass2', {
+        const res = await puter.net.fetch('https://bypass.bot.nu/bypass2', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url })
         })
 
         const data = await res.json()
-        if (data && data.destination) {
-          result.innerHTML = `الرابط النهائي: <a href="${data.destination}" target="_blank">${data.destination}</a>`
+        if (data?.destination) {
+          result.innerHTML = `الرابط النهائي:<br><a href="${data.destination}" target="_blank">${data.destination}</a>`
         } else {
-          result.innerText = 'ما قدرت افكه يمكن الرابط غريب'
+          result.innerText = 'ما قدرت افكه، يمكن رابطك غريب أو فيه حماية زايدة'
         }
       } catch (err) {
-        result.innerText = 'صار خطأ بالسيرفر أو انقطع الاتصال'
+        result.innerText = 'صار خطأ، يمكن النت مقطوع أو السيرفر مزحوم'
       }
     }
   </script>
