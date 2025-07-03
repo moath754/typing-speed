@@ -1,64 +1,31 @@
-const express = require('express')
-const axios = require('axios')
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تحميل تيك توك بدون علامة</title>
+</head>
+<body style="background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+  <h1>🎥 تحميل تيك توك بدون علامة</h1>
+  <input id="videoURL" placeholder="حط رابط التيك توك" style="padding:10px;width:300px;">
+  <button onclick="download()" style="padding:10px;margin-top:10px;">تحميل</button>
 
-const app = express()
-app.use(express.json())
+  <script>
+    async function download() {
+      const url = document.getElementById('videoURL').value
+      const api = `https://api.tikwm.com/?url=${encodeURIComponent(url)}`
 
-// واجهة HTML جاهزه مرسومه من هنا
-app.get('/', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="ar">
-    <head>
-      <meta charset="UTF-8">
-      <title>تحميل تيك توك بدون علامة</title>
-    </head>
-    <body style="background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-      <h1 style="font-family:sans-serif;">🎥 تحميل تيك توك بدون علامة</h1>
-      <input id="videoURL" placeholder="حط رابط التيك توك" style="padding:10px;width:300px;border:none;border-radius:4px;">
-      <button onclick="download()" style="padding:10px 20px;margin-top:10px;border:none;border-radius:4px;background:#fff;color:#111;font-weight:bold;">تحميل</button>
-
-      <script>
-        async function download() {
-          const url = document.getElementById('videoURL').value
-          const res = await fetch('/api/download', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url })
-          })
-          const data = await res.json()
-          if (data.download) window.open(data.download)
-          else alert('صار فيه خطأ')
+      try {
+        const res = await fetch(api)
+        const data = await res.json()
+        if (data.data && data.data.play) {
+          window.open(data.data.play)
+        } else {
+          alert('ما حصلت رابط نظيف')
         }
-      </script>
-    </body>
-    </html>
-  `)
-})
-
-// API للتحميل بدون watermark
-app.post('/api/download', async (req, res) => {
-  const videoURL = req.body.url
-  if (!videoURL) return res.status(400).json({ error: 'حط رابط يالذيب' })
-
-  try {
-    // API خارجي مجاني tikwm
-    const api = `https://api.tikwm.com/?url=${encodeURIComponent(videoURL)}`
-    const result = await axios.get(api)
-
-    if (result.data.data && result.data.data.play) {
-      return res.json({ download: result.data.data.play })
-    } else {
-      return res.status(400).json({ error: 'ما حصلت رابط نظيف' })
+      } catch (err) {
+        alert('صار خطأ بالتواصل مع API')
+      }
     }
-
-  } catch (err) {
-    console.log(err)
-    res.status(500).json({ error: 'فيه مشكله بالسيرفر' })
-  }
-})
-
-const port = process.env.PORT || 3000
-app.listen(port, () => {
-  console.log('شغال عالمنفذ ' + port)
-})
+  </script>
+</body>
+</html>
