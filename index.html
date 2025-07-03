@@ -1,26 +1,93 @@
 <!DOCTYPE html>
 <html lang="ar">
-<head><meta charset="UTF-8"><title>Bypass خويك</title></head><body style="text-align:center;margin-top:60px;font-family:sans-serif">
-  <h1>فك الرابط المختصر</h1>
-  <input id="url" placeholder="حط رابطك هنا" style="width:300px;padding:10px;margin:10px;font-size:18px">
-  <button onclick="bypass()" style="padding:10px 20px;font-size:18px">فك الرابط</button>
-  <p id="result" style="margin-top:20px;font-size:18px"></p>
-
-  <script>
-    async function bypass() {
-      const url = document.getElementById('url').value.trim()
-      const r = document.getElementById('result')
-      if (!url) return r.innerText = 'حط رابط أول'
-      r.innerText = 'إنتظر شوي...'
-      try {
-        const res = await fetch('https://bypass.vip/?api&url='+encodeURIComponent(url))
-        const data = await res.json()
-        if (data.destination) r.innerHTML = `الرابط النهائي:<br><a href="${data.destination}" target="_blank">${data.destination}</a>`
-        else r.innerText = 'ما قدر يفك الرابط، جرب خدمة ثانية'
-      } catch {
-        r.innerText = 'صار خطأ، يمكن الخدمة مشغولة الحين'
-      }
+<head>
+  <meta charset="UTF-8">
+  <title>رسام ، معاذ</title>
+  <style>
+    body {
+      margin: 0
+      background: #111
+      color: #fff
+      display: flex
+      flex-direction: column
+      align-items: center
+      justify-content: center
+      height: 100vh
+      font-family: Arial, sans-serif
     }
+    h1 {
+      margin-bottom: 20px
+    }
+    canvas {
+      border: 3px solid #0f0
+      background: #fff
+      cursor: crosshair
+    }
+    .tools {
+      margin-top: 20px
+    }
+    .tools input,
+    .tools button {
+      margin: 0 5px
+      padding: 10px
+      border: none
+      border-radius: 5px
+      font-size: 16px
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 رسام </h1>
+  <canvas id="canvas" width="800" height="600"></canvas>
+  <div class="tools">
+    <input type="color" id="colorPicker" value="#000000">
+    <input type="range" id="brushSize" min="1" max="50" value="5">
+    <button id="clearBtn">مسح</button>
+    <button id="saveBtn">حفظ</button>
+  </div>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+
+    let painting = false
+
+    function startPosition(e) {
+      painting = true
+      draw(e)
+    }
+
+    function endPosition() {
+      painting = false
+      ctx.beginPath()
+    }
+
+    function draw(e) {
+      if (!painting) return
+      ctx.lineWidth = document.getElementById('brushSize').value
+      ctx.lineCap = 'round'
+      ctx.strokeStyle = document.getElementById('colorPicker').value
+
+      const rect = canvas.getBoundingClientRect()
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top)
+    }
+
+    canvas.addEventListener('mousedown', startPosition)
+    canvas.addEventListener('mouseup', endPosition)
+    canvas.addEventListener('mousemove', draw)
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+    })
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const link = document.createElement('a')
+      link.download = 'my_drawing.png'
+      link.href = canvas.toDataURL()
+      link.click()
+    })
   </script>
 </body>
 </html>
