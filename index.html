@@ -2,28 +2,80 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>تحميل تيك توك بدون علامة</title>
+  <title>موقع التشفير الزاحف</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 50px;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    textarea {
+      width: 80%;
+      height: 100px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      background: #fff;
+      color: #111;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .box {
+      border: 1px solid #fff;
+      padding: 20px;
+      margin: 10px;
+      width: 90%;
+      max-width: 600px;
+    }
+  </style>
 </head>
-<body style="background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-  <h1>🎥 تحميل تيك توك بدون علامة</h1>
-  <input id="videoURL" placeholder="حط رابط التيك توك" style="padding:10px;width:300px;">
-  <button onclick="download()" style="padding:10px;margin-top:10px;">تحميل</button>
+<body>
+  <h1>🔒 واجهة التشفير</h1>
+  <div class="box">
+    <textarea id="plainText" placeholder="اكتب الكلام اللي تبي تشفره"></textarea><br>
+    <button onclick="encrypt()">🔒 شفر</button>
+    <textarea id="encryptedText" placeholder="النص المشفر يطلع هنا"></textarea>
+  </div>
+
+  <h1>🔓 واجهة فك التشفير</h1>
+  <div class="box">
+    <textarea id="cipherText" placeholder="حط الكلام المشفر هنا"></textarea><br>
+    <button onclick="decrypt()">🔓 فك التشفير</button>
+    <textarea id="decryptedText" placeholder="النص الأصلي يطلع هنا"></textarea>
+  </div>
 
   <script>
-    async function download() {
-      const url = document.getElementById('videoURL').value
-      const api = `https://api.tikwm.com/?url=${encodeURIComponent(url)}`
+    function encrypt() {
+      const text = document.getElementById('plainText').value
+      const encoded = btoa(unescape(encodeURIComponent(text)))
+      document.getElementById('encryptedText').value = encoded
+    }
 
+    function decrypt() {
+      const encoded = document.getElementById('cipherText').value
       try {
-        const res = await fetch(api)
-        const data = await res.json()
-        if (data.data && data.data.play) {
-          window.open(data.data.play)
-        } else {
-          alert('ما حصلت رابط نظيف')
-        }
-      } catch (err) {
-        alert('صار خطأ بالتواصل مع API')
+        const decoded = decodeURIComponent(escape(atob(encoded)))
+        document.getElementById('decryptedText').value = decoded
+      } catch(e) {
+        alert('💥 فيه خطأ بالتشفير تأكد انك حاط نص مشفر صح')
       }
     }
   </script>
