@@ -1,101 +1,64 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="UTF-8">
-  <title>رسام المليادير</title>
-  <style>
-    body {
-      margin: 0
-      padding: 0
-      background: linear-gradient(135deg, #0f0f0f, #1a1a1a)
-      color: #fff
-      font-family: 'Cairo', sans-serif
-      display: flex
-      flex-direction: column
-      align-items: center
-      justify-content: center
-      height: 100vh
-      overflow: hidden
+const express = require('express')
+const axios = require('axios')
+
+const app = express()
+app.use(express.json())
+
+// واجهة HTML جاهزه مرسومه من هنا
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="ar">
+    <head>
+      <meta charset="UTF-8">
+      <title>تحميل تيك توك بدون علامة</title>
+    </head>
+    <body style="background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+      <h1 style="font-family:sans-serif;">🎥 تحميل تيك توك بدون علامة</h1>
+      <input id="videoURL" placeholder="حط رابط التيك توك" style="padding:10px;width:300px;border:none;border-radius:4px;">
+      <button onclick="download()" style="padding:10px 20px;margin-top:10px;border:none;border-radius:4px;background:#fff;color:#111;font-weight:bold;">تحميل</button>
+
+      <script>
+        async function download() {
+          const url = document.getElementById('videoURL').value
+          const res = await fetch('/api/download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+          })
+          const data = await res.json()
+          if (data.download) window.open(data.download)
+          else alert('صار فيه خطأ')
+        }
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// API للتحميل بدون watermark
+app.post('/api/download', async (req, res) => {
+  const videoURL = req.body.url
+  if (!videoURL) return res.status(400).json({ error: 'حط رابط يالذيب' })
+
+  try {
+    // API خارجي مجاني tikwm
+    const api = `https://api.tikwm.com/?url=${encodeURIComponent(videoURL)}`
+    const result = await axios.get(api)
+
+    if (result.data.data && result.data.data.play) {
+      return res.json({ download: result.data.data.play })
+    } else {
+      return res.status(400).json({ error: 'ما حصلت رابط نظيف' })
     }
-    h1 {
-      font-size: 48px
-      margin: 0 0 20px
-      letter-spacing: 2px
-      background: linear-gradient(90deg, #0ff, #0f0)
-      -webkit-background-clip: text
-      -webkit-text-fill-color: transparent
-    }
-    .canvas-frame {
-      width: 900px
-      height: 600px
-      background: #fff
-      border-radius: 10px
-      box-shadow: 0 0 30px rgba(0, 255, 255, 0.3)
-      position: relative
-    }
-    .toolbar {
-      position: absolute
-      top: 20px
-      left: 20px
-      display: flex
-      gap: 15px
-    }
-    .tool {
-      width: 40px
-      height: 40px
-      background: #222
-      border-radius: 8px
-      display: flex
-      align-items: center
-      justify-content: center
-      box-shadow: 0 0 10px rgba(0,255,255,0.5)
-    }
-    .tool:before {
-      content: ''
-      width: 20px
-      height: 20px
-      background: #0ff
-      border-radius: 50%
-    }
-    .color-palette {
-      position: absolute
-      bottom: 20px
-      left: 20px
-      display: flex
-      gap: 10px
-    }
-    .color {
-      width: 30px
-      height: 30px
-      border-radius: 50%
-      border: 2px solid #fff
-    }
-    .color:nth-child(1) { background: #000 }
-    .color:nth-child(2) { background: #f00 }
-    .color:nth-child(3) { background: #0f0 }
-    .color:nth-child(4) { background: #00f }
-    .color:nth-child(5) { background: #ff0 }
-    .color:nth-child(6) { background: #0ff }
-    .color:nth-child(7) { background: #f0f }
-  </style>
-</head>
-<body>
-  <h1>🎨 رسام المليادير</h1>
-  <div class="canvas-frame">
-    <div class="toolbar">
-      <div class="tool"></div>
-      <div class="tool"></div>
-      <div class="tool"></div>
-    </div>
-    <div class="color-palette">
-      <div class="color"></div>
-      <div class="color"></div>
-      <div class="color"></div>
-      <div class="color"></div>
-      <div class="color"></div>
-      <div class="color"></div>
-      <div class="color"></div>
-    </div>
-  </div>
-</body>
-</html>
+
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ error: 'فيه مشكله بالسيرفر' })
+  }
+})
+
+const port = process.env.PORT || 3000
+app.listen(port, () => {
+  console.log('شغال عالمنفذ ' + port)
+})
