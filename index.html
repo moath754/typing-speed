@@ -2,92 +2,100 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>رسام ، معاذ</title>
+  <title>رسام المليادير</title>
   <style>
     body {
       margin: 0
-      background: #111
+      padding: 0
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a)
       color: #fff
+      font-family: 'Cairo', sans-serif
       display: flex
       flex-direction: column
       align-items: center
       justify-content: center
       height: 100vh
-      font-family: Arial, sans-serif
+      overflow: hidden
     }
     h1 {
-      margin-bottom: 20px
+      font-size: 48px
+      margin: 0 0 20px
+      letter-spacing: 2px
+      background: linear-gradient(90deg, #0ff, #0f0)
+      -webkit-background-clip: text
+      -webkit-text-fill-color: transparent
     }
-    canvas {
-      border: 3px solid #0f0
+    .canvas-frame {
+      width: 900px
+      height: 600px
       background: #fff
-      cursor: crosshair
+      border-radius: 10px
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.3)
+      position: relative
     }
-    .tools {
-      margin-top: 20px
+    .toolbar {
+      position: absolute
+      top: 20px
+      left: 20px
+      display: flex
+      gap: 15px
     }
-    .tools input,
-    .tools button {
-      margin: 0 5px
-      padding: 10px
-      border: none
-      border-radius: 5px
-      font-size: 16px
+    .tool {
+      width: 40px
+      height: 40px
+      background: #222
+      border-radius: 8px
+      display: flex
+      align-items: center
+      justify-content: center
+      box-shadow: 0 0 10px rgba(0,255,255,0.5)
     }
+    .tool:before {
+      content: ''
+      width: 20px
+      height: 20px
+      background: #0ff
+      border-radius: 50%
+    }
+    .color-palette {
+      position: absolute
+      bottom: 20px
+      left: 20px
+      display: flex
+      gap: 10px
+    }
+    .color {
+      width: 30px
+      height: 30px
+      border-radius: 50%
+      border: 2px solid #fff
+    }
+    .color:nth-child(1) { background: #000 }
+    .color:nth-child(2) { background: #f00 }
+    .color:nth-child(3) { background: #0f0 }
+    .color:nth-child(4) { background: #00f }
+    .color:nth-child(5) { background: #ff0 }
+    .color:nth-child(6) { background: #0ff }
+    .color:nth-child(7) { background: #f0f }
   </style>
 </head>
 <body>
-  <h1>🎨 رسام </h1>
-  <canvas id="canvas" width="800" height="600"></canvas>
-  <div class="tools">
-    <input type="color" id="colorPicker" value="#000000">
-    <input type="range" id="brushSize" min="1" max="50" value="5">
-    <button id="clearBtn">مسح</button>
-    <button id="saveBtn">حفظ</button>
+  <h1>🎨 رسام المليادير</h1>
+  <div class="canvas-frame">
+    <div class="toolbar">
+      <div class="tool"></div>
+      <div class="tool"></div>
+      <div class="tool"></div>
+    </div>
+    <div class="color-palette">
+      <div class="color"></div>
+      <div class="color"></div>
+      <div class="color"></div>
+      <div class="color"></div>
+      <div class="color"></div>
+      <div class="color"></div>
+      <div class="color"></div>
+    </div>
   </div>
-  <script>
-    const canvas = document.getElementById('canvas')
-    const ctx = canvas.getContext('2d')
-
-    let painting = false
-
-    function startPosition(e) {
-      painting = true
-      draw(e)
-    }
-
-    function endPosition() {
-      painting = false
-      ctx.beginPath()
-    }
-
-    function draw(e) {
-      if (!painting) return
-      ctx.lineWidth = document.getElementById('brushSize').value
-      ctx.lineCap = 'round'
-      ctx.strokeStyle = document.getElementById('colorPicker').value
-
-      const rect = canvas.getBoundingClientRect()
-      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top)
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top)
-    }
-
-    canvas.addEventListener('mousedown', startPosition)
-    canvas.addEventListener('mouseup', endPosition)
-    canvas.addEventListener('mousemove', draw)
-
-    document.getElementById('clearBtn').addEventListener('click', () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-    })
-
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      const link = document.createElement('a')
-      link.download = 'my_drawing.png'
-      link.href = canvas.toDataURL()
-      link.click()
-    })
-  </script>
 </body>
 </html>
