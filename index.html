@@ -5,28 +5,93 @@
   <title>💬 شات فلاوي أسطوري</title>
   <style>
     body {
+      margin: 0;
       background: url('https://images.unsplash.com/photo-1518791841217-8f162f1e1131') no-repeat center center fixed;
       background-size: cover;
-      color: #fff; font-family: sans-serif;
-      text-align: center; direction: rtl;
+      font-family: 'Cairo', sans-serif;
+      color: #fff;
+      text-align: center;
+      direction: rtl;
     }
     #overlay {
-      background: rgba(0,0,0,0.7); min-height: 100vh; padding: 20px;
+      background: rgba(0,0,0,0.7);
+      min-height: 100vh;
+      padding: 30px 20px;
     }
-    #login, #chat { max-width: 700px; margin: 50px auto; padding: 20px; background: #333; border-radius: 12px; }
-    input, select { padding: 10px; margin: 5px; width: 80%; border: none; border-radius: 5px; }
-    button { padding: 8px 12px; margin: 5px; border: none; border-radius: 5px; background: #555; color: #fff; cursor: pointer; }
-    #messages { max-height: 400px; overflow-y: auto; border: 1px solid #444; padding: 10px; text-align: left; background: #222; border-radius: 5px; }
-    .message { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; background: #111; padding: 5px 10px; border-radius: 5px; }
-    .content { display: flex; align-items: center; flex: 1; }
-    .message img { width: 40px; height: 40px; border-radius: 50%; margin-left: 10px; }
-    .controls { display: flex; gap: 5px; }
+    .page {
+      display: none;
+      max-width: 800px;
+      margin: auto;
+      background: #222;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .active {
+      display: block;
+    }
+    input, select {
+      padding: 10px;
+      margin: 8px 0;
+      width: 90%;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      border: none;
+      border-radius: 5px;
+      background: #ff6600;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #messages {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #444;
+      padding: 10px;
+      text-align: left;
+      background: #111;
+      border-radius: 5px;
+      margin-top: 15px;
+    }
+    .message {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #333;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+    }
+    .content {
+      display: flex;
+      align-items: center;
+    }
+    .message img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-left: 10px;
+    }
+    .controls button {
+      background: #ff3300;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
   </style>
 </head>
 <body>
   <div id="overlay">
-    <div id="login">
-      <h2>🪪 سجل دخولك</h2>
+
+    <!-- صفحة تسجيل الدخول -->
+    <div id="loginPage" class="page active">
+      <h2>🪪 دخول فلاوي</h2>
       <input id="username" placeholder="اسم المستخدم" /><br>
       <label>اختر أفاتارك:</label><br>
       <input type="file" id="avatarFile" accept="image/*"><br><br>
@@ -39,22 +104,29 @@
       <button id="loginBtn">دخول</button>
     </div>
 
-    <div id="chat" style="display:none;">
-      <h2>💬 الشات الأسطوري</h2>
+    <!-- صفحة المحادثة -->
+    <div id="chatPage" class="page">
+      <div class="header">
+        <h2>💬 شاتك الأسطوري</h2>
+        <button id="logoutBtn">🚪 تسجيل خروج</button>
+      </div>
       <div id="messages"></div>
       <input id="msgInput" placeholder="اكتب رسالتك..." />
       <button id="sendBtn">إرسال</button>
       <button id="clearChat">🗑 مسح الكل</button>
     </div>
+
   </div>
 
   <script>
-    const loginDiv = document.getElementById('login');
-    const chatDiv = document.getElementById('chat');
+    // عناصر الصفحة
+    const loginPage = document.getElementById('loginPage');
+    const chatPage = document.getElementById('chatPage');
     const usernameInput = document.getElementById('username');
     const avatarFile = document.getElementById('avatarFile');
     const bgSelect = document.getElementById('bgSelect');
     const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
     const messagesDiv = document.getElementById('messages');
@@ -62,20 +134,18 @@
 
     let avatarData = '';
 
+    // حفظ واسترجاع
     function saveMessages(msgs) {
       localStorage.setItem('messages', JSON.stringify(msgs));
     }
-
     function loadMessages() {
       return JSON.parse(localStorage.getItem('messages') || '[]');
     }
-
     function saveSettings(username, avatar, bg) {
       localStorage.setItem('username', username);
       localStorage.setItem('avatar', avatar);
       localStorage.setItem('background', bg);
     }
-
     function loadSettings() {
       return {
         username: localStorage.getItem('username') || '',
@@ -83,7 +153,6 @@
         bg: localStorage.getItem('background') || 'bg1'
       };
     }
-
     function setBackground(bg) {
       let url = '';
       if (bg === 'bg1') url = 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131';
@@ -92,6 +161,7 @@
       document.body.style.backgroundImage = `url('${url}')`;
     }
 
+    // عرض الرسائل
     function addMessageElement(msgObj, index) {
       const msgElement = document.createElement('div');
       msgElement.classList.add('message');
@@ -165,9 +235,7 @@
     avatarFile.onchange = (e) => {
       const file = e.target.files[0];
       const reader = new FileReader();
-      reader.onload = () => {
-        avatarData = reader.result;
-      };
+      reader.onload = () => { avatarData = reader.result; };
       if (file) reader.readAsDataURL(file);
     };
 
@@ -179,27 +247,34 @@
       saveSettings(username, avatar, bg);
       setBackground(bg);
 
-      loginDiv.style.display = 'none';
-      chatDiv.style.display = 'block';
-
+      loginPage.classList.remove('active');
+      chatPage.classList.add('active');
       renderMessages();
     };
 
     sendBtn.onclick = sendMessage;
 
     clearChatBtn.onclick = () => {
-      if (confirm('هل أنت متأكد أنك تريد مسح كل الرسائل؟')) {
+      if (confirm('🗑 هل تريد مسح كل الرسائل؟')) {
         localStorage.removeItem('messages');
         renderMessages();
       }
     };
 
-    // لو عنده بيانات قديمة
+    logoutBtn.onclick = () => {
+      if (confirm('🚪 تسجيل خروج؟')) {
+        localStorage.clear();
+        chatPage.classList.remove('active');
+        loginPage.classList.add('active');
+      }
+    };
+
+    // تشغيل إذا فيه بيانات قديمة
     const settings = loadSettings();
     if (settings.username && settings.avatar) {
       setBackground(settings.bg);
-      loginDiv.style.display = 'none';
-      chatDiv.style.display = 'block';
+      loginPage.classList.remove('active');
+      chatPage.classList.add('active');
       renderMessages();
     }
   </script>
