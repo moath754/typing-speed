@@ -2,41 +2,65 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>💬 شات </title>
+  <title>💬 شات فلاوي أسطوري</title>
   <style>
-    body { background: #111; color: #eee; font-family: sans-serif; text-align: center; }
-    #login, #chat { max-width: 400px; margin: 50px auto; padding: 20px; background: #222; border-radius: 8px; }
-    input { padding: 8px; margin: 5px; width: 80%; }
-    button { padding: 8px 15px; }
-    #messages { max-height: 300px; overflow-y: auto; border: 1px solid #333; padding: 10px; text-align: left; }
-    .message { display: flex; align-items: center; margin: 5px 0; }
-    .message img { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
+    body {
+      background: url('https://images.unsplash.com/photo-1518791841217-8f162f1e1131') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff; font-family: sans-serif;
+      text-align: center; direction: rtl;
+    }
+    #overlay {
+      background: rgba(0,0,0,0.7); min-height: 100vh; padding: 20px;
+    }
+    #login, #chat { max-width: 700px; margin: 50px auto; padding: 20px; background: #333; border-radius: 12px; }
+    input, select { padding: 10px; margin: 5px; width: 80%; border: none; border-radius: 5px; }
+    button { padding: 8px 12px; margin: 5px; border: none; border-radius: 5px; background: #555; color: #fff; cursor: pointer; }
+    #messages { max-height: 400px; overflow-y: auto; border: 1px solid #444; padding: 10px; text-align: left; background: #222; border-radius: 5px; }
+    .message { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; background: #111; padding: 5px 10px; border-radius: 5px; }
+    .content { display: flex; align-items: center; flex: 1; }
+    .message img { width: 40px; height: 40px; border-radius: 50%; margin-left: 10px; }
+    .controls { display: flex; gap: 5px; }
   </style>
 </head>
 <body>
-  <div id="login">
-    <h2>🪪 سجل دخولك</h2>
-    <input id="username" placeholder="اسم المستخدم" /><br>
-    <input id="avatar" placeholder="رابط الأفاتار" /><br>
-    <button id="loginBtn">دخول</button>
-  </div>
+  <div id="overlay">
+    <div id="login">
+      <h2>🪪 سجل دخولك</h2>
+      <input id="username" placeholder="اسم المستخدم" /><br>
+      <label>اختر أفاتارك:</label><br>
+      <input type="file" id="avatarFile" accept="image/*"><br><br>
+      <label>اختر الخلفية:</label><br>
+      <select id="bgSelect">
+        <option value="bg1">خلفية 1</option>
+        <option value="bg2">خلفية 2</option>
+        <option value="bg3">خلفية 3</option>
+      </select><br>
+      <button id="loginBtn">دخول</button>
+    </div>
 
-  <div id="chat" style="display:none;">
-    <h2>💬 الشات المحلي</h2>
-    <div id="messages"></div>
-    <input id="msgInput" placeholder="اكتب رسالتك..." />
-    <button id="sendBtn">إرسال</button>
+    <div id="chat" style="display:none;">
+      <h2>💬 الشات الأسطوري</h2>
+      <div id="messages"></div>
+      <input id="msgInput" placeholder="اكتب رسالتك..." />
+      <button id="sendBtn">إرسال</button>
+      <button id="clearChat">🗑 مسح الكل</button>
+    </div>
   </div>
 
   <script>
     const loginDiv = document.getElementById('login');
     const chatDiv = document.getElementById('chat');
     const usernameInput = document.getElementById('username');
-    const avatarInput = document.getElementById('avatar');
+    const avatarFile = document.getElementById('avatarFile');
+    const bgSelect = document.getElementById('bgSelect');
     const loginBtn = document.getElementById('loginBtn');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
     const messagesDiv = document.getElementById('messages');
+    const clearChatBtn = document.getElementById('clearChat');
+
+    let avatarData = '';
 
     function saveMessages(msgs) {
       localStorage.setItem('messages', JSON.stringify(msgs));
@@ -46,57 +70,138 @@
       return JSON.parse(localStorage.getItem('messages') || '[]');
     }
 
-    function addMessage(username, avatar, msg) {
+    function saveSettings(username, avatar, bg) {
+      localStorage.setItem('username', username);
+      localStorage.setItem('avatar', avatar);
+      localStorage.setItem('background', bg);
+    }
+
+    function loadSettings() {
+      return {
+        username: localStorage.getItem('username') || '',
+        avatar: localStorage.getItem('avatar') || '',
+        bg: localStorage.getItem('background') || 'bg1'
+      };
+    }
+
+    function setBackground(bg) {
+      let url = '';
+      if (bg === 'bg1') url = 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131';
+      if (bg === 'bg2') url = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0';
+      if (bg === 'bg3') url = 'https://images.unsplash.com/photo-1522199710521-72d69614c702';
+      document.body.style.backgroundImage = `url('${url}')`;
+    }
+
+    function addMessageElement(msgObj, index) {
       const msgElement = document.createElement('div');
       msgElement.classList.add('message');
 
+      const contentDiv = document.createElement('div');
+      contentDiv.classList.add('content');
+
       const avatarImg = document.createElement('img');
-      avatarImg.src = avatar;
-      msgElement.appendChild(avatarImg);
+      avatarImg.src = msgObj.avatar;
+      contentDiv.appendChild(avatarImg);
 
       const text = document.createElement('span');
-      text.innerText = `${username}: ${msg}`;
-      msgElement.appendChild(text);
+      text.innerText = `${msgObj.username}: ${msgObj.msg}`;
+      contentDiv.appendChild(text);
+
+      const controlsDiv = document.createElement('div');
+      controlsDiv.classList.add('controls');
+
+      const editBtn = document.createElement('button');
+      editBtn.innerText = '✏️';
+      editBtn.onclick = () => editMessage(index);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.innerText = '❌';
+      deleteBtn.onclick = () => deleteMessage(index);
+
+      controlsDiv.appendChild(editBtn);
+      controlsDiv.appendChild(deleteBtn);
+
+      msgElement.appendChild(contentDiv);
+      msgElement.appendChild(controlsDiv);
 
       messagesDiv.appendChild(msgElement);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    // لو عنده بيانات قديمة
-    if (localStorage.getItem('username') && localStorage.getItem('avatar')) {
-      loginDiv.style.display = 'none';
-      chatDiv.style.display = 'block';
-
-      const oldMsgs = loadMessages();
-      oldMsgs.forEach(m => addMessage(m.username, m.avatar, m.msg));
+    function renderMessages() {
+      messagesDiv.innerHTML = '';
+      const msgs = loadMessages();
+      msgs.forEach((msg, index) => addMessageElement(msg, index));
     }
+
+    function sendMessage() {
+      const msg = msgInput.value.trim();
+      if (msg) {
+        const msgs = loadMessages();
+        msgs.push({ username: localStorage.getItem('username'), avatar: localStorage.getItem('avatar'), msg });
+        saveMessages(msgs);
+        renderMessages();
+        msgInput.value = '';
+      }
+    }
+
+    function deleteMessage(index) {
+      const msgs = loadMessages();
+      msgs.splice(index, 1);
+      saveMessages(msgs);
+      renderMessages();
+    }
+
+    function editMessage(index) {
+      const msgs = loadMessages();
+      const newMsg = prompt('✏️ اكتب الرسالة الجديدة:', msgs[index].msg);
+      if (newMsg !== null) {
+        msgs[index].msg = newMsg;
+        saveMessages(msgs);
+        renderMessages();
+      }
+    }
+
+    avatarFile.onchange = (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        avatarData = reader.result;
+      };
+      if (file) reader.readAsDataURL(file);
+    };
 
     loginBtn.onclick = () => {
       const username = usernameInput.value.trim() || 'مجهول';
-      const avatar = avatarInput.value.trim() || 'https://via.placeholder.com/30';
-      localStorage.setItem('username', username);
-      localStorage.setItem('avatar', avatar);
+      const avatar = avatarData || 'https://via.placeholder.com/40';
+      const bg = bgSelect.value;
+
+      saveSettings(username, avatar, bg);
+      setBackground(bg);
+
       loginDiv.style.display = 'none';
       chatDiv.style.display = 'block';
 
-      const oldMsgs = loadMessages();
-      oldMsgs.forEach(m => addMessage(m.username, m.avatar, m.msg));
+      renderMessages();
     };
 
-    sendBtn.onclick = () => {
-      const msg = msgInput.value.trim();
-      if (msg) {
-        const username = localStorage.getItem('username');
-        const avatar = localStorage.getItem('avatar');
-        addMessage(username, avatar, msg);
+    sendBtn.onclick = sendMessage;
 
-        const msgs = loadMessages();
-        msgs.push({ username, avatar, msg });
-        saveMessages(msgs);
-
-        msgInput.value = '';
+    clearChatBtn.onclick = () => {
+      if (confirm('هل أنت متأكد أنك تريد مسح كل الرسائل؟')) {
+        localStorage.removeItem('messages');
+        renderMessages();
       }
     };
+
+    // لو عنده بيانات قديمة
+    const settings = loadSettings();
+    if (settings.username && settings.avatar) {
+      setBackground(settings.bg);
+      loginDiv.style.display = 'none';
+      chatDiv.style.display = 'block';
+      renderMessages();
+    }
   </script>
 </body>
 </html>
