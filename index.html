@@ -16,65 +16,71 @@
     #overlay {
       background: rgba(0,0,0,0.7);
       min-height: 100vh;
-      padding: 30px 20px;
+      padding: 50px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .page {
       display: none;
-      max-width: 800px;
+      width: 100%;
+      max-width: 1000px;
       margin: auto;
       background: #222;
       border-radius: 12px;
-      padding: 20px;
+      padding: 30px;
     }
     .active {
       display: block;
     }
-    input, select {
-      padding: 10px;
-      margin: 8px 0;
-      width: 90%;
+    input, select, textarea {
+      padding: 15px;
+      margin: 12px 0;
+      width: 95%;
       border: none;
-      border-radius: 5px;
-      font-size: 16px;
+      border-radius: 8px;
+      font-size: 18px;
     }
     button {
-      padding: 10px 20px;
-      margin: 10px 5px;
+      padding: 12px 30px;
+      margin: 12px 8px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       background: #ff6600;
       color: #fff;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 18px;
     }
     #messages {
-      max-height: 400px;
+      max-height: 500px;
       overflow-y: auto;
-      border: 1px solid #444;
-      padding: 10px;
+      border: 2px solid #555;
+      padding: 15px;
       text-align: left;
       background: #111;
-      border-radius: 5px;
-      margin-top: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
     }
     .message {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       background: #333;
-      margin: 5px 0;
-      padding: 8px;
-      border-radius: 5px;
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 8px;
+      word-wrap: break-word;
     }
     .content {
       display: flex;
       align-items: center;
+      max-width: 90%;
     }
     .message img {
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      margin-left: 10px;
+      margin-left: 12px;
     }
     .controls button {
       background: #ff3300;
@@ -83,6 +89,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    textarea {
+      resize: vertical;
     }
   </style>
 </head>
@@ -111,7 +120,7 @@
         <button id="logoutBtn">🚪 تسجيل خروج</button>
       </div>
       <div id="messages"></div>
-      <input id="msgInput" placeholder="اكتب رسالتك..." />
+      <textarea id="msgInput" rows="3" placeholder="اكتب رسالتك..."></textarea><br>
       <button id="sendBtn">إرسال</button>
       <button id="clearChat">🗑 مسح الكل</button>
     </div>
@@ -119,7 +128,6 @@
   </div>
 
   <script>
-    // عناصر الصفحة
     const loginPage = document.getElementById('loginPage');
     const chatPage = document.getElementById('chatPage');
     const usernameInput = document.getElementById('username');
@@ -134,7 +142,6 @@
 
     let avatarData = '';
 
-    // حفظ واسترجاع
     function saveMessages(msgs) {
       localStorage.setItem('messages', JSON.stringify(msgs));
     }
@@ -161,7 +168,6 @@
       document.body.style.backgroundImage = `url('${url}')`;
     }
 
-    // عرض الرسائل
     function addMessageElement(msgObj, index) {
       const msgElement = document.createElement('div');
       msgElement.classList.add('message');
@@ -241,7 +247,7 @@
 
     loginBtn.onclick = () => {
       const username = usernameInput.value.trim() || 'مجهول';
-      const avatar = avatarData || 'https://via.placeholder.com/40';
+      const avatar = avatarData || 'https://via.placeholder.com/50';
       const bg = bgSelect.value;
 
       saveSettings(username, avatar, bg);
@@ -253,6 +259,13 @@
     };
 
     sendBtn.onclick = sendMessage;
+
+    msgInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
 
     clearChatBtn.onclick = () => {
       if (confirm('🗑 هل تريد مسح كل الرسائل؟')) {
@@ -269,7 +282,6 @@
       }
     };
 
-    // تشغيل إذا فيه بيانات قديمة
     const settings = loadSettings();
     if (settings.username && settings.avatar) {
       setBackground(settings.bg);
