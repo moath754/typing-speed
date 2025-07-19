@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>شات الأسطورة</title>
+  <title>شات الأسطورة 🔥</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -37,14 +37,24 @@
     }
 
     .message {
-      background: #222;
       padding: 12px 15px;
       border-radius: 16px;
-      max-width: 80%;
-      align-self: flex-end;
-      position: relative;
+      max-width: 75%;
       word-wrap: break-word;
-      font-size: 18px;
+      font-size: 17px;
+      position: relative;
+    }
+
+    .mine {
+      background: #007bff;
+      align-self: flex-end;
+      border-bottom-left-radius: 0;
+    }
+
+    .other {
+      background: #333;
+      align-self: flex-start;
+      border-bottom-right-radius: 0;
     }
 
     .message::after {
@@ -106,6 +116,10 @@
     const msgInput = document.getElementById("msgInput");
     const sendBtn = document.getElementById("sendBtn");
 
+    // نولد ID خاص للجهاز
+    const userId = localStorage.getItem("chatUserId") || crypto.randomUUID();
+    localStorage.setItem("chatUserId", userId);
+
     const loadMessages = () => JSON.parse(localStorage.getItem("chatMessages") || "[]");
     const saveMessages = msgs => localStorage.setItem("chatMessages", JSON.stringify(msgs));
 
@@ -114,7 +128,7 @@
       messagesDiv.innerHTML = "";
       msgs.forEach(msg => {
         const el = document.createElement("div");
-        el.className = "message";
+        el.className = "message " + (msg.user === userId ? "mine" : "other");
         el.textContent = msg.text;
         el.setAttribute("data-time", msg.time);
         messagesDiv.appendChild(el);
@@ -127,7 +141,7 @@
       if (!text) return;
       const msgs = loadMessages();
       const time = new Date().toLocaleTimeString("ar-EG", { hour: '2-digit', minute: '2-digit' });
-      msgs.push({ text, time });
+      msgs.push({ text, time, user: userId });
       saveMessages(msgs);
       msgInput.value = "";
       renderMessages();
