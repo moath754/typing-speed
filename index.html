@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>شات الأسطورة 🔥</title>
+  <title>شات الأسطورة الجديد</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -12,10 +12,10 @@
     body {
       margin: 0;
       font-family: 'Cairo', sans-serif;
-      direction: rtl;
       background: url('https://i.pinimg.com/originals/98/bf/08/98bf08c3e3d7fbe0f69df39f34b34573.gif') no-repeat center center fixed;
       background-size: cover;
       color: white;
+      direction: ltr; /* عكسنا الاتجاه */
     }
 
     .chat-container {
@@ -23,55 +23,57 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      background: rgba(0,0,0,0.7);
-      padding: 10px;
+      background: rgba(0,0,0,0.75);
+      padding: 15px;
     }
 
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding-bottom: 10px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+      padding: 10px;
     }
 
     .message {
-      padding: 12px 15px;
-      border-radius: 16px;
+      padding: 14px 16px;
+      border-radius: 20px;
       max-width: 75%;
-      word-wrap: break-word;
       font-size: 17px;
       position: relative;
+      word-wrap: break-word;
+      line-height: 1.5;
     }
 
     .mine {
       background: #007bff;
-      align-self: flex-end;
-      border-bottom-left-radius: 0;
+      align-self: flex-start;
+      border-top-right-radius: 0;
     }
 
     .other {
-      background: #333;
-      align-self: flex-start;
-      border-bottom-right-radius: 0;
+      background: #444;
+      align-self: flex-end;
+      border-top-left-radius: 0;
     }
 
     .message::after {
       content: attr(data-time);
-      font-size: 12px;
+      font-size: 11px;
       position: absolute;
       bottom: -16px;
-      left: 10px;
-      color: #aaa;
+      left: 15px;
+      color: #bbb;
     }
 
     .input-box {
       display: flex;
       align-items: center;
-      padding: 10px;
-      border-radius: 16px;
       background: #111;
+      padding: 12px;
+      border-radius: 18px;
+      gap: 10px;
     }
 
     textarea {
@@ -86,11 +88,10 @@
     }
 
     button {
-      margin-right: 10px;
       border: none;
-      background: #007bff;
+      background: #28a745;
       color: white;
-      padding: 12px;
+      padding: 14px;
       border-radius: 50%;
       font-size: 20px;
       cursor: pointer;
@@ -107,7 +108,7 @@
 
     <div class="input-box">
       <button id="sendBtn">➤</button>
-      <textarea id="msgInput" rows="1" placeholder="اكتب رسالة..."></textarea>
+      <textarea id="msgInput" rows="1" placeholder="اكتب رسالتك..."></textarea>
     </div>
   </div>
 
@@ -116,7 +117,6 @@
     const msgInput = document.getElementById("msgInput");
     const sendBtn = document.getElementById("sendBtn");
 
-    // نولد ID خاص للجهاز
     const userId = localStorage.getItem("chatUserId") || crypto.randomUUID();
     localStorage.setItem("chatUserId", userId);
 
