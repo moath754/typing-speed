@@ -2,140 +2,186 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8" />
-<title>شات معاذ الأسطوري</title>
+<title>شات VIP – معاذ</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-  * { box-sizing: border-box; margin:0; padding:0 }
-  body, html { width:100%; height:100%; font-family:'Cairo',sans-serif; }
-  .login, .chat { display:none; width:100%; height:100%; }
-  .login.active, .chat.active { display:flex; }
-  .login { justify-content:center; align-items:center; background:#000; }
-  .login input, .login button { padding:12px; font-size:16px; border:none; border-radius:8px; }
-  .login input { width:60%; margin-right:8px; }
-  .chat { flex-direction:column; background:url('https://i.pinimg.com/736x/50/fd/2b/50fd2b409692dfa636129a6f1eca342b.jpg') no-repeat center center fixed; background-size:cover; backdrop-filter:brightness(0.5) blur(2px);}
-  .container { flex:1; display:flex; flex-direction:column; background:rgba(0,0,0,0.5); }
+  * {
+    box-sizing: border-box;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  body, html {
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    font-family:'Cairo',sans-serif;
+    direction: rtl;
+    background: url('https://i.pinimg.com/736x/50/fd/2b/50fd2b409692dfa636129a6f1eca342b.jpg') no-repeat center center fixed;
+    background-size: cover;
+  }
+  .chat { position:relative; height:100%; display:flex; flex-direction:column; background: rgba(0,0,0,0.4); }
   .messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
-  .msg { align-self:flex-end; background:#007bff; color:#fff; padding:10px 14px; border-radius:14px; max-width:70%; position:relative; word-wrap:break-word; }
-  .msg .meta { font-size:11px; color:#ddd; margin-top:4px; }
+  .msg {
+    align-self:flex-end;
+    background:#007bff;
+    color:#fff;
+    padding:10px 14px;
+    border-radius:14px;
+    max-width:75%;
+    position:relative;
+    word-break:break-word;
+    text-align:right;
+  }
+  .msg .meta { font-size:11px; color:#ddd; margin-top:4px; text-align:left; }
   .msg .username { font-size:12px; color:#ccc; position:absolute; top:-18px; right:10px; }
-  .input-area { display:flex; padding:10px; background:rgba(0,0,0,0.6); }
-  .input-area input { flex:1; padding:10px; border-radius:8px; border:none; font-size:15px; }
-  .input-area button { padding:10px 16px; border:none; border-radius:8px; background:#28a745; color:#fff; cursor:pointer; }
-  .menu { position:absolute; background:#222; border:1px solid #444; border-radius:8px; display:none; flex-direction:column; z-index:99; }
-  .menu button { background:none; border:none; color:#fff; padding:6px 12px; font-size:13px; text-align:right; cursor:pointer; }
+  .input-area {
+    position: sticky;
+    bottom:0;
+    display:flex;
+    padding:10px;
+    background:rgba(0,0,0,0.7);
+    align-items:center;
+  }
+  .input-area input {
+    flex:1;
+    padding:10px;
+    border-radius:8px;
+    border:none;
+    font-size:15px;
+  }
+  .input-area button {
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    background:#28a745;
+    color:#fff;
+    margin-right:10px;
+    cursor:pointer;
+  }
+  .menu {
+    position:absolute;
+    background:#222;
+    border:1px solid #444;
+    border-radius:8px;
+    display:none;
+    flex-direction:column;
+    z-index:99;
+  }
+  .menu button {
+    background:none;
+    border:none;
+    color:#fff;
+    padding:6px 12px;
+    font-size:13px;
+    text-align:right;
+    cursor:pointer;
+  }
   .menu button:hover { background:#444; }
+  .settings-btn {
+    position:absolute;
+    top:10px;
+    left:10px;
+    background:#28a745;
+    color:#fff;
+    border:none;
+    padding:6px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    user-select:auto;
+  }
 </style>
 </head>
 <body>
-
-<div class="login active">
-  <input id="nameInput" placeholder="أدخل اسمك..." />
-  <button onclick="login()">دخول</button>
-</div>
-
 <div class="chat">
-  <div class="container">
-    <div id="messages" class="messages"></div>
-    <div class="input-area">
-      <input id="msgInput" placeholder="اكتب رسالة..." onkeydown="if(event.key==='Enter') sendMessage();" />
-      <button onclick="sendMessage()">إرسال</button>
-    </div>
+  <button class="settings-btn" onclick="changeName()">غير الاسم</button>
+  <div id="messages" class="messages"></div>
+  <div class="input-area">
+    <input id="msgInput" placeholder="اكتب رسالة محترمة..." onkeydown="if(event.key==='Enter') sendMessage()" />
+    <button onclick="sendMessage()">إرسال</button>
   </div>
 </div>
-
 <div id="contextMenu" class="menu"></div>
 
 <script>
-const loginDiv = document.querySelector('.login'), chatDiv = document.querySelector('.chat');
-const nameInput = document.getElementById('nameInput');
+  const currentUser = localStorage.getItem("chatUser") || prompt("أدخل اسمك:");
+  if (currentUser) localStorage.setItem("chatUser", currentUser);
+  const isAdmin = currentUser === 'Messi911';
 
-let currentUser = localStorage.getItem('chatUser');
-let isAdmin = (currentUser === 'Messi911');
-let banned = JSON.parse(localStorage.getItem('chatBanned')||'[]');
+  const messagesDiv = document.getElementById("messages");
+  const menu = document.getElementById("contextMenu");
+  let menuTarget = null;
 
-if(currentUser) activateChat();
-
-function login(){
-  const name = nameInput.value.trim();
-  if(!name) return;
-  currentUser = name;
-  localStorage.setItem('chatUser', name);
-  isAdmin = (name==='Messi911');
-  activateChat();
-}
-
-function activateChat(){
-  loginDiv.classList.remove('active');
-  chatDiv.classList.add('active');
-  renderMessages();
-}
-
-const messagesDiv = document.getElementById('messages');
-const contextMenu = document.getElementById('contextMenu');
-let menuTargetIndex = null;
-
-function loadMsgs(){ return JSON.parse(localStorage.getItem('chatMsgs')||'[]') }
-function saveMsgs(a){ localStorage.setItem('chatMsgs', JSON.stringify(a)) }
-function saveBanned(){ localStorage.setItem('chatBanned', JSON.stringify(banned)) }
-
-function getTime(){ const d=new Date(); return d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) }
-function sendMessage(){
-  const txt = document.getElementById('msgInput').value.trim();
-  if(!txt) return;
-  if(banned.includes(currentUser)) return alert('🚫 أنت محظور!');
-  let arr = loadMsgs();
-  arr.push({user:currentUser,text:txt,time:getTime()});
-  saveMsgs(arr);
-  document.getElementById('msgInput').value='';
-  renderMessages();
-}
-
-function renderMessages(){
-  messagesDiv.innerHTML='';
-  loadMsgs().forEach((m,i)=>{
-    const div=document.createElement('div'); div.className='msg';
-    div.innerHTML=`<div class="username">${m.user}</div>${m.text}<div class="meta">${m.time}</div>`;
-    div.addEventListener('contextmenu',e=>{e.preventDefault(); showMenu(e.pageX,e.pageY,i)});
-    messagesDiv.appendChild(div);
-  });
-  messagesDiv.scrollTop=messagesDiv.scrollHeight;
-}
-
-function showMenu(x,y,i){
-  contextMenu.style.display = 'flex';
-  contextMenu.style.top = y+'px'; contextMenu.style.left = x+'px';
-  menuTargetIndex=i;
-  let html= '';
-  if(isAdmin){
-    html+=`<button onclick="editMsg()">✏️ تعديل</button>`;
-    html+=`<button onclick="deleteMsg()">🗑️ حذف</button>`;
-    html+=`<button onclick="banUser()">🚫 حظر المستخدم</button>`;
-  } else if(currentUser === loadMsgs()[i].user){
-    html+=`<button onclick="editMsg()">✏️ تعديل</button>`;
-    html+=`<button onclick="deleteMsg()">🗑️ حذف</button>`;
+  function load() {
+    return JSON.parse(localStorage.getItem("chatMsgs") || "[]");
   }
-  contextMenu.innerHTML=html;
-}
+  function save(a) {
+    localStorage.setItem("chatMsgs", JSON.stringify(a));
+  }
+  function timeNow() {
+    const d=new Date();
+    return d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+  }
 
-window.addEventListener('click',()=>contextMenu.style.display='none');
+  function render() {
+    messagesDiv.innerHTML="";
+    load().forEach((m,i)=>{
+      const div=document.createElement('div'); div.className='msg';
+      div.innerHTML = `<div class="username">${m.user}</div>${m.text}<div class="meta">${m.time}</div>`;
+      div.addEventListener('contextmenu', e=>{
+        e.preventDefault(); showMenu(e.pageX, e.pageY, i);
+      });
+      messagesDiv.appendChild(div);
+    });
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
 
-function deleteMsg(){
-  let arr = loadMsgs(); arr.splice(menuTargetIndex,1);
-  saveMsgs(arr); renderMessages(); contextMenu.style.display='none';
-}
-function editMsg(){
-  const newText = prompt('✏️ عدل رسالتك:', loadMsgs()[menuTargetIndex].text);
-  if(newText) { let arr=loadMsgs(); arr[menuTargetIndex].text=newText; saveMsgs(arr); renderMessages(); }
-  contextMenu.style.display='none';
-}
-function banUser(){
-  const u = loadMsgs()[menuTargetIndex].user;
-  if(u===currentUser)return alert('ما تقدر تحظر نفسك');
-  banned.push(u); saveBanned();
-  contextMenu.style.display='none';
-  renderMessages();
-}
+  function sendMessage() {
+    const t = document.getElementById("msgInput").value.trim();
+    if (!t) return;
+    let arr = load();
+    arr.push({ user: currentUser, text: t, time: timeNow() });
+    save(arr);
+    document.getElementById("msgInput").value = "";
+    render();
+  }
+
+  function showMenu(x,y,i){
+    menu.style.display="flex";
+    menu.style.left=x+"px"; menu.style.top=y+"px";
+    menu.innerHTML="";
+    const m = load()[i];
+    if (currentUser===m.user || isAdmin) {
+      menu.innerHTML += `<button onclick="edit(${i})">✏️ تعديل</button>`;
+      menu.innerHTML += `<button onclick="del(${i})">🗑️ حذف</button>`;
+    }
+  }
+
+  function del(i) {
+    let arr=load(); arr.splice(i,1); save(arr); render(); menu.style.display="none";
+  }
+  function edit(i) {
+    const arr=load();
+    const txt = prompt("عدّل رسالتك:", arr[i].text);
+    if (txt) { arr[i].text = txt; save(arr); render(); }
+    menu.style.display="none";
+  }
+  window.addEventListener("click",()=>menu.style.display="none");
+
+  function changeName() {
+    const nm = prompt("اكتب اسمك الجديد:", currentUser);
+    if (nm) {
+      localStorage.setItem("chatUser", nm);
+      location.reload();
+    }
+  }
+
+  render();
 </script>
-
 </body>
 </html>
