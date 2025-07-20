@@ -2,14 +2,14 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>🚨 دردشة محترمة</title>
+  <title>🔥 شات الملك الأسطوري</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
       font-family: 'Cairo', sans-serif;
       direction: rtl;
-      background: #000 url('https://i.gifer.com/7VE.gif') no-repeat center center fixed;
+      background: url('https://i.pinimg.com/originals/26/0c/64/260c6454643655f42905e365db8d2e32.gif') no-repeat center center fixed;
       background-size: cover;
       color: white;
     }
@@ -95,15 +95,16 @@
       cursor: pointer;
     }
 
+    .alert {
+      color: yellow;
+      text-align: center;
+      margin: 8px;
+      font-weight: bold;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
-    }
-
-    .warning {
-      color: red;
-      text-align: center;
-      margin: 8px;
     }
   </style>
 </head>
@@ -112,26 +113,27 @@
     <div class="messages" id="messages"></div>
     <div class="input-area">
       <button id="sendBtn">➤</button>
-      <textarea id="msgInput" placeholder="اكتب شي محترم..."></textarea>
+      <textarea id="msgInput" placeholder="اكتب رسالة محترمة..."></textarea>
     </div>
-    <div class="warning" id="warning"></div>
+    <div class="alert" id="alertBox"></div>
   </div>
 
   <script>
     const messagesDiv = document.getElementById('messages');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
-    const warningDiv = document.getElementById('warning');
+    const alertBox = document.getElementById('alertBox');
 
     const userId = localStorage.getItem("userId") || crypto.randomUUID();
     localStorage.setItem("userId", userId);
 
-    const badWords = ["قحبة", "كلب", "زق", "قذر", "كس", "كسمك", "القحبه", "انيك", "متناك", "عاهره", "نيك", "fuck", "shit"];
+    const badWords = ["قحبة", "كلب", "زق", "قذر", "كس", "زب", "عرص", "خول", "متناك", "عاهره", "نيك", "fuck", "shit"];
+    const clearCommand = "Moath2030";
 
     const loadMessages = () => JSON.parse(localStorage.getItem("chat") || "[]");
     const saveMessages = msgs => localStorage.setItem("chat", JSON.stringify(msgs));
 
-    const renderMessages = () => {
+    function renderMessages() {
       const msgs = loadMessages();
       messagesDiv.innerHTML = '';
       msgs.forEach(msg => {
@@ -142,20 +144,29 @@
         messagesDiv.appendChild(el);
       });
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    };
+    }
 
-    const containsBadWord = (text) => {
+    function containsBadWord(text) {
       const lower = text.toLowerCase();
       return badWords.some(bad => lower.includes(bad));
-    };
+    }
 
-    const sendMessage = () => {
+    function sendMessage() {
       const text = msgInput.value.trim();
       if (!text) return;
 
       if (containsBadWord(text)) {
-        warningDiv.textContent = "🚫 ممنوع الكلام القذر!";
-        setTimeout(() => warningDiv.textContent = "", 2000);
+        alertBox.textContent = "🚫 لا يسمح بالكلمات المسيئة!";
+        setTimeout(() => alertBox.textContent = "", 2000);
+        return;
+      }
+
+      if (text === clearCommand) {
+        localStorage.removeItem("chat");
+        renderMessages();
+        alertBox.textContent = "🧹 تم مسح جميع الرسائل بواسطة أمر سري";
+        setTimeout(() => alertBox.textContent = "", 3000);
+        msgInput.value = "";
         return;
       }
 
@@ -165,7 +176,7 @@
       saveMessages(msgs);
       msgInput.value = '';
       renderMessages();
-    };
+    }
 
     sendBtn.onclick = sendMessage;
 
