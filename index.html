@@ -1,121 +1,153 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>شات أسطوري</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>free mic chat</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Cairo', sans-serif;
-      background: url('https://i.pinimg.com/736x/50/fd/2b/50fd2b409692dfa636129a6f1eca342b.jpg') no-repeat center center fixed;
-      background-size: cover;
-      backdrop-filter: brightness(0.5) blur(3px);
+      background: #111;
       color: white;
-      direction: rtl;
-    }
-
-    .chat-container {
+      font-family: 'Arial', sans-serif;
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      padding: 10px;
-      background-color: rgba(0, 0, 0, 0.4);
+      align-items: center;
+      margin: 0;
+      padding: 0;
     }
 
-    .messages {
-      flex: 1;
-      overflow-y: auto;
+    #chat {
+      width: 90%;
+      max-width: 500px;
+      background: #222;
+      margin-top: 50px;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,255,200,0.2);
       display: flex;
       flex-direction: column;
       gap: 10px;
-      padding-bottom: 10px;
     }
 
     .message {
-      align-self: flex-end;
-      background-color: #007bff;
-      padding: 10px 14px;
+      max-width: 70%;
+      padding: 10px 15px;
       border-radius: 16px;
-      max-width: 75%;
-      font-size: 17px;
+      position: relative;
+      backdrop-filter: blur(2px);
+      box-shadow: 0 0 8px rgba(255,255,255,0.1);
+      word-wrap: break-word;
     }
 
-    .input-area {
+    .mine {
+      align-self: flex-end;
+      background: #007bff;
+      text-align: right;
+    }
+
+    .theirs {
+      align-self: flex-start;
+      background: #444;
+      text-align: right;
+    }
+
+    .timestamp {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 3px;
+      display: block;
+    }
+
+    #input-container {
+      margin-top: 20px;
       display: flex;
-      gap: 10px;
-      margin-top: auto;
+      width: 90%;
+      max-width: 500px;
+      gap: 5px;
     }
 
-    input {
+    #input-container input {
       flex: 1;
-      padding: 12px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 10px;
       border: none;
-      font-size: 16px;
+      outline: none;
     }
 
-    button {
-      background-color: #28a745;
-      color: white;
+    #input-container button {
+      padding: 10px 15px;
       border: none;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 16px;
+      border-radius: 10px;
+      background: #00ffaa;
       cursor: pointer;
     }
 
-    ::placeholder {
-      color: #888;
+    #clear {
+      margin-top: 10px;
+      color: #f55;
+      cursor: pointer;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="chat-container">
-    <div id="messages" class="messages"></div>
-    <div class="input-area">
-      <input id="input" type="text" placeholder="اكتب رسالة محترمة..." />
-      <button onclick="sendMessage()">إرسال</button>
-    </div>
+
+  <div id="chat"></div>
+
+  <div id="input-container">
+    <input type="text" id="msgInput" placeholder="اكتب رسالتك الزاحفة...">
+    <button onclick="send()">إرسال</button>
   </div>
 
-  <script>
-    const messagesDiv = document.getElementById("messages");
-    const input = document.getElementById("input");
+  <div id="clear" onclick="clearMessages()">مسح المحادثة</div>
 
-    function renderMessages() {
-      messagesDiv.innerHTML = "";
-      const msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
-      msgs.forEach(msg => {
-        const div = document.createElement("div");
-        div.className = "message";
-        div.textContent = msg;
-        messagesDiv.appendChild(div);
-      });
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  <script>
+    let username = localStorage.getItem("username") || prompt("اكتب اسمك:");
+    if (!localStorage.getItem("username")) {
+      localStorage.setItem("username", username);
     }
 
-    function sendMessage() {
-      const msg = input.value.trim();
-      if (!msg) return;
-      if (msg === "Moath2030") {
-        localStorage.removeItem("msgs");
-        renderMessages();
-        input.value = "";
-        return;
-      }
-      const msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
-      msgs.push(msg);
+    let msgs = JSON.parse(localStorage.getItem("msgs") || "[]");
+
+    function getTimeNow() {
+      const now = new Date();
+      return now.getHours() + ":" + String(now.getMinutes()).padStart(2, '0');
+    }
+
+    function send() {
+      let input = document.getElementById("msgInput");
+      let text = input.value.trim();
+      if (!text) return;
+      msgs.push({ text, time: getTimeNow(), from: "me", user: username });
       localStorage.setItem("msgs", JSON.stringify(msgs));
       input.value = "";
       renderMessages();
     }
 
-    input.addEventListener("keydown", e => {
-      if (e.key === "Enter") sendMessage();
-    });
+    function renderMessages() {
+      const chat = document.getElementById("chat");
+      chat.innerHTML = "";
+      msgs.forEach(msg => {
+        let container = document.createElement("div");
+        container.className = `message ${msg.from === "me" ? "mine" : "theirs"}`;
+
+        let content = `<strong>${msg.user || ''}</strong><br>${msg.text}<span class="timestamp">${msg.time}</span>`;
+        container.innerHTML = content;
+
+        chat.appendChild(container);
+      });
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function clearMessages() {
+      if (confirm("أكيد تبي تمسح كل شيء؟")) {
+        localStorage.removeItem("msgs");
+        msgs = [];
+        renderMessages();
+      }
+    }
 
     renderMessages();
   </script>
+
 </body>
 </html>
