@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>🔥 دردشة فخمة</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>🔥 شاتك الملكي</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
       box-sizing: border-box;
@@ -18,45 +18,47 @@
       color: white;
     }
 
-    .overlay {
-      background: rgba(0, 0, 0, 0.75);
+    .wrapper {
+      background: rgba(0,0,0,0.75);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       padding: 10px;
     }
 
-    .chat-box {
+    .messages {
       flex: 1;
       overflow-y: auto;
-      padding-bottom: 10px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      padding-bottom: 10px;
     }
 
     .message {
       padding: 12px 16px;
-      border-radius: 18px;
-      max-width: 75%;
+      border-radius: 20px;
+      max-width: 80%;
       font-size: 16px;
       line-height: 1.6;
       position: relative;
       word-wrap: break-word;
       white-space: pre-wrap;
-      animation: fadeIn 0.3s ease;
+      animation: fadeIn 0.2s ease;
     }
 
-    .mine {
-      align-self: flex-end;
+    .from-me {
       background-color: #007bff;
+      align-self: flex-end;
       border-bottom-left-radius: 0;
+      color: #fff;
     }
 
-    .other {
+    .from-them {
+      background-color: #333;
       align-self: flex-start;
-      background-color: #444;
       border-bottom-right-radius: 0;
+      color: #eee;
     }
 
     .message::after {
@@ -64,16 +66,16 @@
       font-size: 11px;
       position: absolute;
       bottom: -16px;
-      left: 10px;
-      color: #ccc;
+      left: 12px;
+      color: #aaa;
     }
 
     .input-area {
       display: flex;
+      gap: 10px;
       padding: 10px;
       background: #111;
-      border-radius: 12px;
-      gap: 10px;
+      border-radius: 14px;
       align-items: center;
     }
 
@@ -81,19 +83,20 @@
       flex: 1;
       resize: none;
       padding: 12px;
-      font-size: 16px;
+      font-size: 15px;
       border-radius: 10px;
       border: none;
       background: #000;
       color: white;
+      height: 50px;
     }
 
     button {
       border: none;
       background-color: #28a745;
       color: white;
-      font-size: 22px;
-      padding: 12px;
+      font-size: 20px;
+      padding: 12px 16px;
       border-radius: 50%;
       cursor: pointer;
     }
@@ -103,24 +106,17 @@
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div class="overlay">
-    <div class="chat-box" id="messages"></div>
-
+  <div class="wrapper">
+    <div class="messages" id="messages"></div>
     <div class="input-area">
       <button id="sendBtn">➤</button>
-      <textarea id="msgInput" rows="1" placeholder="اكتب رسالتك..."></textarea>
+      <textarea id="msgInput" placeholder="اكتب رسالتك..."></textarea>
     </div>
   </div>
 
@@ -129,27 +125,26 @@
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
 
-    // لكل جهاز ID فريد
     const userId = localStorage.getItem("userId") || crypto.randomUUID();
     localStorage.setItem("userId", userId);
 
-    const saveMessages = msgs => localStorage.setItem("chat", JSON.stringify(msgs));
     const loadMessages = () => JSON.parse(localStorage.getItem("chat") || "[]");
+    const saveMessages = msgs => localStorage.setItem("chat", JSON.stringify(msgs));
 
-    function renderMessages() {
+    const renderMessages = () => {
       const msgs = loadMessages();
       messagesDiv.innerHTML = '';
       msgs.forEach(msg => {
-        const div = document.createElement('div');
-        div.className = 'message ' + (msg.user === userId ? 'mine' : 'other');
-        div.textContent = msg.text;
-        div.setAttribute('data-time', msg.time);
-        messagesDiv.appendChild(div);
+        const el = document.createElement('div');
+        el.className = 'message ' + (msg.user === userId ? 'from-me' : 'from-them');
+        el.textContent = msg.text;
+        el.setAttribute('data-time', msg.time);
+        messagesDiv.appendChild(el);
       });
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
+    };
 
-    function sendMessage() {
+    const sendMessage = () => {
       const text = msgInput.value.trim();
       if (!text) return;
       const msgs = loadMessages();
@@ -158,7 +153,7 @@
       saveMessages(msgs);
       msgInput.value = '';
       renderMessages();
-    }
+    };
 
     sendBtn.onclick = sendMessage;
 
