@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>شات الأسطورة الجديد</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>🔥 دردشة فخمة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * {
       box-sizing: border-box;
@@ -12,50 +12,51 @@
     body {
       margin: 0;
       font-family: 'Cairo', sans-serif;
-      background: url('https://i.pinimg.com/originals/98/bf/08/98bf08c3e3d7fbe0f69df39f34b34573.gif') no-repeat center center fixed;
+      direction: rtl;
+      background: #000 url('https://i.gifer.com/7VE.gif') no-repeat center center fixed;
       background-size: cover;
       color: white;
-      direction: ltr; /* عكسنا الاتجاه */
     }
 
-    .chat-container {
-      height: 100vh;
+    .overlay {
+      background: rgba(0, 0, 0, 0.75);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      background: rgba(0,0,0,0.75);
-      padding: 15px;
-    }
-
-    .messages {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
       padding: 10px;
     }
 
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     .message {
-      padding: 14px 16px;
-      border-radius: 20px;
+      padding: 12px 16px;
+      border-radius: 18px;
       max-width: 75%;
-      font-size: 17px;
+      font-size: 16px;
+      line-height: 1.6;
       position: relative;
       word-wrap: break-word;
-      line-height: 1.5;
+      white-space: pre-wrap;
+      animation: fadeIn 0.3s ease;
     }
 
     .mine {
-      background: #007bff;
-      align-self: flex-start;
-      border-top-right-radius: 0;
+      align-self: flex-end;
+      background-color: #007bff;
+      border-bottom-left-radius: 0;
     }
 
     .other {
-      background: #444;
-      align-self: flex-end;
-      border-top-left-radius: 0;
+      align-self: flex-start;
+      background-color: #444;
+      border-bottom-right-radius: 0;
     }
 
     .message::after {
@@ -63,95 +64,108 @@
       font-size: 11px;
       position: absolute;
       bottom: -16px;
-      left: 15px;
-      color: #bbb;
+      left: 10px;
+      color: #ccc;
     }
 
-    .input-box {
+    .input-area {
       display: flex;
-      align-items: center;
+      padding: 10px;
       background: #111;
-      padding: 12px;
-      border-radius: 18px;
+      border-radius: 12px;
       gap: 10px;
+      align-items: center;
     }
 
     textarea {
       flex: 1;
-      border: none;
-      border-radius: 10px;
-      padding: 12px;
       resize: none;
+      padding: 12px;
       font-size: 16px;
+      border-radius: 10px;
+      border: none;
       background: #000;
       color: white;
     }
 
     button {
       border: none;
-      background: #28a745;
+      background-color: #28a745;
       color: white;
-      padding: 14px;
+      font-size: 22px;
+      padding: 12px;
       border-radius: 50%;
-      font-size: 20px;
       cursor: pointer;
     }
 
     button:active {
       transform: scale(0.95);
     }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="chat-container">
-    <div class="messages" id="messages"></div>
+  <div class="overlay">
+    <div class="chat-box" id="messages"></div>
 
-    <div class="input-box">
+    <div class="input-area">
       <button id="sendBtn">➤</button>
       <textarea id="msgInput" rows="1" placeholder="اكتب رسالتك..."></textarea>
     </div>
   </div>
 
   <script>
-    const messagesDiv = document.getElementById("messages");
-    const msgInput = document.getElementById("msgInput");
-    const sendBtn = document.getElementById("sendBtn");
+    const messagesDiv = document.getElementById('messages');
+    const msgInput = document.getElementById('msgInput');
+    const sendBtn = document.getElementById('sendBtn');
 
-    const userId = localStorage.getItem("chatUserId") || crypto.randomUUID();
-    localStorage.setItem("chatUserId", userId);
+    // لكل جهاز ID فريد
+    const userId = localStorage.getItem("userId") || crypto.randomUUID();
+    localStorage.setItem("userId", userId);
 
-    const loadMessages = () => JSON.parse(localStorage.getItem("chatMessages") || "[]");
-    const saveMessages = msgs => localStorage.setItem("chatMessages", JSON.stringify(msgs));
+    const saveMessages = msgs => localStorage.setItem("chat", JSON.stringify(msgs));
+    const loadMessages = () => JSON.parse(localStorage.getItem("chat") || "[]");
 
-    const renderMessages = () => {
+    function renderMessages() {
       const msgs = loadMessages();
-      messagesDiv.innerHTML = "";
+      messagesDiv.innerHTML = '';
       msgs.forEach(msg => {
-        const el = document.createElement("div");
-        el.className = "message " + (msg.user === userId ? "mine" : "other");
-        el.textContent = msg.text;
-        el.setAttribute("data-time", msg.time);
-        messagesDiv.appendChild(el);
+        const div = document.createElement('div');
+        div.className = 'message ' + (msg.user === userId ? 'mine' : 'other');
+        div.textContent = msg.text;
+        div.setAttribute('data-time', msg.time);
+        messagesDiv.appendChild(div);
       });
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    };
+    }
 
-    const addMessage = () => {
+    function sendMessage() {
       const text = msgInput.value.trim();
       if (!text) return;
       const msgs = loadMessages();
       const time = new Date().toLocaleTimeString("ar-EG", { hour: '2-digit', minute: '2-digit' });
       msgs.push({ text, time, user: userId });
       saveMessages(msgs);
-      msgInput.value = "";
+      msgInput.value = '';
       renderMessages();
-    };
+    }
 
-    sendBtn.onclick = addMessage;
+    sendBtn.onclick = sendMessage;
+
     msgInput.onkeydown = e => {
-      if (e.key === "Enter" && !e.shiftKey) {
+      if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        addMessage();
+        sendMessage();
       }
     };
 
