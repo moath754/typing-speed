@@ -2,13 +2,9 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>🔥 شاتك الملكي</title>
+  <title>🚨 دردشة محترمة</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
       font-family: 'Cairo', sans-serif;
@@ -18,7 +14,7 @@
       color: white;
     }
 
-    .wrapper {
+    .container {
       background: rgba(0,0,0,0.75);
       min-height: 100vh;
       display: flex;
@@ -41,20 +37,19 @@
       max-width: 80%;
       font-size: 16px;
       line-height: 1.6;
-      position: relative;
       word-wrap: break-word;
       white-space: pre-wrap;
       animation: fadeIn 0.2s ease;
     }
 
-    .from-me {
+    .mine {
       background-color: #007bff;
       align-self: flex-end;
       border-bottom-left-radius: 0;
       color: #fff;
     }
 
-    .from-them {
+    .other {
       background-color: #333;
       align-self: flex-start;
       border-bottom-right-radius: 0;
@@ -64,10 +59,9 @@
     .message::after {
       content: attr(data-time);
       font-size: 11px;
-      position: absolute;
-      bottom: -16px;
-      left: 12px;
-      color: #aaa;
+      display: block;
+      margin-top: 4px;
+      color: #ccc;
     }
 
     .input-area {
@@ -101,32 +95,38 @@
       cursor: pointer;
     }
 
-    button:active {
-      transform: scale(0.95);
-    }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    .warning {
+      color: red;
+      text-align: center;
+      margin: 8px;
+    }
   </style>
 </head>
 <body>
-  <div class="wrapper">
+  <div class="container">
     <div class="messages" id="messages"></div>
     <div class="input-area">
       <button id="sendBtn">➤</button>
-      <textarea id="msgInput" placeholder="اكتب رسالتك..."></textarea>
+      <textarea id="msgInput" placeholder="اكتب شي محترم..."></textarea>
     </div>
+    <div class="warning" id="warning"></div>
   </div>
 
   <script>
     const messagesDiv = document.getElementById('messages');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
+    const warningDiv = document.getElementById('warning');
 
     const userId = localStorage.getItem("userId") || crypto.randomUUID();
     localStorage.setItem("userId", userId);
+
+    const badWords = ["قحبة", "كلب", "زق", "قذر", "كس", "كسمك", "القحبه", "انيك", "متناك", "عاهره", "نيك", "fuck", "shit"];
 
     const loadMessages = () => JSON.parse(localStorage.getItem("chat") || "[]");
     const saveMessages = msgs => localStorage.setItem("chat", JSON.stringify(msgs));
@@ -136,7 +136,7 @@
       messagesDiv.innerHTML = '';
       msgs.forEach(msg => {
         const el = document.createElement('div');
-        el.className = 'message ' + (msg.user === userId ? 'from-me' : 'from-them');
+        el.className = 'message ' + (msg.user === userId ? 'mine' : 'other');
         el.textContent = msg.text;
         el.setAttribute('data-time', msg.time);
         messagesDiv.appendChild(el);
@@ -144,9 +144,21 @@
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     };
 
+    const containsBadWord = (text) => {
+      const lower = text.toLowerCase();
+      return badWords.some(bad => lower.includes(bad));
+    };
+
     const sendMessage = () => {
       const text = msgInput.value.trim();
       if (!text) return;
+
+      if (containsBadWord(text)) {
+        warningDiv.textContent = "🚫 ممنوع الكلام القذر!";
+        setTimeout(() => warningDiv.textContent = "", 2000);
+        return;
+      }
+
       const msgs = loadMessages();
       const time = new Date().toLocaleTimeString("ar-EG", { hour: '2-digit', minute: '2-digit' });
       msgs.push({ text, time, user: userId });
