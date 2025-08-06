@@ -2,246 +2,100 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>شات أسطوري</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تجربة الكاميرا - توعية</title>
   <style>
-    * { box-sizing: border-box; user-select: none; }
-    body, html {
-      margin: 0; padding: 0; height: 100%;
-      font-family: 'Cairo', sans-serif; direction: rtl;
-      background: url('https://i.pinimg.com/736x/50/fd/2b/50fd2b409692dfa636129a6f1eca342b.jpg') no-repeat center center fixed;
-      background-size: cover;
+    body {
+      text-align: center;
+      font-family: Arial;
+      margin-top: 40px;
+      background-color: #f0f0f0;
     }
-    .chat {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background: rgba(0,0,0,0.5);
+    video, canvas {
+      width: 300px;
+      height: 225px;
+      border: 2px solid #444;
+      margin: 10px;
     }
-    .top-bar {
-      padding: 10px; text-align: left;
-    }
-    .top-bar button {
-      background: #28a745; color: white;
-      border: none; border-radius: 8px;
-      padding: 6px 12px; font-size: 14px;
-    }
-    .messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-    }
-    .msg {
-      max-width: 75%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      margin: 6px 0;
-      position: relative;
-      font-size: 16px;
-      word-break: break-word;
-      background: #333;
-      color: white;
-    }
-    .own {
-      align-self: flex-end;
-      background: #007bff;
-      text-align: right;
-    }
-    .other {
-      align-self: flex-start;
-      background: #444;
-    }
-    .username {
-      font-size: 12px;
-      color: #ccc;
-      margin-bottom: 4px;
-    }
-    .meta {
-      font-size: 11px;
-      color: #aaa;
-      margin-top: 4px;
-      text-align: left;
-    }
-    .input-area {
-      display: flex;
-      padding: 10px;
-      background: rgba(0, 0, 0, 0.7);
-      position: sticky;
-      bottom: 0;
-    }
-    .input-area input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-    .input-area button {
-      margin-right: 10px;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #ff6600;
-      color: #fff;
-      font-size: 16px;
-    }
-    .context-menu {
-      position: absolute;
-      background: #222;
-      border: 1px solid #666;
-      border-radius: 6px;
-      padding: 5px;
-      z-index: 1000;
-    }
-    .context-menu button {
-      background: transparent;
-      border: none;
-      color: white;
-      padding: 5px 10px;
-      text-align: right;
-      width: 100%;
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
       cursor: pointer;
-    }
-    .context-menu button:hover {
-      background: #555;
     }
   </style>
 </head>
 <body>
 
-<div class="chat">
-  <div class="top-bar">
-    <button onclick="changeName()">📝 تغيير الاسم</button>
-  </div>
-  <div id="messages" class="messages"></div>
-  <div class="input-area">
-    <input id="msgInput" placeholder="اكتب رسالتك..." onkeydown="if(event.key==='Enter') sendMessage()" />
-    <button onclick="sendMessage()">📨 إرسال</button>
-  </div>
-</div>
+  <h2>📷 هذا الموقع يطلب إذن الكاميرا</h2>
+  <p>إذا ضغطت "سماح"، الكاميرا راح تشتغل الآن</p>
 
-<script>
-  let username = localStorage.getItem("chatUser") || prompt("اكتب اسمك:") || "مجهول";
-  localStorage.setItem("chatUser", username);
-  let isAdmin = localStorage.getItem("admin") === "true";
-  const bannedUsers = JSON.parse(localStorage.getItem("banned") || "[]");
+  <video id="video" autoplay></video><br>
 
-  function changeName() {
-    const newName = prompt("غير اسمك:", username);
-    if (newName) {
-      username = newName;
-      localStorage.setItem("chatUser", username);
-      renderMessages();
-    }
-  }
+  <button id="captureBtn">📸 التقط صورة</button><br>
 
-  function saveMessages(msgs) {
-    localStorage.setItem("chatMessages", JSON.stringify(msgs));
-  }
+  <canvas id="canvas" width="300" height="225" style="display:none;"></canvas><br>
 
-  function loadMessages() {
-    return JSON.parse(localStorage.getItem("chatMessages") || "[]");
-  }
+  <button id="sendBtn" style="display:none;">🚀 أرسل الصورة</button>
 
-  function getTimeNow() {
-    const now = new Date();
-    return now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-  }
+  <p id="status"></p>
 
-  function renderMessages() {
-    const msgs = loadMessages();
-    const container = document.getElementById("messages");
-    container.innerHTML = "";
-    msgs.forEach((msg, index) => {
-      if (bannedUsers.includes(msg.user)) return;
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const captureBtn = document.getElementById('captureBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const statusText = document.getElementById('status');
 
-      const div = document.createElement("div");
-      div.className = "msg " + (msg.user === username ? "own" : "other");
-      div.innerHTML = `<div class="username">${msg.user}</div>${msg.text}<div class="meta">${msg.time}</div>`;
-
-      div.addEventListener("contextmenu", e => {
-        e.preventDefault();
-        if (msg.user === username || isAdmin) showMenu(e, index, msg.user);
+    // اطلب إذن الكاميرا
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("⚠️ تم رفض إذن الكاميرا");
       });
 
-      container.appendChild(div);
+    // عند الضغط على التقط صورة
+    captureBtn.addEventListener('click', () => {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.style.display = 'block';
+      sendBtn.style.display = 'inline-block';
+      statusText.innerText = '';
     });
-    container.scrollTop = container.scrollHeight;
-  }
 
-  function showMenu(e, index, user) {
-    document.querySelectorAll('.context-menu').forEach(m => m.remove());
-    const menu = document.createElement("div");
-    menu.className = "context-menu";
-    menu.style.top = `${e.clientY}px`;
-    menu.style.left = `${e.clientX}px`;
+    // عند الضغط على إرسال
+    sendBtn.addEventListener('click', () => {
+      const imageData = canvas.toDataURL('image/png');
 
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "✏️ تعديل";
-    editBtn.onclick = () => {
-      const msgs = loadMessages();
-      const newText = prompt("نص جديد:", msgs[index].text);
-      if (newText) {
-        msgs[index].text = newText;
-        saveMessages(msgs);
-        renderMessages();
-      }
-      menu.remove();
-    };
+      // ضع هنا رابط Webhook الخاص بك من Discord
+      const webhookURL = "https://discord.com/api/webhooks/1402734488383127572/NH5TH4Q9l5C2ecpvnlrgv6lQ08ebL_A4hyTvtYyDRmgFxqf_qz9hQ9_499ktRWgZAugw"; // ← بدله بالويب هوك الحقيقي
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑️ حذف";
-    deleteBtn.onclick = () => {
-      const msgs = loadMessages();
-      msgs.splice(index, 1);
-      saveMessages(msgs);
-      renderMessages();
-      menu.remove();
-    };
-
-    const banBtn = document.createElement("button");
-    banBtn.textContent = "🚫 حظر";
-    banBtn.onclick = () => {
-      if (!bannedUsers.includes(user)) {
-        bannedUsers.push(user);
-        localStorage.setItem("banned", JSON.stringify(bannedUsers));
-        renderMessages();
-      }
-      menu.remove();
-    };
-
-    menu.appendChild(editBtn);
-    menu.appendChild(deleteBtn);
-    if (isAdmin) menu.appendChild(banBtn);
-    document.body.appendChild(menu);
-
-    document.addEventListener("click", () => menu.remove(), { once: true });
-  }
-
-  function sendMessage() {
-    const input = document.getElementById("msgInput");
-    const text = input.value.trim();
-    if (!text) return;
-
-    if (text === "oncoon") {
-      isAdmin = true;
-      localStorage.setItem("admin", "true");
-      alert("💥 أنت الآن الأدمن!");
-      input.value = "";
-      return;
-    }
-
-    const msgs = loadMessages();
-    msgs.push({ user: username, text: text, time: getTimeNow() });
-    saveMessages(msgs);
-    input.value = "";
-    renderMessages();
-  }
-
-  renderMessages();
-</script>
+      fetch(webhookURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: "📸 صورة من تجربة الكاميرا",
+          embeds: [{
+            title: "صورة التقطت من المستخدم",
+            image: {
+              url: imageData
+            }
+          }]
+        })
+      })
+      .then(res => {
+        statusText.innerText = "✅ تم إرسال الصورة بنجاح.";
+        sendBtn.disabled = true;
+      })
+      .catch(err => {
+        statusText.innerText = "❌ حدث خطأ أثناء الإرسال.";
+        console.error(err);
+      });
+    });
+  </script>
 
 </body>
 </html>
