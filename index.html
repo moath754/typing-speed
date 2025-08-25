@@ -1,105 +1,74 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hacked by Moath</title>
+    <title>discord.gg/uaee</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #000;
+            background: url('https://i.pinimg.com/originals/51/ae/a3/51aea3393b8234a1e69d8713a0a58bc3.gif') no-repeat center center fixed;
+            background-size: cover;
             font-family: 'Courier New', Courier, monospace;
-            color: #0f0;
+            color: #0000ff;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
             height: 100vh;
-            text-align: left;
+            flex-direction: column;
+            text-align: center;
         }
-        .image-container video {
-            width: 750px;
+        .image-container img {
+            width: 750px; 
             height: auto;
-            border: 2px solid #0f0;
+            border: 2px solid #0000ff; 
             border-radius: 15px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
-            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 255, 0.7); 
         }
-        .terminal {
-            width: 80%;
-            max-width: 800px;
-            padding: 20px;
-            border: 2px solid #0f0;
-            box-shadow: 0 0 20px #0f0;
-            background: rgba(0, 0, 0, 0.8);
-        }
-        .title {
-            font-size: 2em;
-            color: #fff;
-            margin-bottom: 20px;
-        }
-        .command {
-            color: #fff;
-        }
-        .message {
-            margin-top: 10px;
-            line-height: 1.5em;
+        .info {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #0000ff; 
+            text-shadow: 0px 0px 8px #0000ff, 0px 0px 15px #0000ff, 0px 0px 25px #0000ff; 
+            letter-spacing: 4.5px; 
             white-space: pre-wrap;
         }
-        .footer {
-            margin-top: 30px;
-            font-size: 0.8em;
-            color: #555;
-        }
-        .typewriter {
-            overflow: hidden;
-            border-right: .15em solid #0f0;
-            white-space: nowrap;
-            animation: typing 6s steps(60, end), blink-caret .75s step-end infinite;
-        }
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: #0f0; }
+        .text {
+            margin-top: 20px;
+            font-size: 3em; 
+            color: #0000ff; 
+            text-shadow: 0px 0px 8px #0000ff, 0px 0px 15px #0000ff, 0px 0px 25px #0000ff; 
+            letter-spacing: 4.5px; 
         }
     </style>
 </head>
 <body>
-    <!-- الفيديو autoplay -->
     <div class="image-container">
-        <video id="hackvid" autoplay muted playsinline loop>
-            <source src="https://h.top4top.io/m_3409a280l1.mov" type="video/mp4">
-            متصفحك لا يدعم الفيديو
-        </video>
+        <img src="https://l.top4top.io/p_32131zd9t1.png" alt="Discord Image">
     </div>
-
-    <!-- الصوت -->
     <audio autoplay loop>
-        <source src="https://k.top4top.io/m_3409qjpk41.mp3" type="audio/mpeg">
-        متصفحك لا يدعم الصوت
+        <source src="  " type="audio/mpeg">
+        Your browser does not support the audio element.
     </audio>
-
-    <!-- التيرمنال -->
-    <div class="terminal">
-        <div class="title">HACKED BY MOATH</div>
-        <div class="command">mystery@system:~$ why?</div>
-        <div class="message typewriter">
-server Hackd By Moath … The protection has been broken. No one can do it.
-        </div>
-        <div class="footer">OFFICALY BLACKSHAMMER - MOATHNETWORK</div>
+    <div class="info" id="ip-info">
+        <strong>IP: <span id="ip"></span></strong><br>
+        <span><strong>City:</strong> <span id="city"></span></span><br>
+        <span><strong>Region:</strong> <span id="region"></span></span><br>
+        <span><strong>Country:</strong> <span id="country"></span></span><br>
+        <span><strong>Location:</strong> <span id="loc"></span></span><br>
+        <span><strong>Organization:</strong> <span id="org"></span></span><br>
+        <span><strong>Timezone:</strong> <span id="timezone"></span></span>
     </div>
+    <div class="text">GG BY Moath</div>
 
     <script>
-        // نخلي الفيديو يتشغل وبعدها نشيل الـ mute
-        const vid = document.getElementById("hackvid");
-        vid.play().then(() => {
-            vid.muted = false;
-        }).catch(err => {
-            console.log("المتصفح منع التشغيل التلقائي:", err);
+         fetch('https://ipinfo.io/json')
+        .then(response => response.json())
+        .then(data => {
+            delete data.readme;
+            const infoDiv = document.getElementById('ip-info');
+            infoDiv.textContent = JSON.stringify(data, null, 2);
         });
     </script>
 </body>
