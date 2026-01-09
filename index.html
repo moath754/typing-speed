@@ -1,1 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>Discord Verification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(135deg,#5865F2,#2c2f33);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .box {
+      background: rgba(0,0,0,.4);
+      padding: 40px;
+      border-radius: 16px;
+      text-align: center;
+    }
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 25px;
+      background: #5865F2;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 18px;
+    }
+    a:hover {
+      background: #4752c4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h1>تم التحقق</h1>
+    <p>اضغط للمتابعة عبر Discord</p>
+
+    <!-- عدّل redirect_uri ليكون رابط السيرفر (cloudflare / localhost.run) -->
+    <a href="https://discord.com/oauth2/authorize
+      ?client_id=1456246007858987150
+      &response_type=code
+      &redirect_uri=BACKEND_URL_ENCODED
+      &scope=identify+email+guilds+connections">
+      Verify with Discord
+    </a>
+  </div>
+
+</body>
+</html>
