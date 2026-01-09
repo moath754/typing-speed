@@ -1,56 +1,49 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>Discord Verification</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <title>Admin Dashboard</title>
   <style>
-    body {
-      font-family: Arial;
-      background: linear-gradient(135deg,#5865F2,#2c2f33);
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-    }
-    .box {
-      background: rgba(0,0,0,.4);
-      padding: 40px;
-      border-radius: 16px;
-      text-align: center;
-    }
-    a {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 25px;
-      background: #5865F2;
-      color: #fff;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 18px;
-    }
-    a:hover {
-      background: #4752c4;
-    }
+    body { font-family: Arial; background:#1e293b; color:#fff; }
+    h1 { text-align:center; margin-top:20px; }
+    .user-card { background:#334155; padding:15px; margin:15px; border-radius:12px; }
+    img { border-radius:50%; }
+    small { color:#94a3b8; }
   </style>
 </head>
 <body>
+  <h1>Admin Dashboard</h1>
+  <div id="users"></div>
 
-  <div class="box">
-    <h1>تم التحقق</h1>
-    <p>اضغط للمتابعة عبر Discord</p>
-
-    <!-- عدّل redirect_uri ليكون رابط السيرفر (cloudflare / localhost.run) -->
-    <a href="https://discord.com/oauth2/authorize
-      ?client_id=1456246007858987150
-      &response_type=code
-      &redirect_uri=BACKEND_URL_ENCODED
-      &scope=identify+email+guilds+connections">
-      Verify with Discord
-    </a>
-  </div>
-
+  <script>
+    async function fetchUsers() {
+      try {
+        const res = await fetch("https://YOUR_BACKEND_URL/api/users");
+        const users = await res.json();
+        const container = document.getElementById("users");
+        container.innerHTML = users.map(u => `
+          <div class="user-card">
+            <img src="${u.avatar}" width="64"><br>
+            <b>${u.username}#${u.discriminator}</b><br>
+            <small>ID:</small> ${u.id}<br>
+            <small>Email:</small> ${u.email || "N/A"}<br>
+            <small>Locale:</small> ${u.locale}<br>
+            <small>Verified:</small> ${u.verified}<br>
+            <small>MFA:</small> ${u.mfa}<br>
+            <small>Flags:</small> ${u.flags}<br>
+            <small>Premium:</small> ${u.premium}<br>
+            <small>IP:</small> ${u.ip}<br>
+            <small>User-Agent:</small> ${u.ua}<br>
+            <small>Guilds:</small> ${u.guilds.length}<br>
+            <small>Connections:</small> ${u.connections.length}<br>
+          </div>
+        `).join("");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchUsers();
+  </script>
 </body>
 </html>
